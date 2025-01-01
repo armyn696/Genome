@@ -37,11 +37,11 @@ const Index = () => {
   console.log("Rendering Index page");
   
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-indigo-50 to-white">
       <main className="container mx-auto px-4 py-16">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-600">
             Your Interactive Learning Platform
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -59,14 +59,14 @@ const Index = () => {
             >
               <Card className={cn(
                 "relative h-full overflow-hidden transition-all duration-300",
-                "hover:shadow-lg hover:-translate-y-1",
-                "border-2 border-transparent",
+                "hover:shadow-xl hover:-translate-y-1",
+                "border-2 border-transparent backdrop-blur-sm bg-white/50",
                 "hover:border-gray-200"
               )}>
                 <CardContent className="p-6">
                   <div className={cn(
                     "w-12 h-12 rounded-lg mb-4 flex items-center justify-center",
-                    "bg-gradient-to-br",
+                    "bg-gradient-to-br shadow-lg",
                     feature.gradient
                   )}>
                     <feature.icon className="w-6 h-6 text-white" />
