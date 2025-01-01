@@ -1,12 +1,93 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { Brain, MessageSquare, BookOpen, GraduationCap } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+
+const features = [
+  {
+    title: "MindMap",
+    description: "Create and organize your study materials visually",
+    icon: Brain,
+    href: "/mindmap",
+    gradient: "from-purple-500 to-indigo-500",
+  },
+  {
+    title: "Chat with PDF",
+    description: "Ask questions and get answers from your study materials",
+    icon: MessageSquare,
+    href: "/chat",
+    gradient: "from-blue-500 to-cyan-500",
+  },
+  {
+    title: "FlashCard",
+    description: "Create and review flashcards for effective learning",
+    icon: BookOpen,
+    href: "/flashcards",
+    gradient: "from-emerald-500 to-teal-500",
+  },
+  {
+    title: "Quiz",
+    description: "Test your knowledge with interactive quizzes",
+    icon: GraduationCap,
+    href: "/quiz",
+    gradient: "from-orange-500 to-red-500",
+  },
+];
 
 const Index = () => {
+  console.log("Rendering Index page");
+  
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-white">
+      <main className="container mx-auto px-4 py-16">
+        {/* Hero Section */}
+        <div className="text-center mb-16">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            Your Interactive Learning Platform
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Enhance your learning experience with our suite of interactive study tools
+          </p>
+        </div>
+
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {features.map((feature) => (
+            <a
+              key={feature.title}
+              href={feature.href}
+              className="block group"
+            >
+              <Card className={cn(
+                "relative h-full overflow-hidden transition-all duration-300",
+                "hover:shadow-lg hover:-translate-y-1",
+                "border-2 border-transparent",
+                "hover:border-gray-200"
+              )}>
+                <CardContent className="p-6">
+                  <div className={cn(
+                    "w-12 h-12 rounded-lg mb-4 flex items-center justify-center",
+                    "bg-gradient-to-br",
+                    feature.gradient
+                  )}>
+                    <feature.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-600">
+                    {feature.description}
+                  </p>
+                </CardContent>
+                <div className={cn(
+                  "absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300",
+                  "bg-gradient-to-br",
+                  feature.gradient
+                )} />
+              </Card>
+            </a>
+          ))}
+        </div>
+      </main>
     </div>
   );
 };
