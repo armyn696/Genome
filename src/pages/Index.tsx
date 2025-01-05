@@ -47,6 +47,20 @@ const Index = () => {
       </div>
 
       <main className="container mx-auto px-4 py-16 relative">
+        {/* Logo */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="flex justify-center mb-8"
+        >
+          <img 
+            src="/lovable-uploads/f5d42817-6fe0-4216-bbce-598f42a41291.png" 
+            alt="Atom Logo" 
+            className="h-24 w-auto"
+          />
+        </motion.div>
+
         {/* Hero Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
