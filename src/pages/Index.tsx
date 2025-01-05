@@ -45,7 +45,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img 
-              src="/lovable-uploads/16b1e459-b9a1-485d-958c-7c72e3b0cc94.png" 
+              src="/lovable-uploads/91f667b0-83b5-4bfe-9318-d58898e35220.png" 
               alt="Logo" 
               className="h-12 w-auto"
             />
