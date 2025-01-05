@@ -41,13 +41,13 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background relative">
       {/* Top Banner */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-[#1A1F2C]/95 backdrop-blur-sm border-b border-white/10">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-[#070609] backdrop-blur-sm border-b border-white/10">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img 
-              src="/lovable-uploads/f5d42817-6fe0-4216-bbce-598f42a41291.png" 
+              src="/lovable-uploads/16b1e459-b9a1-485d-958c-7c72e3b0cc94.png" 
               alt="Logo" 
-              className="h-8 w-auto"
+              className="h-12 w-auto"
             />
           </div>
           <div className="flex items-center gap-4">
@@ -70,20 +70,6 @@ const Index = () => {
         </div>
 
         <main className="container mx-auto px-4 py-16 relative">
-          {/* Logo */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="flex justify-center mb-8"
-          >
-            <img 
-              src="/lovable-uploads/f5d42817-6fe0-4216-bbce-598f42a41291.png" 
-              alt="Atom Logo" 
-              className="h-24 w-auto"
-            />
-          </motion.div>
-
           {/* Hero Section */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
