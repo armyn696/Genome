@@ -36,13 +36,9 @@ const ResourceUploader = ({ onResourceAdded }: ResourceUploaderProps) => {
     }
 
     try {
-      // Read the file as ArrayBuffer
-      const arrayBuffer = await file.arrayBuffer();
-      // Convert ArrayBuffer to Blob
-      const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
-      // Create a URL for the blob
-      const fileUrl = URL.createObjectURL(blob);
-
+      // Create a blob URL for the file
+      const fileUrl = URL.createObjectURL(file);
+      
       const size = file.size < 1024 * 1024 
         ? `${(file.size / 1024).toFixed(2)} KB`
         : `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
@@ -78,28 +74,11 @@ const ResourceUploader = ({ onResourceAdded }: ResourceUploaderProps) => {
     }
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
     handleFileUpload(file);
-  };
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      handleFileUpload(file);
-    }
   };
 
   return (
@@ -109,12 +88,21 @@ const ResourceUploader = ({ onResourceAdded }: ResourceUploaderProps) => {
         id="pdf-upload"
         accept=".pdf"
         className="hidden"
-        onChange={handleInputChange}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleFileUpload(file);
+        }}
       />
 
       <div
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          setIsDragging(false);
+        }}
         onDrop={handleDrop}
         className="w-full"
       >
@@ -122,9 +110,8 @@ const ResourceUploader = ({ onResourceAdded }: ResourceUploaderProps) => {
           htmlFor="pdf-upload"
           className="block w-full cursor-pointer"
         >
-          <div
-            className={`w-full h-32 flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-lg
-              ${isDragging ? 'border-primary bg-primary/5' : 'hover:border-primary hover:bg-primary/5'}`}
+          <div className={`w-full h-32 flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-lg
+            ${isDragging ? 'border-primary bg-primary/5' : 'hover:border-primary hover:bg-primary/5'}`}
           >
             <Upload className="h-8 w-8 text-primary" />
             <span className="font-medium">Upload PDF</span>
