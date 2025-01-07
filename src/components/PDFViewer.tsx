@@ -22,10 +22,10 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
         <Tabs defaultValue="view-pdf" className="flex-1 flex flex-col">
           <div className="border-b flex items-center justify-between px-4">
             <TabsList className="w-full justify-start h-12">
-              <TabsTrigger value="notes">Notes</TabsTrigger>
-              <TabsTrigger value="view-pdf">View PDF</TabsTrigger>
-              <TabsTrigger value="transcript">Transcript</TabsTrigger>
-              <TabsTrigger value="dual-view">Dual View</TabsTrigger>
+              <TabsTrigger value="notes" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Notes</TabsTrigger>
+              <TabsTrigger value="view-pdf" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">View PDF</TabsTrigger>
+              <TabsTrigger value="transcript" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Transcript</TabsTrigger>
+              <TabsTrigger value="dual-view" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Dual View</TabsTrigger>
             </TabsList>
             <Button variant="ghost" size="icon" onClick={onClose}>
               <X className="h-4 w-4" />

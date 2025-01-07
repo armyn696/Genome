@@ -171,9 +171,11 @@ const StudyHub = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 pt-24">
+      <main className="container mx-auto px-4 pt-24 flex flex-col min-h-[calc(100vh-4rem)]">
         {selectedResourceId ? (
-          <PDFViewer resourceId={selectedResourceId} onClose={() => setSelectedResourceId(null)} />
+          <div className="flex-1 flex items-start justify-center">
+            <PDFViewer resourceId={selectedResourceId} onClose={() => setSelectedResourceId(null)} />
+          </div>
         ) : (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
