@@ -17,14 +17,21 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
 
   useEffect(() => {
     const baseWidth = 800;
-    // Adjust scale calculation to be more responsive from the start
-    const containerWidthPx = window.innerWidth * (containerWidth / 100);
-    const newScale = Math.max(0.5, Math.min(1, containerWidthPx / (baseWidth + 100)));
-    setScale(newScale);
+    const minScale = 0.4;  // حداقل مقیاس
+    const maxScale = 1.2;  // حداکثر مقیاس
+    const padding = 48;    // فاصله از لبه‌ها
+
+    // محاسبه عرض واقعی container
+    const containerWidthPx = window.innerWidth * (containerWidth / 100) - padding;
+    
+    // محاسبه مقیاس جدید با محدودیت‌های مشخص
+    const newScale = containerWidthPx / baseWidth;
+    const clampedScale = Math.min(Math.max(newScale, minScale), maxScale);
+    
+    setScale(clampedScale);
   }, [containerWidth]);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
-    console.log("PDF loaded successfully with", numPages, "pages");
     setNumPages(numPages);
     toast({
       title: "PDF loaded successfully",
@@ -50,12 +57,12 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
               file={pdfUrl}
               onLoadSuccess={onDocumentLoadSuccess}
               onLoadError={onDocumentLoadError}
-              className="flex flex-col items-center mx-auto"
+              className="flex flex-col items-center"
             >
               {Array.from(new Array(numPages || 0), (el, index) => (
                 <div 
                   key={`page_${index + 1}`} 
-                  className="mb-8 last:mb-0 flex justify-center"
+                  className="mb-8 last:mb-0 flex justify-center w-full"
                 >
                   <Page
                     pageNumber={index + 1}
