@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Background from "@/components/Background";
+import ResourceUploader from "@/components/ResourceUploader";
 
 const StudyHub = () => {
   console.log("Rendering StudyHub page");
@@ -18,7 +19,7 @@ const StudyHub = () => {
   ];
 
   const resourceTypes = [
-    { icon: FileText, label: "Upload Documents", description: "pdf, pptx, docx" },
+    { icon: FileText, label: "Upload Documents", description: "pdf, pptx, docx", component: <ResourceUploader /> },
     { icon: Mic, label: "Record Live Lecture" },
     { icon: Youtube, label: "YouTube Video" },
     { icon: FileAudio, label: "Upload Audio", description: "mp3, wav" },
@@ -97,22 +98,33 @@ const StudyHub = () => {
                         </p>
                       </DialogHeader>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {resourceTypes.map(({ icon: Icon, label, description }) => (
-                          <Button
-                            key={label}
-                            variant="outline"
-                            className="h-auto py-6 flex flex-col items-center gap-3 hover:bg-primary/10 hover:border-primary transition-colors"
-                          >
-                            <Icon className="h-8 w-8 text-primary" />
-                            <div className="text-center">
-                              <div className="font-semibold">{label}</div>
-                              {description && (
-                                <div className="text-xs text-muted-foreground mt-1">
-                                  {description}
+                        {resourceTypes.map(({ icon: Icon, label, description, component }) => (
+                          <Dialog key={label}>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className="h-auto py-6 flex flex-col items-center gap-3 hover:bg-primary/10 hover:border-primary transition-colors"
+                              >
+                                <Icon className="h-8 w-8 text-primary" />
+                                <div className="text-center">
+                                  <div className="font-semibold">{label}</div>
+                                  {description && (
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                      {description}
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                            </div>
-                          </Button>
+                              </Button>
+                            </DialogTrigger>
+                            {component && (
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>{label}</DialogTitle>
+                                </DialogHeader>
+                                {component}
+                              </DialogContent>
+                            )}
+                          </Dialog>
                         ))}
                       </div>
                     </DialogContent>
