@@ -36,7 +36,7 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
     <div className="h-[calc(100vh-12rem)] flex flex-col rounded-lg border bg-background/50 backdrop-blur-sm mt-4 mb-8">
       <ResizablePanelGroup 
         direction="horizontal" 
-        className="flex-1 w-full rounded-lg overflow-hidden"
+        className="flex-1 w-full rounded-lg"
         onLayout={(sizes) => {
           setLeftPanelSize(sizes[0]);
         }}
@@ -45,7 +45,6 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
           defaultSize={70} 
           minSize={30} 
           maxSize={80}
-          className="overflow-hidden"
         >
           <div className="flex flex-col h-full">
             <Tabs defaultValue="view-pdf" className="flex-1 flex flex-col h-full">
@@ -60,7 +59,7 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
                   <X className="h-4 w-4" />
                 </Button>
               </div>
-              <TabsContent value="view-pdf" className="flex-1 overflow-hidden">
+              <TabsContent value="view-pdf" className="flex-1">
                 <PDFContent pdfUrl={pdfUrl} containerWidth={leftPanelSize} />
               </TabsContent>
               <TabsContent value="notes">Notes content here</TabsContent>
@@ -76,7 +75,7 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
           defaultSize={30}
           minSize={20}
           maxSize={70}
-          className="overflow-hidden bg-sidebar"
+          className="bg-sidebar"
         >
           <PDFChat />
         </ResizablePanel>

@@ -49,7 +49,7 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
   return (
     <div className="h-full w-full relative bg-background">
       <ScrollArea className="h-full w-full">
-        <div className="flex flex-col items-center p-4 min-h-full">
+        <div className="flex flex-col items-center min-h-full">
           {pdfUrl ? (
             <Document
               file={pdfUrl}
@@ -60,7 +60,7 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
               {Array.from(new Array(numPages || 0), (el, index) => (
                 <div 
                   key={`page_${index + 1}`} 
-                  className="mb-4 last:mb-0 flex justify-center w-full"
+                  className="mb-4 last:mb-0 flex justify-center w-full px-4"
                 >
                   <Page
                     pageNumber={index + 1}
