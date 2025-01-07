@@ -16,8 +16,8 @@ const BackgroundScene = () => {
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 5]} intensity={1} />
       <mesh ref={meshRef}>
-        <sphereGeometry args={[1, 32, 32]} />
-        <meshStandardMaterial color="#9b87f5" opacity={0.8} transparent />
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial color="#9b87f5" />
       </mesh>
     </>
   );
