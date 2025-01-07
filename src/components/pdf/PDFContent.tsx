@@ -18,7 +18,7 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
   useEffect(() => {
     const baseWidth = 800;
     const containerWidthPx = window.innerWidth * (containerWidth / 100);
-    const newScale = Math.min(1, (containerWidthPx - 64) / baseWidth);
+    const newScale = Math.min(1, (containerWidthPx - 32) / baseWidth);
     setScale(newScale);
   }, [containerWidth]);
 
@@ -41,9 +41,9 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
   }
 
   return (
-    <div className="h-full w-full relative overflow-hidden">
+    <div className="h-full w-full relative">
       <ScrollArea className="h-full w-full">
-        <div className="flex flex-col items-center p-8 min-h-full">
+        <div className="flex flex-col items-center p-4 min-h-full">
           {pdfUrl ? (
             <Document
               file={pdfUrl}

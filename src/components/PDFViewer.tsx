@@ -45,7 +45,7 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
           defaultSize={70}
           minSize={30}
           maxSize={85}
-          className="relative overflow-hidden"
+          className="relative"
         >
           <div className="flex flex-col h-full">
             <Tabs defaultValue="view-pdf" className="flex-1 flex flex-col h-full">
@@ -60,7 +60,7 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
                   <X className="h-4 w-4" />
                 </Button>
               </div>
-              <TabsContent value="view-pdf" className="flex-1 overflow-hidden">
+              <TabsContent value="view-pdf" className="flex-1">
                 <PDFContent pdfUrl={pdfUrl} containerWidth={leftPanelSize} />
               </TabsContent>
               <TabsContent value="notes">Notes content here</TabsContent>
@@ -72,14 +72,14 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
 
         <ResizableHandle 
           withHandle 
-          className="z-50 bg-border hover:bg-primary/20 transition-colors"
+          className="z-10 bg-border hover:bg-primary/20 transition-colors"
         />
 
         <ResizablePanel 
           defaultSize={30}
           minSize={15}
           maxSize={70}
-          className="relative overflow-hidden"
+          className="relative"
         >
           <PDFChat />
         </ResizablePanel>
