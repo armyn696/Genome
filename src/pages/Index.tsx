@@ -1,4 +1,4 @@
-import { Brain, MessageSquare, BookOpen, GraduationCap } from "lucide-react";
+import { Brain, MessageSquare, BookOpen, GraduationCap, Menu } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -57,11 +57,18 @@ const Index = () => {
             <Button variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-500/10">
               Log out
             </Button>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="ml-2 text-purple-400 hover:bg-purple-500/10"
+            >
+              <Menu className="h-6 w-6" />
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Main Content with padding-top to account for fixed banner */}
+      {/* Main Content */}
       <div className="pt-16">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 left-10 w-64 h-64 bg-purple-500/10 rounded-full mix-blend-screen filter blur-xl opacity-70 animate-blob" />
