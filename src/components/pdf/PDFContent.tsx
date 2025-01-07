@@ -40,7 +40,7 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full w-full">
+    <div className="flex-1 flex flex-col h-full w-full bg-background">
       <ScrollArea className="flex-1 w-full">
         <div className="flex flex-col items-center py-6">
           {pdfUrl ? (
@@ -55,7 +55,7 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
                   key={`page_${index + 1}`} 
                   className="relative my-4 w-full max-w-5xl mx-auto px-4"
                 >
-                  <div className="relative shadow-lg rounded-lg overflow-hidden bg-white">
+                  <div className="relative shadow-lg overflow-hidden bg-white">
                     <Page
                       pageNumber={index + 1}
                       width={800 * scale}
