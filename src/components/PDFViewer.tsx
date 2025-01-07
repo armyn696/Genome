@@ -36,7 +36,7 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
     <div className="h-[calc(100vh-12rem)] flex flex-col rounded-lg border bg-background/50 backdrop-blur-sm mt-4 mb-8">
       <ResizablePanelGroup 
         direction="horizontal" 
-        className="flex-1 w-full rounded-lg overflow-hidden"
+        className="flex-1 w-full rounded-lg overflow-hidden relative"
         onLayout={(sizes) => {
           setLeftPanelSize(sizes[0]);
         }}
@@ -45,11 +45,11 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
           defaultSize={70}
           minSize={50}
           maxSize={80}
-          className="overflow-hidden"
+          className="overflow-hidden relative"
         >
           <div className="flex flex-col h-full">
             <Tabs defaultValue="view-pdf" className="flex-1 flex flex-col h-full">
-              <div className="border-b flex items-center justify-between px-4 bg-muted/50">
+              <div className="border-b flex items-center justify-between px-4 bg-muted/50 relative z-10">
                 <TabsList className="w-full justify-start h-14 bg-transparent">
                   <TabsTrigger value="notes">Notes</TabsTrigger>
                   <TabsTrigger value="view-pdf">View PDF</TabsTrigger>
@@ -60,8 +60,10 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
                   <X className="h-4 w-4" />
                 </Button>
               </div>
-              <TabsContent value="view-pdf" className="flex-1 overflow-hidden">
-                <PDFContent pdfUrl={pdfUrl} containerWidth={leftPanelSize} />
+              <TabsContent value="view-pdf" className="flex-1 overflow-hidden relative">
+                <div className="absolute inset-0 z-0">
+                  <PDFContent pdfUrl={pdfUrl} containerWidth={leftPanelSize} />
+                </div>
               </TabsContent>
               <TabsContent value="notes">Notes content here</TabsContent>
               <TabsContent value="transcript">Transcript content here</TabsContent>
@@ -70,15 +72,20 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
           </div>
         </ResizablePanel>
 
-        <ResizableHandle withHandle className="bg-border hover:bg-primary/20 transition-colors" />
+        <ResizableHandle 
+          withHandle 
+          className="bg-border hover:bg-primary/20 transition-colors relative z-20 w-2 mx-1"
+        />
 
         <ResizablePanel 
           defaultSize={30}
           minSize={20}
           maxSize={50}
-          className="overflow-hidden"
+          className="overflow-hidden relative"
         >
-          <PDFChat />
+          <div className="absolute inset-0 z-0">
+            <PDFChat />
+          </div>
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
