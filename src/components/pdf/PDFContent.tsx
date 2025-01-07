@@ -49,12 +49,12 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
               file={pdfUrl}
               onLoadSuccess={onDocumentLoadSuccess}
               onLoadError={onDocumentLoadError}
-              className="w-full max-w-4xl mx-auto"
+              className="w-full flex flex-col items-center"
             >
               {Array.from(new Array(numPages || 0), (el, index) => (
                 <div 
                   key={`page_${index + 1}`} 
-                  className="mb-8 last:mb-0 w-full flex justify-center"
+                  className="mb-8 last:mb-0 flex justify-center"
                 >
                   <Page
                     pageNumber={index + 1}
