@@ -16,11 +16,20 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const baseWidth = 800;
-    const containerWidthPx = window.innerWidth * (containerWidth / 100);
-    // Adjust scale calculation to be more linear and responsive
-    const newScale = containerWidthPx / baseWidth;
-    setScale(Math.min(Math.max(newScale, 0.3), 1.2));
+    const calculateScale = () => {
+      const baseWidth = 800;
+      const containerWidthPx = window.innerWidth * (containerWidth / 100);
+      const newScale = Math.min(Math.max(containerWidthPx / baseWidth, 0.5), 1.2);
+      setScale(newScale);
+    };
+
+    calculateScale();
+    
+    // Add resize event listener
+    window.addEventListener('resize', calculateScale);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', calculateScale);
   }, [containerWidth]);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
@@ -42,20 +51,21 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
   }
 
   return (
-    <div className="h-full w-full relative overflow-hidden">
-      <ScrollArea className="h-full absolute inset-0">
-        <div className="flex flex-col items-center p-6 min-h-full">
+    <div className="h-full w-full relative">
+      <ScrollArea className="h-full w-full">
+        <div className="flex flex-col items-center p-4 min-h-full">
           {pdfUrl ? (
             <Document
               file={pdfUrl}
               onLoadSuccess={onDocumentLoadSuccess}
               onLoadError={onDocumentLoadError}
-              className="flex flex-col items-center"
+              className="flex flex-col items-center w-full"
             >
               {Array.from(new Array(numPages || 0), (el, index) => (
                 <div 
                   key={`page_${index + 1}`} 
-                  className="mb-8 last:mb-0 flex justify-center"
+                  className="mb-4 last:mb-0 flex justify-center w-full"
+                  style={{ transition: 'width 0.1s ease-out' }}
                 >
                   <Page
                     pageNumber={index + 1}
