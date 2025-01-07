@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Upload } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import ResourceList from "./ResourceList";
+import { DialogClose } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface Resource {
   id: string;
@@ -11,8 +12,11 @@ interface Resource {
   uploadDate: string;
 }
 
-const ResourceUploader = () => {
-  const [resources, setResources] = useState<Resource[]>([]);
+interface ResourceUploaderProps {
+  onResourceAdded: (resource: Resource) => void;
+}
+
+const ResourceUploader = ({ onResourceAdded }: ResourceUploaderProps) => {
   const { toast } = useToast();
   const [isDragging, setIsDragging] = useState(false);
 
@@ -42,7 +46,7 @@ const ResourceUploader = () => {
       uploadDate: new Date().toLocaleDateString()
     };
 
-    setResources(prev => [...prev, newResource]);
+    onResourceAdded(newResource);
     console.log("Resource added:", newResource);
     
     toast({
@@ -106,7 +110,17 @@ const ResourceUploader = () => {
         </label>
       </div>
 
-      <ResourceList resources={resources} />
+      <DialogClose asChild>
+        <Button 
+          variant="outline" 
+          className="w-full"
+          onClick={() => {
+            // Close dialog after successful upload
+          }}
+        >
+          Done
+        </Button>
+      </DialogClose>
     </div>
   );
 };

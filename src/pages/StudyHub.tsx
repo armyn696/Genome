@@ -3,12 +3,23 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import Background from "@/components/Background";
 import ResourceUploader from "@/components/ResourceUploader";
+import ResourceList from "@/components/ResourceList";
+import { useState } from "react";
+
+interface Resource {
+  id: string;
+  name: string;
+  type: string;
+  size: string;
+  uploadDate: string;
+}
 
 const StudyHub = () => {
   console.log("Rendering StudyHub page");
+  const [resources, setResources] = useState<Resource[]>([]);
   
   const menuItems = [
     { icon: Home, label: "Home" },
@@ -18,8 +29,17 @@ const StudyHub = () => {
     { icon: BookOpen, label: "Quiz" },
   ];
 
+  const handleResourceAdded = (newResource: Resource) => {
+    setResources(prev => [...prev, newResource]);
+  };
+
   const resourceTypes = [
-    { icon: FileText, label: "Upload Documents", description: "pdf, pptx, docx", component: <ResourceUploader /> },
+    { 
+      icon: FileText, 
+      label: "Upload Documents", 
+      description: "pdf, pptx, docx", 
+      component: <ResourceUploader onResourceAdded={handleResourceAdded} /> 
+    },
     { icon: Mic, label: "Record Live Lecture" },
     { icon: Youtube, label: "YouTube Video" },
     { icon: FileAudio, label: "Upload Audio", description: "mp3, wav" },
@@ -71,13 +91,10 @@ const StudyHub = () => {
 
                 {/* Resources Section */}
                 <div className="space-y-2">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start gap-2 hover:bg-accent"
-                  >
-                    <BookOpen className="h-5 w-5 text-primary" />
-                    Your Resources
-                  </Button>
+                  <div className="space-y-4">
+                    <h3 className="font-semibold">Your Resources</h3>
+                    <ResourceList resources={resources} />
+                  </div>
                   
                   {/* Add Resource Button with Modal */}
                   <Dialog>
@@ -93,9 +110,9 @@ const StudyHub = () => {
                     <DialogContent className="sm:max-w-[800px] bg-background/95 backdrop-blur-sm">
                       <DialogHeader>
                         <DialogTitle className="text-2xl font-bold text-center mb-4">Add Material</DialogTitle>
-                        <p className="text-sm text-muted-foreground text-center mb-6">
+                        <DialogDescription className="text-center mb-6">
                           Material you add will be used to personalize StudyFetch with your class material, which can then be used to create flashcards, quizzes, tests, chat with an AI tutor, etc.
-                        </p>
+                        </DialogDescription>
                       </DialogHeader>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {resourceTypes.map(({ icon: Icon, label, description, component }) => (
