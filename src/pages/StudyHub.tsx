@@ -9,6 +9,14 @@ import ResourceList from "@/components/ResourceList";
 import ResourceUploader from "@/components/ResourceUploader";
 import { useState } from "react";
 
+interface Resource {
+  id: string;
+  name: string;
+  type: string;
+  size: string;
+  uploadDate: string;
+}
+
 const StudyHub = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   console.log("Rendering StudyHub page");
