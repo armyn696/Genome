@@ -47,6 +47,7 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
           defaultSize={70}
           minSize={30}
           maxSize={85}
+          className="focus-visible:outline-none focus-visible:ring-0"
         >
           <div className="flex flex-col h-full">
             <Tabs defaultValue="view-pdf" className="flex-1 flex flex-col h-full">
@@ -73,13 +74,14 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
 
         <ResizableHandle 
           withHandle 
-          className="z-10 bg-border hover:bg-primary/20 transition-colors"
+          className="bg-border hover:bg-primary/20 transition-colors"
         />
 
         <ResizablePanel 
           defaultSize={30}
           minSize={15}
           maxSize={70}
+          className="focus-visible:outline-none focus-visible:ring-0"
         >
           <PDFChat />
         </ResizablePanel>
