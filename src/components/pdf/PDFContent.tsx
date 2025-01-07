@@ -32,38 +32,40 @@ const PDFContent = ({ pdfUrl }: PDFContentProps) => {
   }
 
   return (
-    <ScrollArea className="h-full">
-      <div className="flex flex-col items-center p-6">
-        {pdfUrl ? (
-          <Document
-            file={pdfUrl}
-            onLoadSuccess={onDocumentLoadSuccess}
-            onLoadError={onDocumentLoadError}
-            className="max-w-4xl mx-auto"
-          >
-            {Array.from(new Array(numPages || 0), (el, index) => (
-              <div 
-                key={`page_${index + 1}`} 
-                className="mb-8 last:mb-0 w-full flex justify-center"
-              >
-                <Page
-                  pageNumber={index + 1}
-                  width={800}
-                  className="shadow-lg rounded-lg overflow-hidden bg-white"
-                  renderAnnotationLayer={false}
-                  renderTextLayer={false}
-                />
-              </div>
-            ))}
-          </Document>
-        ) : (
-          <div className="flex items-center justify-center h-full text-muted-foreground">
-            Loading PDF...
-          </div>
-        )}
-      </div>
-      <ScrollBar />
-    </ScrollArea>
+    <div className="h-full w-full relative overflow-hidden">
+      <ScrollArea className="h-full absolute inset-0">
+        <div className="flex flex-col items-center p-6 min-h-full">
+          {pdfUrl ? (
+            <Document
+              file={pdfUrl}
+              onLoadSuccess={onDocumentLoadSuccess}
+              onLoadError={onDocumentLoadError}
+              className="w-full max-w-4xl mx-auto"
+            >
+              {Array.from(new Array(numPages || 0), (el, index) => (
+                <div 
+                  key={`page_${index + 1}`} 
+                  className="mb-8 last:mb-0 w-full flex justify-center"
+                >
+                  <Page
+                    pageNumber={index + 1}
+                    width={800}
+                    className="shadow-lg rounded-lg overflow-hidden bg-white"
+                    renderAnnotationLayer={false}
+                    renderTextLayer={false}
+                  />
+                </div>
+              ))}
+            </Document>
+          ) : (
+            <div className="flex items-center justify-center h-full text-muted-foreground">
+              Loading PDF...
+            </div>
+          )}
+        </div>
+        <ScrollBar />
+      </ScrollArea>
+    </div>
   );
 };
 
