@@ -21,7 +21,7 @@ const Background = () => {
           particles.push({
             x: p.random(p.width),
             y: p.random(p.height),
-            speed: p.random(0.5, 2)
+            speed: p.random(0.25, 1) // Reduced speed range from (0.5, 2) to (0.25, 1)
           });
         }
       };
@@ -44,7 +44,7 @@ const Background = () => {
 
           // Enhanced mouse interaction
           const distToMouse = p.dist(particle.x, particle.y, mouseX, mouseY);
-          if (distToMouse < 150) { // Increased interaction radius
+          if (distToMouse < 150) {
             const angle = p.atan2(particle.y - mouseY, particle.x - mouseX);
             const force = p.map(distToMouse, 0, 150, 4, 0);
             particle.x += p.cos(angle) * force;

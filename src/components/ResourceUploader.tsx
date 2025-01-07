@@ -14,10 +14,9 @@ interface Resource {
 const ResourceUploader = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const { toast } = useToast();
+  const [isDragging, setIsDragging] = useState(false);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    
+  const handleFileUpload = (file: File) => {
     if (!file) return;
     
     if (file.type !== 'application/pdf') {
@@ -29,7 +28,6 @@ const ResourceUploader = () => {
       return;
     }
 
-    // Convert file size to readable format
     const size = file.size < 1024 * 1024 
       ? `${(file.size / 1024).toFixed(2)} KB`
       : `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
@@ -50,6 +48,34 @@ const ResourceUploader = () => {
     });
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    
+    const file = e.dataTransfer.files[0];
+    handleFileUpload(file);
+  };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Hidden file input */}
@@ -58,14 +84,20 @@ const ResourceUploader = () => {
         id="pdf-upload"
         accept=".pdf"
         className="hidden"
-        onChange={handleFileUpload}
+        onChange={handleInputChange}
       />
 
       {/* Upload button */}
-      <label htmlFor="pdf-upload">
+      <label 
+        htmlFor="pdf-upload"
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
         <Button
           variant="outline"
-          className="w-full h-32 flex flex-col items-center justify-center gap-2 border-dashed border-2 hover:border-primary hover:bg-primary/5"
+          className={`w-full h-32 flex flex-col items-center justify-center gap-2 border-dashed border-2 
+            ${isDragging ? 'border-primary bg-primary/5' : 'hover:border-primary hover:bg-primary/5'}`}
         >
           <Upload className="h-8 w-8 text-primary" />
           <span className="font-medium">Upload PDF</span>
