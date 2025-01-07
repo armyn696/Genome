@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { useState } from "react";
 
 const features = [
   {
@@ -36,8 +37,14 @@ const features = [
 ];
 
 const Index = () => {
-  console.log("Rendering Index page");
-  
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  console.log("Login state:", isLoggedIn);
+
+  const handleAuthClick = () => {
+    setIsLoggedIn(!isLoggedIn);
+    console.log("Auth state toggled:", !isLoggedIn);
+  };
+
   return (
     <div className="min-h-screen bg-background relative">
       {/* Top Banner */}
@@ -51,12 +58,23 @@ const Index = () => {
             />
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" className="text-white hover:text-purple-400 transition-colors">
-              Sign in
-            </Button>
-            <Button variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-500/10">
-              Log out
-            </Button>
+            {!isLoggedIn ? (
+              <Button 
+                variant="ghost" 
+                className="text-white hover:text-purple-400 transition-colors"
+                onClick={handleAuthClick}
+              >
+                Sign in
+              </Button>
+            ) : (
+              <Button 
+                variant="outline" 
+                className="border-purple-500 text-purple-400 hover:bg-purple-500/10"
+                onClick={handleAuthClick}
+              >
+                Log out
+              </Button>
+            )}
             <Button 
               variant="ghost" 
               size="icon"
