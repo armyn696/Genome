@@ -37,8 +37,16 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
 
   return (
     <div className="h-[calc(100vh-12rem)] flex rounded-lg border bg-background/50 backdrop-blur-sm mt-4 mb-8 overflow-hidden">
-      <ResizablePanelGroup direction="horizontal" className="w-full">
-        <ResizablePanel defaultSize={70} minSize={30}>
+      <ResizablePanelGroup 
+        direction="horizontal" 
+        className="w-full rounded-lg overflow-hidden"
+      >
+        <ResizablePanel 
+          defaultSize={70} 
+          minSize={30} 
+          maxSize={85}
+          className="transition-all duration-200"
+        >
           <div className="flex flex-col h-full">
             <Tabs defaultValue="view-pdf" className="flex-1 flex flex-col h-full">
               <div className="border-b flex items-center justify-between px-4 bg-muted/50">
@@ -72,9 +80,14 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
           </div>
         </ResizablePanel>
 
-        <ResizableHandle withHandle />
+        <ResizableHandle withHandle className="bg-border/50 hover:bg-border transition-colors" />
 
-        <ResizablePanel defaultSize={30} minSize={20}>
+        <ResizablePanel 
+          defaultSize={30} 
+          minSize={15} 
+          maxSize={70}
+          className="transition-all duration-200"
+        >
           <PDFChat />
         </ResizablePanel>
       </ResizablePanelGroup>
