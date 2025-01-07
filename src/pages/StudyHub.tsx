@@ -1,0 +1,67 @@
+import { Menu } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+
+const StudyHub = () => {
+  console.log("Rendering StudyHub page");
+  
+  return (
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Animated Background Blobs */}
+      <div className="fixed inset-0 overflow-hidden -z-10">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full mix-blend-multiply filter blur-xl animate-blob" />
+        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-indigo-500/20 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000" />
+        <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-pink-500/20 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000" />
+      </div>
+
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          {/* Dashboard Menu Button */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="hover:bg-accent">
+                <Menu className="h-6 w-6 text-primary" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[300px] bg-background/95 backdrop-blur-sm">
+              <nav className="flex flex-col gap-4">
+                <h2 className="text-2xl font-bold text-primary">Dashboard</h2>
+                {/* We'll add more dashboard content later */}
+              </nav>
+            </SheetContent>
+          </Sheet>
+
+          {/* Logo */}
+          <div className="flex items-center gap-2">
+            <img 
+              src="/lovable-uploads/91f667b0-83b5-4bfe-9318-d58898e35220.png" 
+              alt="Logo" 
+              className="h-12 w-auto"
+            />
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 pt-24">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center"
+        >
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
+            Your Study Hub
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Organize your study materials and enhance your learning experience
+          </p>
+        </motion.div>
+      </main>
+    </div>
+  );
+};
+
+export default StudyHub;
