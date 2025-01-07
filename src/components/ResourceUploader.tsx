@@ -98,16 +98,14 @@ const ResourceUploader = () => {
           htmlFor="pdf-upload"
           className="block w-full cursor-pointer"
         >
-          <Button
-            variant="outline"
-            className={`w-full h-32 flex flex-col items-center justify-center gap-2 border-dashed border-2 
+          <div
+            className={`w-full h-32 flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-lg
               ${isDragging ? 'border-primary bg-primary/5' : 'hover:border-primary hover:bg-primary/5'}`}
-            type="button"
           >
             <Upload className="h-8 w-8 text-primary" />
             <span className="font-medium">Upload PDF</span>
             <span className="text-sm text-muted-foreground">Drag and drop or click to upload</span>
-          </Button>
+          </div>
         </label>
       </div>
 
