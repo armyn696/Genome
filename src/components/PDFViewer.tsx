@@ -33,47 +33,39 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
   }, [resourceId]);
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col bg-background">
+    <div className="h-[calc(100vh-12rem)] flex flex-col rounded-lg border bg-background/50 backdrop-blur-sm mt-4 mb-8">
       <ResizablePanelGroup 
         direction="horizontal" 
-        className="flex-1 h-full"
+        className="flex-1 w-full rounded-lg overflow-hidden"
+        onLayout={(sizes) => {
+          setLeftPanelSize(sizes[0]);
+        }}
       >
         <ResizablePanel 
           defaultSize={70}
           minSize={30}
           maxSize={80}
+          className="overflow-hidden"
         >
           <div className="flex flex-col h-full">
-            <Tabs defaultValue="view-pdf" className="flex-1">
-              <div className="sticky top-0 z-10 bg-background border-b">
-                <div className="flex items-center justify-between px-3">
-                  <TabsList className="h-12">
-                    <TabsTrigger value="notes" className="text-sm">Notes</TabsTrigger>
-                    <TabsTrigger value="view-pdf" className="text-sm">View PDF</TabsTrigger>
-                    <TabsTrigger value="transcript" className="text-sm">Transcript</TabsTrigger>
-                    <TabsTrigger value="dual-view" className="text-sm">Dual View</TabsTrigger>
-                  </TabsList>
-                  <Button variant="ghost" size="icon" onClick={onClose}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
+            <Tabs defaultValue="view-pdf" className="flex-1 flex flex-col h-full">
+              <div className="border-b flex items-center justify-between px-4 bg-muted/50">
+                <TabsList className="w-full justify-start h-14 bg-transparent">
+                  <TabsTrigger value="notes">Notes</TabsTrigger>
+                  <TabsTrigger value="view-pdf">View PDF</TabsTrigger>
+                  <TabsTrigger value="transcript">Transcript</TabsTrigger>
+                  <TabsTrigger value="dual-view">Dual View</TabsTrigger>
+                </TabsList>
+                <Button variant="ghost" size="icon" onClick={onClose} className="ml-2">
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
-
-              <TabsContent 
-                value="view-pdf" 
-                className="flex-1 h-[calc(100%-3rem)] mt-0 relative"
-              >
+              <TabsContent value="view-pdf" className="flex-1 overflow-hidden">
                 <PDFContent pdfUrl={pdfUrl} containerWidth={leftPanelSize} />
               </TabsContent>
-              <TabsContent value="notes" className="mt-0">
-                Notes content here
-              </TabsContent>
-              <TabsContent value="transcript" className="mt-0">
-                Transcript content here
-              </TabsContent>
-              <TabsContent value="dual-view" className="mt-0">
-                Dual view content here
-              </TabsContent>
+              <TabsContent value="notes">Notes content here</TabsContent>
+              <TabsContent value="transcript">Transcript content here</TabsContent>
+              <TabsContent value="dual-view">Dual view content here</TabsContent>
             </Tabs>
           </div>
         </ResizablePanel>
@@ -84,6 +76,7 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
           defaultSize={30}
           minSize={20}
           maxSize={70}
+          className="overflow-hidden"
         >
           <PDFChat />
         </ResizablePanel>

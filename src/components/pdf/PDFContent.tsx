@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Document, Page, pdfjs } from 'react-pdf';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
@@ -14,16 +14,17 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [scale, setScale] = useState(1);
   const { toast } = useToast();
-  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const baseWidth = 800;
     const containerWidthPx = window.innerWidth * (containerWidth / 100);
+    // Adjust scale calculation to be more linear and responsive
     const newScale = containerWidthPx / baseWidth;
     setScale(Math.min(Math.max(newScale, 0.3), 1.2));
   }, [containerWidth]);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
+    console.log("PDF loaded successfully with", numPages, "pages");
     setNumPages(numPages);
     toast({
       title: "PDF loaded successfully",
@@ -41,29 +42,25 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full w-full relative overflow-hidden" ref={containerRef}>
-      <ScrollArea className="flex-1 w-full h-full">
-        <div className="flex flex-col items-center">
+    <div className="h-full w-full relative overflow-hidden">
+      <ScrollArea className="h-full absolute inset-0">
+        <div className="flex flex-col items-center p-6 min-h-full">
           {pdfUrl ? (
             <Document
               file={pdfUrl}
               onLoadSuccess={onDocumentLoadSuccess}
               onLoadError={onDocumentLoadError}
-              className="flex flex-col items-center w-full"
+              className="flex flex-col items-center"
             >
               {Array.from(new Array(numPages || 0), (el, index) => (
                 <div 
                   key={`page_${index + 1}`} 
-                  className="relative my-4 bg-white border border-gray-200 shadow-sm"
-                  style={{
-                    width: `${100 * scale}%`,
-                    maxWidth: '100%'
-                  }}
+                  className="mb-8 last:mb-0 flex justify-center"
                 >
                   <Page
                     pageNumber={index + 1}
                     width={800 * scale}
-                    className="w-full h-auto"
+                    className="shadow-lg rounded-lg overflow-hidden bg-white"
                     renderAnnotationLayer={false}
                     renderTextLayer={false}
                   />
