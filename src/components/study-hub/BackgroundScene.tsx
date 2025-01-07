@@ -9,16 +9,26 @@ const BackgroundScene = () => {
   const particles = useMemo(() => {
     const particleCount = 2000;
     const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
+    const color = new THREE.Color("#9b87f5");
     
     for (let i = 0; i < particleCount; i++) {
       positions[i * 3] = (Math.random() - 0.5) * 10;     // x
       positions[i * 3 + 1] = (Math.random() - 0.5) * 10; // y
       positions[i * 3 + 2] = (Math.random() - 0.5) * 10; // z
+
+      colors[i * 3] = color.r;     // r
+      colors[i * 3 + 1] = color.g; // g
+      colors[i * 3 + 2] = color.b; // b
     }
 
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
     return {
-      positions,
-      count: particleCount
+      geometry,
+      particleCount
     };
   }, []);
 
@@ -35,21 +45,14 @@ const BackgroundScene = () => {
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 5]} intensity={1} />
       <points ref={pointsRef}>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            count={particles.count}
-            array={particles.positions}
-            itemSize={3}
-          />
-        </bufferGeometry>
+        <primitive object={particles.geometry} />
         <pointsMaterial
           size={0.02}
-          color="#9b87f5"
-          sizeAttenuation
+          vertexColors
           transparent
           opacity={0.8}
           depthWrite={false}
+          sizeAttenuation
         />
       </points>
     </>
