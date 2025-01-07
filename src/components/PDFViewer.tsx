@@ -15,6 +15,7 @@ interface PDFViewerProps {
 const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const { toast } = useToast();
+  const [leftPanelSize, setLeftPanelSize] = useState(70);
   
   console.log("Rendering PDFViewer for resource:", resourceId);
 
@@ -37,8 +38,13 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
 
   return (
     <div className="h-[calc(100vh-12rem)] flex rounded-lg border bg-background/50 backdrop-blur-sm mt-4 mb-8 overflow-hidden">
-      <ResizablePanelGroup direction="horizontal" className="w-full">
-        <ResizablePanel defaultSize={70} minSize={30}>
+      <ResizablePanelGroup direction="horizontal" className="w-full min-h-[600px]">
+        <ResizablePanel 
+          defaultSize={70} 
+          minSize={30} 
+          maxSize={80}
+          onResize={setLeftPanelSize}
+        >
           <div className="flex flex-col h-full">
             <Tabs defaultValue="view-pdf" className="flex-1 flex flex-col h-full">
               <div className="border-b flex items-center justify-between px-4 bg-muted/50">
@@ -74,7 +80,7 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
 
         <ResizableHandle withHandle />
 
-        <ResizablePanel defaultSize={30} minSize={20}>
+        <ResizablePanel defaultSize={30} minSize={20} maxSize={70}>
           <PDFChat />
         </ResizablePanel>
       </ResizablePanelGroup>
