@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import Background from "@/components/Background";
 
 const StudyHub = () => {
   console.log("Rendering StudyHub page");
@@ -45,12 +46,7 @@ const StudyHub = () => {
   
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Animated Background Blobs */}
-      <div className="fixed inset-0 overflow-hidden -z-10">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full mix-blend-multiply filter blur-xl animate-blob" />
-        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-indigo-500/20 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000" />
-        <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-pink-500/20 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000" />
-      </div>
+      <Background />
 
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
