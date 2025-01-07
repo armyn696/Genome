@@ -1,17 +1,20 @@
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 const BackgroundScene = () => {
   const pointsRef = useRef<THREE.Points>(null);
 
-  // Create particles
-  const positions = new Float32Array(2000 * 3);
-  for (let i = 0; i < 2000; i++) {
-    positions[i * 3] = (Math.random() - 0.5) * 10;     // x
-    positions[i * 3 + 1] = (Math.random() - 0.5) * 10; // y
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 10; // z
-  }
+  // Create particles using useMemo to prevent recreation on each render
+  const positions = useMemo(() => {
+    const posArray = new Float32Array(2000 * 3);
+    for (let i = 0; i < 2000; i++) {
+      posArray[i * 3] = (Math.random() - 0.5) * 10;     // x
+      posArray[i * 3 + 1] = (Math.random() - 0.5) * 10; // y
+      posArray[i * 3 + 2] = (Math.random() - 0.5) * 10; // z
+    }
+    return posArray;
+  }, []);
 
   // Animation
   useFrame(() => {
@@ -32,6 +35,7 @@ const BackgroundScene = () => {
             array={positions}
             count={positions.length / 3}
             itemSize={3}
+            usage={THREE.StaticDrawUsage}
           />
         </bufferGeometry>
         <pointsMaterial
