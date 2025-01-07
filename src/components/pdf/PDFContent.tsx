@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Document, Page, pdfjs } from 'react-pdf';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
@@ -14,21 +14,13 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [scale, setScale] = useState(1);
   const { toast } = useToast();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const baseWidth = 800;
-    const minScale = 0.4;
-    const maxScale = 1.2;
-    const sidePadding = 32; // کاهش padding برای جلوگیری از کات شدن
-
-    // محاسبه عرض با در نظر گرفتن padding کمتر
-    const containerWidthPx = (window.innerWidth * (containerWidth / 100)) - (sidePadding * 2);
-    
-    // محاسبه مقیاس با توجه به عرض جدید
+    const containerWidthPx = window.innerWidth * (containerWidth / 100);
     const newScale = containerWidthPx / baseWidth;
-    const clampedScale = Math.min(Math.max(newScale, minScale), maxScale);
-    
-    setScale(clampedScale);
+    setScale(Math.min(Math.max(newScale, 0.3), 1.2));
   }, [containerWidth]);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
@@ -49,9 +41,9 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
   }
 
   return (
-    <div className="h-full w-full relative overflow-hidden">
-      <ScrollArea className="h-full absolute inset-0">
-        <div className="flex flex-col items-center px-4 py-6 min-h-full"> {/* کاهش padding */}
+    <div className="flex-1 flex flex-col h-full w-full relative overflow-hidden" ref={containerRef}>
+      <ScrollArea className="flex-1 w-full h-full">
+        <div className="flex flex-col items-center">
           {pdfUrl ? (
             <Document
               file={pdfUrl}
@@ -62,17 +54,19 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
               {Array.from(new Array(numPages || 0), (el, index) => (
                 <div 
                   key={`page_${index + 1}`} 
-                  className="mb-8 last:mb-0 flex justify-center w-full"
+                  className="relative my-4 bg-white border border-gray-200 shadow-sm"
+                  style={{
+                    width: `${100 * scale}%`,
+                    maxWidth: '100%'
+                  }}
                 >
-                  <div className="max-w-full"> {/* اضافه کردن wrapper برای جلوگیری از overflow */}
-                    <Page
-                      pageNumber={index + 1}
-                      width={800 * scale}
-                      className="shadow-lg rounded-lg overflow-hidden bg-white"
-                      renderAnnotationLayer={false}
-                      renderTextLayer={false}
-                    />
-                  </div>
+                  <Page
+                    pageNumber={index + 1}
+                    width={800 * scale}
+                    className="w-full h-auto"
+                    renderAnnotationLayer={false}
+                    renderTextLayer={false}
+                  />
                 </div>
               ))}
             </Document>
