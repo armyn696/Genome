@@ -37,8 +37,11 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
 
   return (
     <div className="h-[calc(100vh-12rem)] flex rounded-lg border bg-background/50 backdrop-blur-sm mt-4 mb-8 overflow-hidden">
-      <ResizablePanelGroup direction="horizontal">
-        <ResizablePanel defaultSize={75}>
+      <ResizablePanelGroup 
+        direction="horizontal" 
+        className="w-full"
+      >
+        <ResizablePanel defaultSize={75} minSize={30}>
           <Tabs defaultValue="view-pdf" className="h-full flex flex-col">
             <div className="border-b flex items-center justify-between px-4 bg-muted/50">
               <TabsList className="w-full justify-start h-14 bg-transparent">

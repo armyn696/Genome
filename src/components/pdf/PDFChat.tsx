@@ -1,8 +1,7 @@
-import { Send } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
 
 const PDFChat = () => {
   const [message, setMessage] = useState("");
@@ -12,7 +11,7 @@ const PDFChat = () => {
       <div className="p-4 border-b">
         <h2 className="font-semibold">Chat with AI about this PDF</h2>
       </div>
-      
+
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
           {/* Chat messages will go here */}
@@ -24,19 +23,17 @@ const PDFChat = () => {
           className="flex gap-2" 
           onSubmit={(e) => {
             e.preventDefault();
-            console.log("Sending message:", message);
+            // Handle message submission
             setMessage("");
           }}
         >
           <Input
-            placeholder="Ask anything about this PDF..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            placeholder="Type your message..."
             className="flex-1"
           />
-          <Button type="submit" size="icon">
-            <Send className="h-4 w-4" />
-          </Button>
+          <Button type="submit">Send</Button>
         </form>
       </div>
     </div>
