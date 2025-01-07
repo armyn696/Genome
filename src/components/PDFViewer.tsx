@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import PDFContent from "./pdf/PDFContent";
 import PDFChat from "./pdf/PDFChat";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
 interface PDFViewerProps {
   resourceId: string;
@@ -36,39 +37,45 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
 
   return (
     <div className="h-[calc(100vh-12rem)] flex rounded-lg border bg-background/50 backdrop-blur-sm mt-4 mb-8 overflow-hidden">
-      <div className="flex-1 flex flex-col">
-        <Tabs defaultValue="view-pdf" className="flex-1 flex flex-col">
-          <div className="border-b flex items-center justify-between px-4 bg-muted/50">
-            <TabsList className="w-full justify-start h-14 bg-transparent">
-              <TabsTrigger value="notes" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent/80">
-                Notes
-              </TabsTrigger>
-              <TabsTrigger value="view-pdf" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent/80">
-                View PDF
-              </TabsTrigger>
-              <TabsTrigger value="transcript" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent/80">
-                Transcript
-              </TabsTrigger>
-              <TabsTrigger value="dual-view" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent/80">
-                Dual View
-              </TabsTrigger>
-            </TabsList>
-            <Button variant="ghost" size="icon" onClick={onClose} className="ml-2">
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+      <ResizablePanelGroup direction="horizontal" className="flex-1">
+        <ResizablePanel defaultSize={75} className="flex flex-col">
+          <Tabs defaultValue="view-pdf" className="flex-1 flex flex-col">
+            <div className="border-b flex items-center justify-between px-4 bg-muted/50">
+              <TabsList className="w-full justify-start h-14 bg-transparent">
+                <TabsTrigger value="notes" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent/80">
+                  Notes
+                </TabsTrigger>
+                <TabsTrigger value="view-pdf" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent/80">
+                  View PDF
+                </TabsTrigger>
+                <TabsTrigger value="transcript" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent/80">
+                  Transcript
+                </TabsTrigger>
+                <TabsTrigger value="dual-view" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent/80">
+                  Dual View
+                </TabsTrigger>
+              </TabsList>
+              <Button variant="ghost" size="icon" onClick={onClose} className="ml-2">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
 
-          <TabsContent value="view-pdf" className="flex-1 p-4">
-            <PDFContent pdfUrl={pdfUrl} />
-          </TabsContent>
+            <TabsContent value="view-pdf" className="flex-1 p-4">
+              <PDFContent pdfUrl={pdfUrl} />
+            </TabsContent>
 
-          <TabsContent value="notes">Notes content here</TabsContent>
-          <TabsContent value="transcript">Transcript content here</TabsContent>
-          <TabsContent value="dual-view">Dual view content here</TabsContent>
-        </Tabs>
-      </div>
-
-      <PDFChat />
+            <TabsContent value="notes">Notes content here</TabsContent>
+            <TabsContent value="transcript">Transcript content here</TabsContent>
+            <TabsContent value="dual-view">Dual view content here</TabsContent>
+          </Tabs>
+        </ResizablePanel>
+        
+        <ResizableHandle withHandle />
+        
+        <ResizablePanel defaultSize={25} minSize={20}>
+          <PDFChat />
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 };
