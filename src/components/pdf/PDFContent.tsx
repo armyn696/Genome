@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Document, Page, pdfjs } from 'react-pdf';
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { useToast } from "@/components/ui/use-toast";
+import { Document, Page, pdfjs } from "react-pdf";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
 interface PDFContentProps {
   pdfUrl: string | null;
@@ -13,32 +14,25 @@ interface PDFContentProps {
 const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [scale, setScale] = useState(1);
-  const { toast } = useToast();
 
   useEffect(() => {
     const baseWidth = 800;
     const containerWidthPx = window.innerWidth * (containerWidth / 100);
-    const padding = 48; // 24px padding on each side
+    const padding = 64; // Increased padding for better visibility
     const newScale = Math.min(1, (containerWidthPx - padding) / baseWidth);
     setScale(newScale);
   }, [containerWidth]);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
-    console.log("PDF loaded successfully with", numPages, "pages");
     setNumPages(numPages);
-    toast({
-      title: "PDF loaded successfully",
-      description: `Document has ${numPages} pages`
-    });
   }
 
-  function onDocumentLoadError(error: Error) {
-    console.error("Error loading PDF:", error);
-    toast({
-      variant: "destructive",
-      title: "Error",
-      description: "Failed to load the PDF file"
-    });
+  if (!pdfUrl) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p>No PDF file selected</p>
+      </div>
+    );
   }
 
   return (
@@ -49,31 +43,23 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
             <Document
               file={pdfUrl}
               onLoadSuccess={onDocumentLoadSuccess}
-              onLoadError={onDocumentLoadError}
-              className="flex flex-col items-center"
+              className="max-w-full"
             >
-              {Array.from(new Array(numPages || 0), (el, index) => (
-                <div 
-                  key={`page_${index + 1}`} 
-                  className="mb-8 last:mb-0"
-                >
-                  <Page
-                    pageNumber={index + 1}
-                    width={800 * scale}
-                    className="shadow-lg rounded-lg overflow-hidden bg-white"
-                    renderAnnotationLayer={false}
-                    renderTextLayer={false}
-                  />
-                </div>
+              {Array.from(new Array(numPages), (el, index) => (
+                <Page
+                  key={`page_${index + 1}`}
+                  pageNumber={index + 1}
+                  scale={scale}
+                  className="mb-4 shadow-lg"
+                  renderTextLayer={true}
+                  renderAnnotationLayer={true}
+                />
               ))}
             </Document>
           ) : (
-            <div className="flex items-center justify-center h-full text-muted-foreground">
-              Loading PDF...
-            </div>
+            <p>Loading PDF...</p>
           )}
         </div>
-        <ScrollBar />
       </ScrollArea>
     </div>
   );
