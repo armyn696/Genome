@@ -1,9 +1,16 @@
-import { Brain, MessageSquare, BookOpen, GraduationCap } from "lucide-react";
+import { Brain, MessageSquare, BookOpen, GraduationCap, Menu, Upload } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const features = [
   {
@@ -47,7 +54,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Top Banner */}
+      {/* Top Banner with Logo and Menu */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-[#070609] backdrop-blur-sm border-b border-white/10">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -58,6 +65,34 @@ const Index = () => {
             />
           </div>
           <div className="flex items-center gap-4">
+            {/* Dashboard Menu */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="text-purple-400 hover:text-purple-300 hover:bg-purple-500/10"
+                >
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent className="bg-[#070609]/95 backdrop-blur-lg border-l border-white/10">
+                <SheetHeader>
+                  <SheetTitle className="text-purple-400">Study Dashboard</SheetTitle>
+                </SheetHeader>
+                <div className="mt-6 space-y-4">
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-start gap-2 text-purple-400 hover:text-purple-300 hover:bg-purple-500/10"
+                  >
+                    <Upload className="h-5 w-5" />
+                    Upload Resources
+                  </Button>
+                  {/* Additional dashboard items can be added here */}
+                </div>
+              </SheetContent>
+            </Sheet>
+
             {!isLoggedIn ? (
               <Button 
                 variant="ghost" 
@@ -75,18 +110,12 @@ const Index = () => {
                 Log out
               </Button>
             )}
-            <Button 
-              variant="ghost"
-              className="bg-gradient-to-r from-purple-500/20 to-indigo-500/20 hover:from-purple-500/30 hover:to-indigo-500/30 text-purple-400 hover:text-purple-300 border border-purple-500/50 hover:border-purple-400 transition-all duration-300 backdrop-blur-sm shadow-lg hover:shadow-purple-500/20"
-            >
-              Your Study Hub
-            </Button>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="pt-16">
+      {/* Main Content with Animated Background */}
+      <div className="pt-20">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 left-10 w-64 h-64 bg-purple-500/10 rounded-full mix-blend-screen filter blur-xl opacity-70 animate-blob" />
           <div className="absolute top-40 right-10 w-64 h-64 bg-cyan-500/10 rounded-full mix-blend-screen filter blur-xl opacity-70 animate-blob animation-delay-2000" />
@@ -102,7 +131,7 @@ const Index = () => {
             className="text-center mb-16"
           >
             <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400 tracking-tight">
-              Your Interactive Learning Platform
+              Your Interactive Study Hub
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Enhance your learning experience with our suite of interactive study tools
