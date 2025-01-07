@@ -33,21 +33,26 @@ const PDFContent = ({ pdfUrl }: PDFContentProps) => {
   }
 
   return (
-    <ScrollArea className="h-full w-full rounded-md border">
-      <div className="p-4 space-y-4">
+    <ScrollArea className="h-full w-full">
+      <div className="flex flex-col items-center p-6">
         {pdfUrl ? (
           <Document
             file={pdfUrl}
             onLoadSuccess={onDocumentLoadSuccess}
             onLoadError={onDocumentLoadError}
-            className="flex flex-col items-center"
+            className="max-w-4xl mx-auto"
           >
             {Array.from(new Array(numPages || 0), (el, index) => (
-              <div key={`page_${index + 1}`} className="mb-4">
+              <div 
+                key={`page_${index + 1}`} 
+                className="mb-8 last:mb-0 w-full flex justify-center"
+              >
                 <Page
                   pageNumber={index + 1}
                   width={800}
-                  className="shadow-lg rounded-lg overflow-hidden"
+                  className="shadow-lg rounded-lg overflow-hidden bg-white"
+                  renderAnnotationLayer={false}
+                  renderTextLayer={false}
                 />
               </div>
             ))}
