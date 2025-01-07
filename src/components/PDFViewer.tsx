@@ -61,7 +61,7 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
                   <X className="h-4 w-4" />
                 </Button>
               </div>
-              <TabsContent value="view-pdf" className="flex-1">
+              <TabsContent value="view-pdf" className="flex-1 h-full">
                 <PDFContent pdfUrl={pdfUrl} containerWidth={leftPanelSize} />
               </TabsContent>
               <TabsContent value="notes">Notes content here</TabsContent>
