@@ -17,9 +17,8 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
 
   useEffect(() => {
     const baseWidth = 800;
-    // Adjust scale calculation to be more responsive from the start
     const containerWidthPx = window.innerWidth * (containerWidth / 100);
-    const newScale = Math.max(0.5, Math.min(1, containerWidthPx / (baseWidth + 100)));
+    const newScale = Math.min(1, (containerWidthPx - 48) / baseWidth);
     setScale(newScale);
   }, [containerWidth]);
 
@@ -43,19 +42,19 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
 
   return (
     <div className="h-full w-full relative overflow-hidden">
-      <ScrollArea className="h-full absolute inset-0">
+      <ScrollArea className="h-full w-full">
         <div className="flex flex-col items-center p-6 min-h-full">
           {pdfUrl ? (
             <Document
               file={pdfUrl}
               onLoadSuccess={onDocumentLoadSuccess}
               onLoadError={onDocumentLoadError}
-              className="flex flex-col items-center mx-auto"
+              className="flex flex-col items-center"
             >
               {Array.from(new Array(numPages || 0), (el, index) => (
                 <div 
                   key={`page_${index + 1}`} 
-                  className="mb-8 last:mb-0 flex justify-center"
+                  className="mb-8 last:mb-0"
                 >
                   <Page
                     pageNumber={index + 1}

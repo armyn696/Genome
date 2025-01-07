@@ -43,7 +43,7 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
       >
         <ResizablePanel 
           defaultSize={70}
-          minSize={30}
+          minSize={50}
           maxSize={80}
           className="overflow-hidden"
         >
@@ -70,12 +70,12 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
           </div>
         </ResizablePanel>
 
-        <ResizableHandle withHandle />
+        <ResizableHandle withHandle className="bg-border hover:bg-primary/20 transition-colors" />
 
         <ResizablePanel 
           defaultSize={30}
           minSize={20}
-          maxSize={70}
+          maxSize={50}
           className="overflow-hidden"
         >
           <PDFChat />
