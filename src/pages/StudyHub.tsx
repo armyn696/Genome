@@ -94,7 +94,7 @@ const StudyHub = () => {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 px-2">
                     <BookOpen className="h-5 w-5 text-primary" />
-                    <span className="font-medium">Your Resources</span>
+                    <span className="font-medium">Resources</span>
                   </div>
                   
                   <ResourceList resources={resources} />
