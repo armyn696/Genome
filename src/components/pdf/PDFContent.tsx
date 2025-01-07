@@ -1,18 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Document, Page, pdfjs } from 'react-pdf';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 
-// Initialize PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 interface PDFContentProps {
   pdfUrl: string | null;
+  containerWidth: number;
 }
 
-const PDFContent = ({ pdfUrl }: PDFContentProps) => {
+const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
   const [numPages, setNumPages] = useState<number | null>(null);
+  const [scale, setScale] = useState(1);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const baseWidth = 800;
+    const containerWidthPx = window.innerWidth * (containerWidth / 100);
+    // Adjust scale calculation to be more linear and responsive
+    const newScale = containerWidthPx / baseWidth;
+    setScale(Math.min(Math.max(newScale, 0.3), 1.2));
+  }, [containerWidth]);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     console.log("PDF loaded successfully with", numPages, "pages");
@@ -33,38 +42,40 @@ const PDFContent = ({ pdfUrl }: PDFContentProps) => {
   }
 
   return (
-    <ScrollArea className="h-[calc(100vh-16rem)] w-full">
-      <div className="flex flex-col items-center px-6 py-8">
-        {pdfUrl ? (
-          <Document
-            file={pdfUrl}
-            onLoadSuccess={onDocumentLoadSuccess}
-            onLoadError={onDocumentLoadError}
-            className="max-w-4xl mx-auto"
-          >
-            {Array.from(new Array(numPages || 0), (el, index) => (
-              <div 
-                key={`page_${index + 1}`} 
-                className="mb-8 last:mb-0 w-full flex justify-center"
-              >
-                <Page
-                  pageNumber={index + 1}
-                  width={800}
-                  className="shadow-lg rounded-lg overflow-hidden bg-white"
-                  renderAnnotationLayer={false}
-                  renderTextLayer={false}
-                />
-              </div>
-            ))}
-          </Document>
-        ) : (
-          <div className="flex items-center justify-center h-full text-muted-foreground">
-            Loading PDF...
-          </div>
-        )}
-      </div>
-      <ScrollBar />
-    </ScrollArea>
+    <div className="h-full w-full relative overflow-hidden">
+      <ScrollArea className="h-full absolute inset-0">
+        <div className="flex flex-col items-center p-6 min-h-full">
+          {pdfUrl ? (
+            <Document
+              file={pdfUrl}
+              onLoadSuccess={onDocumentLoadSuccess}
+              onLoadError={onDocumentLoadError}
+              className="flex flex-col items-center"
+            >
+              {Array.from(new Array(numPages || 0), (el, index) => (
+                <div 
+                  key={`page_${index + 1}`} 
+                  className="mb-8 last:mb-0 flex justify-center"
+                >
+                  <Page
+                    pageNumber={index + 1}
+                    width={800 * scale}
+                    className="shadow-lg rounded-lg overflow-hidden bg-white"
+                    renderAnnotationLayer={false}
+                    renderTextLayer={false}
+                  />
+                </div>
+              ))}
+            </Document>
+          ) : (
+            <div className="flex items-center justify-center h-full text-muted-foreground">
+              Loading PDF...
+            </div>
+          )}
+        </div>
+        <ScrollBar />
+      </ScrollArea>
+    </div>
   );
 };
 
