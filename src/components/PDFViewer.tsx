@@ -5,7 +5,6 @@ import { X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import PDFContent from "./pdf/PDFContent";
 import PDFChat from "./pdf/PDFChat";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
 interface PDFViewerProps {
   resourceId: string;
@@ -15,15 +14,18 @@ interface PDFViewerProps {
 const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const { toast } = useToast();
-  const [leftPanelSize, setLeftPanelSize] = useState(70);
+  
+  console.log("Rendering PDFViewer for resource:", resourceId);
 
   useEffect(() => {
     const resources = JSON.parse(localStorage.getItem('resources') || '[]');
     const resource = resources.find((r: any) => r.id === resourceId);
     
     if (resource?.url) {
+      console.log("Setting PDF URL:", resource.url);
       setPdfUrl(resource.url);
     } else {
+      console.log("No URL found for resource:", resourceId);
       toast({
         variant: "destructive",
         title: "Error",
@@ -32,72 +34,41 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
     }
   }, [resourceId]);
 
-  const handlePanelResize = (sizes: number[]) => {
-    setLeftPanelSize(sizes[0]);
-  };
-
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col bg-background">
-      <ResizablePanelGroup 
-        direction="horizontal" 
-        className="flex-1 h-full"
-        onLayout={handlePanelResize}
-      >
-        <ResizablePanel 
-          defaultSize={70}
-          minSize={30}
-          maxSize={85}
-          className="focus-visible:outline-none focus-visible:ring-0"
-        >
-          <div className="flex flex-col h-full">
-            <Tabs defaultValue="view-pdf" className="flex-1">
-              <div className="sticky top-0 z-10 bg-background border-b">
-                <div className="flex items-center justify-between px-3">
-                  <TabsList className="h-12">
-                    <TabsTrigger value="notes" className="text-sm">Notes</TabsTrigger>
-                    <TabsTrigger value="view-pdf" className="text-sm">View PDF</TabsTrigger>
-                    <TabsTrigger value="transcript" className="text-sm">Transcript</TabsTrigger>
-                    <TabsTrigger value="dual-view" className="text-sm">Dual View</TabsTrigger>
-                  </TabsList>
-                  <Button variant="ghost" size="icon" onClick={onClose}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              <TabsContent 
-                value="view-pdf" 
-                className="flex-1 h-[calc(100%-3rem)] mt-0 relative"
-              >
-                <PDFContent pdfUrl={pdfUrl} containerWidth={leftPanelSize} />
-              </TabsContent>
-              <TabsContent value="notes" className="mt-0">
-                Notes content here
-              </TabsContent>
-              <TabsContent value="transcript" className="mt-0">
-                Transcript content here
-              </TabsContent>
-              <TabsContent value="dual-view" className="mt-0">
-                Dual view content here
-              </TabsContent>
-            </Tabs>
+    <div className="h-[calc(100vh-12rem)] flex rounded-lg border bg-background/50 backdrop-blur-sm mt-4 mb-8 overflow-hidden">
+      <div className="flex-1 flex flex-col">
+        <Tabs defaultValue="view-pdf" className="flex-1 flex flex-col">
+          <div className="border-b flex items-center justify-between px-4 bg-muted/50">
+            <TabsList className="w-full justify-start h-14 bg-transparent">
+              <TabsTrigger value="notes" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent/80">
+                Notes
+              </TabsTrigger>
+              <TabsTrigger value="view-pdf" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent/80">
+                View PDF
+              </TabsTrigger>
+              <TabsTrigger value="transcript" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent/80">
+                Transcript
+              </TabsTrigger>
+              <TabsTrigger value="dual-view" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent/80">
+                Dual View
+              </TabsTrigger>
+            </TabsList>
+            <Button variant="ghost" size="icon" onClick={onClose} className="ml-2">
+              <X className="h-4 w-4" />
+            </Button>
           </div>
-        </ResizablePanel>
 
-        <ResizableHandle 
-          withHandle 
-          className="bg-border hover:bg-primary/20 transition-colors"
-        />
+          <TabsContent value="view-pdf" className="flex-1 p-4">
+            <PDFContent pdfUrl={pdfUrl} />
+          </TabsContent>
 
-        <ResizablePanel 
-          defaultSize={30}
-          minSize={15}
-          maxSize={70}
-          className="focus-visible:outline-none focus-visible:ring-0"
-        >
-          <PDFChat />
-        </ResizablePanel>
-      </ResizablePanelGroup>
+          <TabsContent value="notes">Notes content here</TabsContent>
+          <TabsContent value="transcript">Transcript content here</TabsContent>
+          <TabsContent value="dual-view">Dual view content here</TabsContent>
+        </Tabs>
+      </div>
+
+      <PDFChat />
     </div>
   );
 };
