@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Mindmap from "./pages/Mindmap";
 import StudyHub from "./pages/StudyHub";
+import PDFViewer from "./components/PDFViewer";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +20,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/mindmap" element={<Mindmap />} />
           <Route path="/studyhub" element={<StudyHub />} />
+          <Route path="/pdf-viewer/:id" element={<PDFViewer />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
