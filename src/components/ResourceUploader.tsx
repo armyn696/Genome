@@ -88,22 +88,28 @@ const ResourceUploader = () => {
       />
 
       {/* Upload button */}
-      <label 
-        htmlFor="pdf-upload"
+      <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
+        className="w-full"
       >
-        <Button
-          variant="outline"
-          className={`w-full h-32 flex flex-col items-center justify-center gap-2 border-dashed border-2 
-            ${isDragging ? 'border-primary bg-primary/5' : 'hover:border-primary hover:bg-primary/5'}`}
+        <label 
+          htmlFor="pdf-upload"
+          className="block w-full cursor-pointer"
         >
-          <Upload className="h-8 w-8 text-primary" />
-          <span className="font-medium">Upload PDF</span>
-          <span className="text-sm text-muted-foreground">Drag and drop or click to upload</span>
-        </Button>
-      </label>
+          <Button
+            variant="outline"
+            className={`w-full h-32 flex flex-col items-center justify-center gap-2 border-dashed border-2 
+              ${isDragging ? 'border-primary bg-primary/5' : 'hover:border-primary hover:bg-primary/5'}`}
+            type="button"
+          >
+            <Upload className="h-8 w-8 text-primary" />
+            <span className="font-medium">Upload PDF</span>
+            <span className="text-sm text-muted-foreground">Drag and drop or click to upload</span>
+          </Button>
+        </label>
+      </div>
 
       {/* Resources list */}
       {resources.length > 0 && (
