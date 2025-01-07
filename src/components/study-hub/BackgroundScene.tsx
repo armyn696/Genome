@@ -1,22 +1,29 @@
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 const BackgroundScene = () => {
   const pointsRef = useRef<THREE.Points>(null);
 
-  // Create particles
-  const particleCount = 2000;
-  const positions = new Float32Array(particleCount * 3);
-  
-  for (let i = 0; i < particleCount; i++) {
-    positions[i * 3] = (Math.random() - 0.5) * 10;     // x
-    positions[i * 3 + 1] = (Math.random() - 0.5) * 10; // y
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 10; // z
-  }
+  // Create particles using useMemo to prevent recreating on every render
+  const particles = useMemo(() => {
+    const particleCount = 2000;
+    const positions = new Float32Array(particleCount * 3);
+    
+    for (let i = 0; i < particleCount; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 10;     // x
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 10; // y
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 10; // z
+    }
+
+    return {
+      positions,
+      count: particleCount
+    };
+  }, []);
 
   // Animation
-  useFrame((state) => {
+  useFrame(() => {
     if (pointsRef.current) {
       pointsRef.current.rotation.y += 0.001;
       pointsRef.current.rotation.x += 0.001;
@@ -31,17 +38,18 @@ const BackgroundScene = () => {
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
-            count={particleCount}
-            array={positions}
+            count={particles.count}
+            array={particles.positions}
             itemSize={3}
           />
         </bufferGeometry>
         <pointsMaterial
           size={0.02}
           color="#9b87f5"
-          sizeAttenuation={true}
-          transparent={true}
+          sizeAttenuation
+          transparent
           opacity={0.8}
+          depthWrite={false}
         />
       </points>
     </>
