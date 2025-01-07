@@ -1,33 +1,39 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Send } from "lucide-react";
+import { Send, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
-const PDFViewer = () => {
-  const { id } = useParams();
+interface PDFViewerProps {
+  resourceId: string;
+  onClose: () => void;
+}
+
+const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
   const [message, setMessage] = useState("");
   
-  console.log("Rendering PDFViewer for resource:", id);
+  console.log("Rendering PDFViewer for resource:", resourceId);
 
   return (
-    <div className="h-screen flex">
+    <div className="h-[calc(100vh-6rem)] flex rounded-lg border bg-background/50 backdrop-blur-sm">
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
         <Tabs defaultValue="view-pdf" className="flex-1 flex flex-col">
-          <div className="border-b">
+          <div className="border-b flex items-center justify-between px-4">
             <TabsList className="w-full justify-start h-12">
               <TabsTrigger value="notes">Notes</TabsTrigger>
               <TabsTrigger value="view-pdf">View PDF</TabsTrigger>
               <TabsTrigger value="transcript">Transcript</TabsTrigger>
               <TabsTrigger value="dual-view">Dual View</TabsTrigger>
             </TabsList>
+            <Button variant="ghost" size="icon" onClick={onClose}>
+              <X className="h-4 w-4" />
+            </Button>
           </div>
 
           <TabsContent value="view-pdf" className="flex-1 p-4">
-            <ScrollArea className="h-[calc(100vh-8rem)] w-full rounded-md border">
+            <ScrollArea className="h-full w-full rounded-md border">
               {/* This is where we'll render the PDF pages */}
               <div className="p-4 space-y-4">
                 <div className="aspect-[8.5/11] bg-white rounded-lg shadow-lg">

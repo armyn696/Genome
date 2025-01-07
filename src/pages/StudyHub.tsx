@@ -8,6 +8,7 @@ import Background from "@/components/Background";
 import ResourceUploader from "@/components/ResourceUploader";
 import ResourceList from "@/components/ResourceList";
 import { useState } from "react";
+import PDFViewer from "@/components/PDFViewer";
 
 interface Resource {
   id: string;
@@ -20,6 +21,7 @@ interface Resource {
 const StudyHub = () => {
   console.log("Rendering StudyHub page");
   const [resources, setResources] = useState<Resource[]>([]);
+  const [selectedResourceId, setSelectedResourceId] = useState<string | null>(null);
   
   const menuItems = [
     { icon: Home, label: "Home" },
@@ -30,7 +32,13 @@ const StudyHub = () => {
   ];
 
   const handleResourceAdded = (newResource: Resource) => {
+    console.log("Adding new resource:", newResource);
     setResources(prev => [...prev, newResource]);
+  };
+
+  const handleResourceClick = (resourceId: string) => {
+    console.log("Resource clicked:", resourceId);
+    setSelectedResourceId(resourceId);
   };
 
   const resourceTypes = [
@@ -93,7 +101,7 @@ const StudyHub = () => {
                 <div className="space-y-2">
                   <div className="space-y-4">
                     <h3 className="font-semibold">Your Resources</h3>
-                    <ResourceList resources={resources} />
+                    <ResourceList resources={resources} onResourceClick={handleResourceClick} />
                   </div>
                   
                   {/* Add Resource Button with Modal */}
@@ -164,19 +172,23 @@ const StudyHub = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 pt-24">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center"
-        >
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
-            Your Study Hub
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Organize your study materials and enhance your learning experience
-          </p>
-        </motion.div>
+        {selectedResourceId ? (
+          <PDFViewer resourceId={selectedResourceId} onClose={() => setSelectedResourceId(null)} />
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center"
+          >
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
+              Your Study Hub
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Organize your study materials and enhance your learning experience
+            </p>
+          </motion.div>
+        )}
       </main>
     </div>
   );
