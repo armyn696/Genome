@@ -3,25 +3,12 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Background from "@/components/Background";
 import ResourceUploader from "@/components/ResourceUploader";
-import ResourceList from "@/components/ResourceList";
-import { useState } from "react";
-import PDFViewer from "@/components/PDFViewer";
-
-interface Resource {
-  id: string;
-  name: string;
-  type: string;
-  size: string;
-  uploadDate: string;
-}
 
 const StudyHub = () => {
   console.log("Rendering StudyHub page");
-  const [resources, setResources] = useState<Resource[]>([]);
-  const [selectedResourceId, setSelectedResourceId] = useState<string | null>(null);
   
   const menuItems = [
     { icon: Home, label: "Home" },
@@ -31,23 +18,8 @@ const StudyHub = () => {
     { icon: BookOpen, label: "Quiz" },
   ];
 
-  const handleResourceAdded = (newResource: Resource) => {
-    console.log("Adding new resource:", newResource);
-    setResources(prev => [...prev, newResource]);
-  };
-
-  const handleResourceClick = (resourceId: string) => {
-    console.log("Resource clicked:", resourceId);
-    setSelectedResourceId(resourceId);
-  };
-
   const resourceTypes = [
-    { 
-      icon: FileText, 
-      label: "Upload Documents", 
-      description: "pdf, pptx, docx", 
-      component: <ResourceUploader onResourceAdded={handleResourceAdded} /> 
-    },
+    { icon: FileText, label: "Upload Documents", description: "pdf, pptx, docx", component: <ResourceUploader /> },
     { icon: Mic, label: "Record Live Lecture" },
     { icon: Youtube, label: "YouTube Video" },
     { icon: FileAudio, label: "Upload Audio", description: "mp3, wav" },
@@ -99,10 +71,13 @@ const StudyHub = () => {
 
                 {/* Resources Section */}
                 <div className="space-y-2">
-                  <div className="space-y-4">
-                    <h3 className="font-semibold">Your Resources</h3>
-                    <ResourceList resources={resources} onResourceClick={handleResourceClick} />
-                  </div>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2 hover:bg-accent"
+                  >
+                    <BookOpen className="h-5 w-5 text-primary" />
+                    Your Resources
+                  </Button>
                   
                   {/* Add Resource Button with Modal */}
                   <Dialog>
@@ -118,9 +93,9 @@ const StudyHub = () => {
                     <DialogContent className="sm:max-w-[800px] bg-background/95 backdrop-blur-sm">
                       <DialogHeader>
                         <DialogTitle className="text-2xl font-bold text-center mb-4">Add Material</DialogTitle>
-                        <DialogDescription className="text-center mb-6">
+                        <p className="text-sm text-muted-foreground text-center mb-6">
                           Material you add will be used to personalize StudyFetch with your class material, which can then be used to create flashcards, quizzes, tests, chat with an AI tutor, etc.
-                        </DialogDescription>
+                        </p>
                       </DialogHeader>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {resourceTypes.map(({ icon: Icon, label, description, component }) => (
@@ -172,23 +147,19 @@ const StudyHub = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 pt-24">
-        {selectedResourceId ? (
-          <PDFViewer resourceId={selectedResourceId} onClose={() => setSelectedResourceId(null)} />
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
-              Your Study Hub
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Organize your study materials and enhance your learning experience
-            </p>
-          </motion.div>
-        )}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center"
+        >
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
+            Your Study Hub
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Organize your study materials and enhance your learning experience
+          </p>
+        </motion.div>
       </main>
     </div>
   );
