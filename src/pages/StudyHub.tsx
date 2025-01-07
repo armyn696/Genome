@@ -5,11 +5,18 @@ import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Background from "@/components/Background";
+import ResourceList from "@/components/ResourceList";
 import ResourceUploader from "@/components/ResourceUploader";
+import { useState } from "react";
 
 const StudyHub = () => {
+  const [resources, setResources] = useState<Resource[]>([]);
   console.log("Rendering StudyHub page");
   
+  const handleResourceAdd = (newResource: Resource) => {
+    setResources(prev => [...prev, newResource]);
+  };
+
   const menuItems = [
     { icon: Home, label: "Home" },
     { icon: MessageSquare, label: "Chat" },
@@ -19,7 +26,12 @@ const StudyHub = () => {
   ];
 
   const resourceTypes = [
-    { icon: FileText, label: "Upload Documents", description: "pdf, pptx, docx", component: <ResourceUploader /> },
+    { 
+      icon: FileText, 
+      label: "Upload Documents", 
+      description: "pdf, pptx, docx", 
+      component: (props: any) => <ResourceUploader onResourceAdd={props.onResourceAdd} /> 
+    },
     { icon: Mic, label: "Record Live Lecture" },
     { icon: Youtube, label: "YouTube Video" },
     { icon: FileAudio, label: "Upload Audio", description: "mp3, wav" },
@@ -98,7 +110,7 @@ const StudyHub = () => {
                         </p>
                       </DialogHeader>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {resourceTypes.map(({ icon: Icon, label, description, component }) => (
+                        {resourceTypes.map(({ icon: Icon, label, description, component: Component }) => (
                           <Dialog key={label}>
                             <DialogTrigger asChild>
                               <Button
@@ -116,12 +128,12 @@ const StudyHub = () => {
                                 </div>
                               </Button>
                             </DialogTrigger>
-                            {component && (
+                            {Component && (
                               <DialogContent>
                                 <DialogHeader>
                                   <DialogTitle>{label}</DialogTitle>
                                 </DialogHeader>
-                                {component}
+                                <Component onResourceAdd={handleResourceAdd} />
                               </DialogContent>
                             )}
                           </Dialog>
@@ -156,9 +168,12 @@ const StudyHub = () => {
           <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
             Your Study Hub
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
             Organize your study materials and enhance your learning experience
           </p>
+          
+          {/* Resource List */}
+          <ResourceList resources={resources} />
         </motion.div>
       </main>
     </div>

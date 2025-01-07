@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Upload } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import ResourceList from "./ResourceList";
 
 interface Resource {
   id: string;
@@ -11,8 +10,11 @@ interface Resource {
   uploadDate: string;
 }
 
-const ResourceUploader = () => {
-  const [resources, setResources] = useState<Resource[]>([]);
+interface ResourceUploaderProps {
+  onResourceAdd: (resource: Resource) => void;
+}
+
+const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
   const { toast } = useToast();
   const [isDragging, setIsDragging] = useState(false);
 
@@ -42,7 +44,7 @@ const ResourceUploader = () => {
       uploadDate: new Date().toLocaleDateString()
     };
 
-    setResources(prev => [...prev, newResource]);
+    onResourceAdd(newResource);
     console.log("Resource added:", newResource);
     
     toast({
@@ -105,8 +107,6 @@ const ResourceUploader = () => {
           </div>
         </label>
       </div>
-
-      <ResourceList resources={resources} />
     </div>
   );
 };
