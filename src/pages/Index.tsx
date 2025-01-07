@@ -1,4 +1,4 @@
-import { Brain, MessageSquare, BookOpen, GraduationCap, Menu } from "lucide-react";
+import { Brain, MessageSquare, BookOpen, GraduationCap } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -76,11 +76,10 @@ const Index = () => {
               </Button>
             )}
             <Button 
-              variant="ghost" 
-              size="icon"
-              className="ml-2 text-purple-400 hover:bg-purple-500/10"
+              variant="ghost"
+              className="bg-gradient-to-r from-purple-500/20 to-indigo-500/20 hover:from-purple-500/30 hover:to-indigo-500/30 text-purple-400 hover:text-purple-300 border border-purple-500/50 hover:border-purple-400 transition-all duration-300 backdrop-blur-sm shadow-lg hover:shadow-purple-500/20"
             >
-              <Menu className="h-6 w-6" />
+              Your Study Hub
             </Button>
           </div>
         </div>
