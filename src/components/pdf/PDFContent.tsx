@@ -19,11 +19,10 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
     const baseWidth = 800;
     const containerWidthPx = window.innerWidth * (containerWidth / 100);
     const newScale = containerWidthPx / baseWidth;
-    setScale(newScale);
+    setScale(Math.min(Math.max(newScale, 0.3), 1.2));
   }, [containerWidth]);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
-    console.log("PDF loaded successfully with", numPages, "pages");
     setNumPages(numPages);
     toast({
       title: "PDF loaded successfully",
@@ -41,28 +40,30 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
   }
 
   return (
-    <div className="h-full w-full">
-      <ScrollArea className="h-full w-full">
-        <div className="flex flex-col w-full">
+    <div className="flex-1 flex flex-col h-full w-full">
+      <ScrollArea className="flex-1 w-full">
+        <div className="flex flex-col items-center py-6">
           {pdfUrl ? (
             <Document
               file={pdfUrl}
               onLoadSuccess={onDocumentLoadSuccess}
               onLoadError={onDocumentLoadError}
-              className="w-full"
+              className="flex flex-col items-center w-full"
             >
               {Array.from(new Array(numPages || 0), (el, index) => (
                 <div 
                   key={`page_${index + 1}`} 
-                  className={`mb-8 last:mb-0 w-full ${index === 0 ? 'first-page' : ''} ${index === (numPages || 1) - 1 ? 'last-page' : ''}`}
+                  className="relative my-4 w-full max-w-5xl mx-auto px-4"
                 >
-                  <Page
-                    pageNumber={index + 1}
-                    width={800 * scale}
-                    className={`shadow-lg overflow-hidden bg-white rounded-lg`}
-                    renderAnnotationLayer={false}
-                    renderTextLayer={false}
-                  />
+                  <div className="relative shadow-lg rounded-lg overflow-hidden bg-white">
+                    <Page
+                      pageNumber={index + 1}
+                      width={800 * scale}
+                      className="w-full h-auto"
+                      renderAnnotationLayer={false}
+                      renderTextLayer={false}
+                    />
+                  </div>
                 </div>
               ))}
             </Document>
