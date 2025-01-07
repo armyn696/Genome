@@ -24,11 +24,7 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
     };
 
     calculateScale();
-    
-    // Add resize event listener
     window.addEventListener('resize', calculateScale);
-    
-    // Cleanup
     return () => window.removeEventListener('resize', calculateScale);
   }, [containerWidth]);
 
@@ -51,7 +47,7 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
   }
 
   return (
-    <div className="h-full w-full relative">
+    <div className="h-full w-full relative bg-background">
       <ScrollArea className="h-full w-full">
         <div className="flex flex-col items-center p-4 min-h-full">
           {pdfUrl ? (
@@ -65,7 +61,6 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
                 <div 
                   key={`page_${index + 1}`} 
                   className="mb-4 last:mb-0 flex justify-center w-full"
-                  style={{ transition: 'width 0.1s ease-out' }}
                 >
                   <Page
                     pageNumber={index + 1}
