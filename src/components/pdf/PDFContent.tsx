@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Document, Page, pdfjs } from 'react-pdf';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
@@ -7,11 +7,20 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 interface PDFContentProps {
   pdfUrl: string | null;
+  containerWidth: number;
 }
 
-const PDFContent = ({ pdfUrl }: PDFContentProps) => {
+const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
   const [numPages, setNumPages] = useState<number | null>(null);
+  const [scale, setScale] = useState(1);
   const { toast } = useToast();
+
+  // Calculate the appropriate scale based on container width
+  useEffect(() => {
+    const baseWidth = 800; // Base width for scale 1
+    const newScale = Math.max(0.5, Math.min(1, (window.innerWidth * (containerWidth / 100)) / baseWidth));
+    setScale(newScale);
+  }, [containerWidth]);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     console.log("PDF loaded successfully with", numPages, "pages");
@@ -49,7 +58,7 @@ const PDFContent = ({ pdfUrl }: PDFContentProps) => {
                 >
                   <Page
                     pageNumber={index + 1}
-                    width={800}
+                    width={800 * scale}
                     className="shadow-lg rounded-lg overflow-hidden bg-white"
                     renderAnnotationLayer={false}
                     renderTextLayer={false}

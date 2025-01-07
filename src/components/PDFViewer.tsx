@@ -37,12 +37,14 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
       <ResizablePanelGroup 
         direction="horizontal" 
         className="flex-1 w-full rounded-lg overflow-hidden"
+        onLayout={(sizes) => {
+          setLeftPanelSize(sizes[0]);
+        }}
       >
         <ResizablePanel 
           defaultSize={70}
           minSize={30}
           maxSize={80}
-          onResize={setLeftPanelSize}
           className="overflow-hidden"
         >
           <div className="flex flex-col h-full">
@@ -59,7 +61,7 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
                 </Button>
               </div>
               <TabsContent value="view-pdf" className="flex-1 overflow-hidden">
-                <PDFContent pdfUrl={pdfUrl} />
+                <PDFContent pdfUrl={pdfUrl} containerWidth={leftPanelSize} />
               </TabsContent>
               <TabsContent value="notes">Notes content here</TabsContent>
               <TabsContent value="transcript">Transcript content here</TabsContent>
