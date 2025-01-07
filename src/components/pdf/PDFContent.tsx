@@ -59,9 +59,7 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
                   <Page
                     pageNumber={index + 1}
                     width={800 * scale}
-                    className={`shadow-lg overflow-hidden bg-white
-                      ${index === 0 ? 'rounded-t-lg' : ''}
-                      ${index === (numPages || 1) - 1 ? 'rounded-b-lg' : ''}`}
+                    className={`shadow-lg overflow-hidden bg-white rounded-lg`}
                     renderAnnotationLayer={false}
                     renderTextLayer={false}
                   />
