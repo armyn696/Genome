@@ -10,6 +10,7 @@ interface Resource {
   type: string;
   size: string;
   uploadDate: string;
+  url?: string;
 }
 
 interface ResourceUploaderProps {
@@ -38,12 +39,16 @@ const ResourceUploader = ({ onResourceAdded }: ResourceUploaderProps) => {
       ? `${(file.size / 1024).toFixed(2)} KB`
       : `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
 
+    // Create a URL for the uploaded file
+    const fileUrl = URL.createObjectURL(file);
+
     const newResource: Resource = {
       id: Date.now().toString(),
       name: file.name,
       type: 'PDF',
       size: size,
-      uploadDate: new Date().toLocaleDateString()
+      uploadDate: new Date().toLocaleDateString(),
+      url: fileUrl
     };
 
     onResourceAdded(newResource);

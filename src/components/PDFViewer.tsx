@@ -4,6 +4,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Send, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import 'react-pdf/dist/esm/Page/TextLayer.css';
+
+// Initialize PDF.js worker
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 interface PDFViewerProps {
   resourceId: string;
@@ -12,11 +18,19 @@ interface PDFViewerProps {
 
 const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
   const [message, setMessage] = useState("");
+  const [numPages, setNumPages] = useState<number | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   
   console.log("Rendering PDFViewer for resource:", resourceId);
 
+  // Function to handle successful PDF document loading
+  function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
+    console.log("PDF loaded successfully with", numPages, "pages");
+    setNumPages(numPages);
+  }
+
   return (
-    <div className="h-[calc(100vh-8rem)] flex rounded-lg border bg-background/50 backdrop-blur-sm mt-4">
+    <div className="h-[calc(100vh-12rem)] flex rounded-lg border bg-background/50 backdrop-blur-sm mt-4 mb-8 overflow-hidden">
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
         <Tabs defaultValue="view-pdf" className="flex-1 flex flex-col">
@@ -54,12 +68,28 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
 
           <TabsContent value="view-pdf" className="flex-1 p-4">
             <ScrollArea className="h-full w-full rounded-md border">
-              {/* This is where we'll render the PDF pages */}
               <div className="p-4 space-y-4">
-                <div className="aspect-[8.5/11] bg-white rounded-lg shadow-lg">
-                  {/* PDF Page Content */}
-                </div>
-                {/* Add more pages as needed */}
+                {pdfUrl ? (
+                  <Document
+                    file={pdfUrl}
+                    onLoadSuccess={onDocumentLoadSuccess}
+                    className="flex flex-col items-center"
+                  >
+                    {Array.from(new Array(numPages || 0), (el, index) => (
+                      <div key={`page_${index + 1}`} className="mb-4">
+                        <Page
+                          pageNumber={index + 1}
+                          width={800}
+                          className="shadow-lg rounded-lg overflow-hidden"
+                        />
+                      </div>
+                    ))}
+                  </Document>
+                ) : (
+                  <div className="text-center text-muted-foreground">
+                    No PDF file loaded
+                  </div>
+                )}
               </div>
             </ScrollArea>
           </TabsContent>
