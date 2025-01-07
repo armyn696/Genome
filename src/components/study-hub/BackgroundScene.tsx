@@ -1,27 +1,25 @@
-import { useRef, useMemo } from "react";
+import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 const BackgroundScene = () => {
   const pointsRef = useRef<THREE.Points>(null);
 
-  // Create vertices for a simple star field
-  const geometry = useMemo(() => {
-    const vertices = [];
-    for (let i = 0; i < 100; i++) {
-      vertices.push(
-        THREE.MathUtils.randFloatSpread(10), // x
-        THREE.MathUtils.randFloatSpread(10), // y
-        THREE.MathUtils.randFloatSpread(10)  // z
-      );
-    }
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute(
-      'position',
-      new THREE.Float32BufferAttribute(vertices, 3)
+  // Create a simple static geometry
+  const vertices = [];
+  for (let i = 0; i < 100; i++) {
+    vertices.push(
+      THREE.MathUtils.randFloatSpread(10),
+      THREE.MathUtils.randFloatSpread(10),
+      THREE.MathUtils.randFloatSpread(10)
     );
-    return geometry;
-  }, []);
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(vertices, 3)
+  );
 
   // Simple rotation animation
   useFrame(() => {
@@ -34,8 +32,7 @@ const BackgroundScene = () => {
     <>
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 5]} intensity={1} />
-      <points ref={pointsRef}>
-        <primitive object={geometry} />
+      <points ref={pointsRef} geometry={geometry}>
         <pointsMaterial
           size={0.1}
           color="#9b87f5"
