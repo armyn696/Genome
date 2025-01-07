@@ -34,7 +34,14 @@ const BackgroundScene = () => {
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 5]} intensity={1} />
       <points ref={pointsRef}>
-        <bufferGeometry attach="geometry" {...geometry} />
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            count={geometry.attributes.position.count}
+            array={geometry.attributes.position.array}
+            itemSize={3}
+          />
+        </bufferGeometry>
         <pointsMaterial
           attach="material"
           size={0.02}
