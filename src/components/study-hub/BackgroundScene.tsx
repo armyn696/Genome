@@ -1,26 +1,22 @@
-import { useRef, useMemo } from "react";
+import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 const BackgroundScene = () => {
   const pointsRef = useRef<THREE.Points>(null);
 
-  // Create particles using useMemo to prevent recreation on each render
-  const { positions, geometry } = useMemo(() => {
-    const particleCount = 2000;
-    const positions = new Float32Array(particleCount * 3);
-    
-    for (let i = 0; i < particleCount; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 10;     // x
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 10; // y
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 10; // z
-    }
-
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    
-    return { positions, geometry };
-  }, []);
+  // Create geometry and material
+  const geometry = new THREE.BufferGeometry();
+  const particleCount = 2000;
+  const positions = new Float32Array(particleCount * 3);
+  
+  for (let i = 0; i < particleCount; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 10;     // x
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 10; // y
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 10; // z
+  }
+  
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
   // Animation
   useFrame(() => {
@@ -34,8 +30,10 @@ const BackgroundScene = () => {
     <>
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 5]} intensity={1} />
-      <points ref={pointsRef} geometry={geometry}>
+      <points ref={pointsRef}>
+        <primitive object={geometry} attach="geometry" />
         <pointsMaterial
+          attach="material"
           size={0.02}
           color="#9b87f5"
           transparent
