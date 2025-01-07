@@ -16,18 +16,38 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
   console.log("Rendering PDFViewer for resource:", resourceId);
 
   return (
-    <div className="h-[calc(100vh-6rem)] flex rounded-lg border bg-background/50 backdrop-blur-sm">
+    <div className="h-[calc(100vh-8rem)] flex rounded-lg border bg-background/50 backdrop-blur-sm mt-4">
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
         <Tabs defaultValue="view-pdf" className="flex-1 flex flex-col">
-          <div className="border-b flex items-center justify-between px-4">
-            <TabsList className="w-full justify-start h-12">
-              <TabsTrigger value="notes">Notes</TabsTrigger>
-              <TabsTrigger value="view-pdf">View PDF</TabsTrigger>
-              <TabsTrigger value="transcript">Transcript</TabsTrigger>
-              <TabsTrigger value="dual-view">Dual View</TabsTrigger>
+          <div className="border-b flex items-center justify-between px-4 bg-muted/50">
+            <TabsList className="w-full justify-start h-14 bg-transparent">
+              <TabsTrigger 
+                value="notes" 
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent"
+              >
+                Notes
+              </TabsTrigger>
+              <TabsTrigger 
+                value="view-pdf"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent"
+              >
+                View PDF
+              </TabsTrigger>
+              <TabsTrigger 
+                value="transcript"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent"
+              >
+                Transcript
+              </TabsTrigger>
+              <TabsTrigger 
+                value="dual-view"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent"
+              >
+                Dual View
+              </TabsTrigger>
             </TabsList>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            <Button variant="ghost" size="icon" onClick={onClose} className="ml-2">
               <X className="h-4 w-4" />
             </Button>
           </div>
