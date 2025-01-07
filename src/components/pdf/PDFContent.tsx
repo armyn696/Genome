@@ -3,7 +3,6 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 
-// Initialize PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 interface PDFContentProps {
@@ -33,8 +32,8 @@ const PDFContent = ({ pdfUrl }: PDFContentProps) => {
   }
 
   return (
-    <ScrollArea className="h-[calc(100vh-16rem)] w-full">
-      <div className="flex flex-col items-center px-6 py-8">
+    <ScrollArea className="h-full">
+      <div className="flex flex-col items-center p-6">
         {pdfUrl ? (
           <Document
             file={pdfUrl}

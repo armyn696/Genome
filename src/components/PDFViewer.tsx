@@ -37,10 +37,10 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
 
   return (
     <div className="h-[calc(100vh-12rem)] flex rounded-lg border bg-background/50 backdrop-blur-sm mt-4 mb-8 overflow-hidden">
-      <ResizablePanelGroup direction="horizontal" className="flex-1">
+      <ResizablePanelGroup direction="horizontal" className="w-full">
         <ResizablePanel defaultSize={70} minSize={30}>
-          <div className="flex-1 flex flex-col h-full">
-            <Tabs defaultValue="view-pdf" className="flex-1 flex flex-col">
+          <div className="flex flex-col h-full">
+            <Tabs defaultValue="view-pdf" className="flex-1 flex flex-col h-full">
               <div className="border-b flex items-center justify-between px-4 bg-muted/50">
                 <TabsList className="w-full justify-start h-14 bg-transparent">
                   <TabsTrigger value="notes" className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent/80">
@@ -61,7 +61,7 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
                 </Button>
               </div>
 
-              <TabsContent value="view-pdf" className="flex-1">
+              <TabsContent value="view-pdf" className="flex-1 h-full">
                 <PDFContent pdfUrl={pdfUrl} />
               </TabsContent>
 

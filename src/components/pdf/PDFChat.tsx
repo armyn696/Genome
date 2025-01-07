@@ -8,7 +8,7 @@ const PDFChat = () => {
   const [message, setMessage] = useState("");
 
   return (
-    <div className="w-80 border-l flex flex-col bg-sidebar">
+    <div className="flex flex-col h-full bg-sidebar">
       <div className="p-4 border-b">
         <h2 className="font-semibold">Chat with AI about this PDF</h2>
       </div>
