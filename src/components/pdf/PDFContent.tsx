@@ -17,7 +17,9 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
 
   useEffect(() => {
     const baseWidth = 800;
-    const newScale = Math.max(0.5, Math.min(1, (window.innerWidth * (containerWidth / 100)) / baseWidth));
+    // Adjust scale calculation to be more responsive from the start
+    const containerWidthPx = window.innerWidth * (containerWidth / 100);
+    const newScale = Math.max(0.5, Math.min(1, containerWidthPx / (baseWidth + 100)));
     setScale(newScale);
   }, [containerWidth]);
 
@@ -48,12 +50,12 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
               file={pdfUrl}
               onLoadSuccess={onDocumentLoadSuccess}
               onLoadError={onDocumentLoadError}
-              className="flex flex-col items-center"
+              className="flex flex-col items-center mx-auto"
             >
               {Array.from(new Array(numPages || 0), (el, index) => (
                 <div 
                   key={`page_${index + 1}`} 
-                  className="mb-8 last:mb-0"
+                  className="mb-8 last:mb-0 flex justify-center"
                 >
                   <Page
                     pageNumber={index + 1}
