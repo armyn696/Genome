@@ -23,6 +23,7 @@ const StudyHub = () => {
   
   const handleResourceAdd = (newResource: Resource) => {
     setResources(prev => [...prev, newResource]);
+    console.log("Resources updated:", [...resources, newResource]);
   };
 
   const menuItems = [
@@ -91,13 +92,12 @@ const StudyHub = () => {
 
                 {/* Resources Section */}
                 <div className="space-y-2">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start gap-2 hover:bg-accent"
-                  >
+                  <div className="flex items-center gap-2 px-2">
                     <BookOpen className="h-5 w-5 text-primary" />
-                    Your Resources
-                  </Button>
+                    <span className="font-medium">Your Resources</span>
+                  </div>
+                  
+                  <ResourceList resources={resources} />
                   
                   {/* Add Resource Button with Modal */}
                   <Dialog>
