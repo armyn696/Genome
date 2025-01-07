@@ -10,7 +10,10 @@ import 'react-pdf/dist/esm/Page/TextLayer.css';
 import { useToast } from "@/components/ui/use-toast";
 
 // Initialize PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'node_modules/pdfjs-dist/build/pdf.worker.mjs',
+  import.meta.url,
+).toString();
 
 interface PDFViewerProps {
   resourceId: string;
