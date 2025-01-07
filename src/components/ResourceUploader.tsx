@@ -21,7 +21,7 @@ const ResourceUploader = ({ onResourceAdded }: ResourceUploaderProps) => {
   const { toast } = useToast();
   const [isDragging, setIsDragging] = useState(false);
 
-  const handleFileUpload = (file: File) => {
+  const handleFileUpload = async (file: File) => {
     console.log("Handling file upload:", file.name);
     
     if (!file) return;
@@ -35,34 +35,47 @@ const ResourceUploader = ({ onResourceAdded }: ResourceUploaderProps) => {
       return;
     }
 
-    const size = file.size < 1024 * 1024 
-      ? `${(file.size / 1024).toFixed(2)} KB`
-      : `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+    try {
+      // Read the file as ArrayBuffer
+      const arrayBuffer = await file.arrayBuffer();
+      // Convert ArrayBuffer to Blob
+      const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+      // Create a URL for the blob
+      const fileUrl = URL.createObjectURL(blob);
 
-    // Create a URL for the uploaded file
-    const fileUrl = URL.createObjectURL(file);
+      const size = file.size < 1024 * 1024 
+        ? `${(file.size / 1024).toFixed(2)} KB`
+        : `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
 
-    const newResource: Resource = {
-      id: Date.now().toString(),
-      name: file.name,
-      type: 'PDF',
-      size: size,
-      uploadDate: new Date().toLocaleDateString(),
-      url: fileUrl
-    };
+      const newResource: Resource = {
+        id: Date.now().toString(),
+        name: file.name,
+        type: 'PDF',
+        size: size,
+        uploadDate: new Date().toLocaleDateString(),
+        url: fileUrl
+      };
 
-    // Store resources in localStorage
-    const existingResources = JSON.parse(localStorage.getItem('resources') || '[]');
-    const updatedResources = [...existingResources, newResource];
-    localStorage.setItem('resources', JSON.stringify(updatedResources));
+      // Store resources in localStorage
+      const existingResources = JSON.parse(localStorage.getItem('resources') || '[]');
+      const updatedResources = [...existingResources, newResource];
+      localStorage.setItem('resources', JSON.stringify(updatedResources));
 
-    onResourceAdded(newResource);
-    console.log("Resource added:", newResource);
-    
-    toast({
-      title: "File uploaded successfully",
-      description: `${file.name} has been added to your resources`
-    });
+      onResourceAdded(newResource);
+      console.log("Resource added:", newResource);
+      
+      toast({
+        title: "File uploaded successfully",
+        description: `${file.name} has been added to your resources`
+      });
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast({
+        variant: "destructive",
+        title: "Upload failed",
+        description: "There was an error uploading your file"
+      });
+    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {

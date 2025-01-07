@@ -10,10 +10,7 @@ import 'react-pdf/dist/esm/Page/TextLayer.css';
 import { useToast } from "@/components/ui/use-toast";
 
 // Initialize PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.js',
-  import.meta.url,
-).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
 interface PDFViewerProps {
   resourceId: string;
@@ -29,7 +26,6 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
   console.log("Rendering PDFViewer for resource:", resourceId);
 
   useEffect(() => {
-    // Find the resource in localStorage or state management
     const resources = JSON.parse(localStorage.getItem('resources') || '[]');
     const resource = resources.find((r: any) => r.id === resourceId);
     
