@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Document, Page, pdfjs } from 'react-pdf';
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -78,7 +78,6 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
             </div>
           )}
         </div>
-        <ScrollBar />
       </ScrollArea>
     </div>
   );

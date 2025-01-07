@@ -42,8 +42,8 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
         }}
       >
         <ResizablePanel 
-          defaultSize={70}
-          minSize={30}
+          defaultSize={70} 
+          minSize={30} 
           maxSize={80}
           className="overflow-hidden"
         >
@@ -76,7 +76,7 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
           defaultSize={30}
           minSize={20}
           maxSize={70}
-          className="overflow-hidden"
+          className="overflow-hidden bg-sidebar"
         >
           <PDFChat />
         </ResizablePanel>
