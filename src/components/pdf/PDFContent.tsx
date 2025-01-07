@@ -54,12 +54,14 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
               {Array.from(new Array(numPages || 0), (el, index) => (
                 <div 
                   key={`page_${index + 1}`} 
-                  className="mb-8 last:mb-0 w-full"
+                  className={`mb-8 last:mb-0 w-full ${index === 0 ? 'first-page' : ''} ${index === (numPages || 1) - 1 ? 'last-page' : ''}`}
                 >
                   <Page
                     pageNumber={index + 1}
                     width={800 * scale}
-                    className="shadow-lg rounded-lg overflow-hidden bg-white"
+                    className={`shadow-lg overflow-hidden bg-white
+                      ${index === 0 ? 'rounded-t-lg' : ''}
+                      ${index === (numPages || 1) - 1 ? 'rounded-b-lg' : ''}`}
                     renderAnnotationLayer={false}
                     renderTextLayer={false}
                   />
