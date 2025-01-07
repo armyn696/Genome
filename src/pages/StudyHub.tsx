@@ -1,8 +1,9 @@
-import { Menu, Home, MessageSquare, BookOpen, TestTube, Plus } from "lucide-react";
+import { Menu, Home, MessageSquare, BookOpen, TestTube, Plus, FileText, Mic, Youtube, FileAudio, FileVideo, Image, Text, CircleChart } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const StudyHub = () => {
   console.log("Rendering StudyHub page");
@@ -13,6 +14,22 @@ const StudyHub = () => {
     { icon: BookOpen, label: "Flashcard" },
     { icon: TestTube, label: "Test" },
     { icon: BookOpen, label: "Quiz" },
+  ];
+
+  const resourceTypes = [
+    { icon: FileText, label: "Upload Documents", description: "pdf, pptx, docx" },
+    { icon: Mic, label: "Record Live Lecture" },
+    { icon: Youtube, label: "YouTube Video" },
+    { icon: FileAudio, label: "Upload Audio", description: "mp3, wav" },
+    { icon: FileVideo, label: "Upload Video", description: "mp4" },
+    { icon: BookOpen, label: "Google Docs" },
+    { icon: Image, label: "Handwritten Notes" },
+    { icon: FileText, label: "Blank Document" },
+    { icon: Text, label: "Paste Notes" },
+    { icon: BookOpen, label: "Quizlet Set" },
+    { icon: CircleChart, label: "Essay Grader" },
+    { icon: BookOpen, label: "Brightspace" },
+    { icon: BookOpen, label: "Canvas" },
   ];
 
   const renderMenuItem = (Icon: any, label: string) => (
@@ -65,14 +82,45 @@ const StudyHub = () => {
                     Your Resources
                   </Button>
                   
-                  {/* Add Button */}
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start gap-2 border-primary/50 hover:bg-primary/10"
-                  >
-                    <Plus className="h-5 w-5 text-primary" />
-                    Add Resource
-                  </Button>
+                  {/* Add Resource Button with Modal */}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start gap-2 border-primary/50 hover:bg-primary/10"
+                      >
+                        <Plus className="h-5 w-5 text-primary" />
+                        Add Resource
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[800px] bg-background/95 backdrop-blur-sm">
+                      <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold text-center mb-4">Add Material</DialogTitle>
+                        <p className="text-sm text-muted-foreground text-center mb-6">
+                          Material you add will be used to personalize StudyFetch with your class material, which can then be used to create flashcards, quizzes, tests, chat with an AI tutor, etc.
+                        </p>
+                      </DialogHeader>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {resourceTypes.map(({ icon: Icon, label, description }) => (
+                          <Button
+                            key={label}
+                            variant="outline"
+                            className="h-auto py-6 flex flex-col items-center gap-3 hover:bg-primary/10 hover:border-primary transition-colors"
+                          >
+                            <Icon className="h-8 w-8 text-primary" />
+                            <div className="text-center">
+                              <div className="font-semibold">{label}</div>
+                              {description && (
+                                <div className="text-xs text-muted-foreground mt-1">
+                                  {description}
+                                </div>
+                              )}
+                            </div>
+                          </Button>
+                        ))}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </nav>
             </SheetContent>
