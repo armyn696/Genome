@@ -1,20 +1,21 @@
-import { useRef, useMemo } from "react";
+import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 const BackgroundScene = () => {
   const pointsRef = useRef<THREE.Points>(null);
 
-  // Create particles using useMemo to prevent recreation on each render
-  const positions = useMemo(() => {
-    const posArray = new Float32Array(2000 * 3);
-    for (let i = 0; i < 2000; i++) {
-      posArray[i * 3] = (Math.random() - 0.5) * 10;     // x
-      posArray[i * 3 + 1] = (Math.random() - 0.5) * 10; // y
-      posArray[i * 3 + 2] = (Math.random() - 0.5) * 10; // z
-    }
-    return posArray;
-  }, []);
+  // Create geometry and store vertices
+  const vertices = new Float32Array(2000 * 3);
+  for (let i = 0; i < 2000; i++) {
+    vertices[i * 3] = (Math.random() - 0.5) * 10;     // x
+    vertices[i * 3 + 1] = (Math.random() - 0.5) * 10; // y
+    vertices[i * 3 + 2] = (Math.random() - 0.5) * 10; // z
+  }
+
+  // Create buffer geometry
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
 
   // Animation
   useFrame(() => {
@@ -28,16 +29,7 @@ const BackgroundScene = () => {
     <>
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 5]} intensity={1} />
-      <points ref={pointsRef}>
-        <bufferGeometry>
-          <bufferAttribute 
-            attach="attributes-position"
-            array={positions}
-            count={positions.length / 3}
-            itemSize={3}
-            usage={THREE.StaticDrawUsage}
-          />
-        </bufferGeometry>
+      <points ref={pointsRef} geometry={geometry}>
         <pointsMaterial
           size={0.02}
           color="#9b87f5"
