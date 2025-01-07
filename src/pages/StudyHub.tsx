@@ -1,4 +1,4 @@
-import { Menu, Home, MessageSquare, BookOpen, TestTube, Plus, FileText, Mic, Youtube, FileAudio, FileVideo, Image, Text, CircleChart } from "lucide-react";
+import { Menu, Home, MessageSquare, BookOpen, TestTube, Plus, FileText, Mic, Youtube, FileAudio, FileVideo, Image, Text, BarChart } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -27,7 +27,7 @@ const StudyHub = () => {
     { icon: FileText, label: "Blank Document" },
     { icon: Text, label: "Paste Notes" },
     { icon: BookOpen, label: "Quizlet Set" },
-    { icon: CircleChart, label: "Essay Grader" },
+    { icon: BarChart, label: "Essay Grader" },
     { icon: BookOpen, label: "Brightspace" },
     { icon: BookOpen, label: "Canvas" },
   ];
