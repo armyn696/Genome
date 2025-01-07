@@ -51,6 +51,11 @@ const ResourceUploader = ({ onResourceAdded }: ResourceUploaderProps) => {
       url: fileUrl
     };
 
+    // Store resources in localStorage
+    const existingResources = JSON.parse(localStorage.getItem('resources') || '[]');
+    const updatedResources = [...existingResources, newResource];
+    localStorage.setItem('resources', JSON.stringify(updatedResources));
+
     onResourceAdded(newResource);
     console.log("Resource added:", newResource);
     
@@ -116,13 +121,7 @@ const ResourceUploader = ({ onResourceAdded }: ResourceUploaderProps) => {
       </div>
 
       <DialogClose asChild>
-        <Button 
-          variant="outline" 
-          className="w-full"
-          onClick={() => {
-            // Close dialog after successful upload
-          }}
-        >
+        <Button variant="outline" className="w-full">
           Done
         </Button>
       </DialogClose>

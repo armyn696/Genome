@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
+import { useToast } from "@/components/ui/use-toast";
 
 // Initialize PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -20,13 +21,44 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
   const [message, setMessage] = useState("");
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const { toast } = useToast();
   
   console.log("Rendering PDFViewer for resource:", resourceId);
 
-  // Function to handle successful PDF document loading
+  useEffect(() => {
+    // Find the resource in localStorage or state management
+    const resources = JSON.parse(localStorage.getItem('resources') || '[]');
+    const resource = resources.find((r: any) => r.id === resourceId);
+    
+    if (resource?.url) {
+      console.log("Setting PDF URL:", resource.url);
+      setPdfUrl(resource.url);
+    } else {
+      console.log("No URL found for resource:", resourceId);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Could not load the PDF file"
+      });
+    }
+  }, [resourceId]);
+
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     console.log("PDF loaded successfully with", numPages, "pages");
     setNumPages(numPages);
+    toast({
+      title: "PDF loaded successfully",
+      description: `Document has ${numPages} pages`
+    });
+  }
+
+  function onDocumentLoadError(error: Error) {
+    console.error("Error loading PDF:", error);
+    toast({
+      variant: "destructive",
+      title: "Error",
+      description: "Failed to load the PDF file"
+    });
   }
 
   return (
@@ -38,25 +70,25 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
             <TabsList className="w-full justify-start h-14 bg-transparent">
               <TabsTrigger 
                 value="notes" 
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent"
+                className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent/80"
               >
                 Notes
               </TabsTrigger>
               <TabsTrigger 
                 value="view-pdf"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent"
+                className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent/80"
               >
                 View PDF
               </TabsTrigger>
               <TabsTrigger 
                 value="transcript"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent"
+                className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent/80"
               >
                 Transcript
               </TabsTrigger>
               <TabsTrigger 
                 value="dual-view"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent"
+                className="data-[state=active]:bg-primary/90 data-[state=active]:text-primary-foreground rounded-md transition-all duration-200 hover:bg-accent/80"
               >
                 Dual View
               </TabsTrigger>
@@ -73,6 +105,7 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
                   <Document
                     file={pdfUrl}
                     onLoadSuccess={onDocumentLoadSuccess}
+                    onLoadError={onDocumentLoadError}
                     className="flex flex-col items-center"
                   >
                     {Array.from(new Array(numPages || 0), (el, index) => (
@@ -87,7 +120,7 @@ const PDFViewer = ({ resourceId, onClose }: PDFViewerProps) => {
                   </Document>
                 ) : (
                   <div className="text-center text-muted-foreground">
-                    No PDF file loaded
+                    Loading PDF...
                   </div>
                 )}
               </div>
