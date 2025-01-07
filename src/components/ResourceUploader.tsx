@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { FileText, Upload } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import ResourceList from "./ResourceList";
 
 interface Resource {
   id: string;
@@ -17,6 +17,8 @@ const ResourceUploader = () => {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFileUpload = (file: File) => {
+    console.log("Handling file upload:", file.name);
+    
     if (!file) return;
     
     if (file.type !== 'application/pdf') {
@@ -41,6 +43,7 @@ const ResourceUploader = () => {
     };
 
     setResources(prev => [...prev, newResource]);
+    console.log("Resource added:", newResource);
     
     toast({
       title: "File uploaded successfully",
@@ -50,21 +53,17 @@ const ResourceUploader = () => {
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    e.stopPropagation();
     setIsDragging(true);
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
-    e.stopPropagation();
     setIsDragging(false);
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    e.stopPropagation();
     setIsDragging(false);
-    
     const file = e.dataTransfer.files[0];
     handleFileUpload(file);
   };
@@ -78,7 +77,6 @@ const ResourceUploader = () => {
 
   return (
     <div className="space-y-6">
-      {/* Hidden file input */}
       <input
         type="file"
         id="pdf-upload"
@@ -87,7 +85,6 @@ const ResourceUploader = () => {
         onChange={handleInputChange}
       />
 
-      {/* Upload button */}
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -109,28 +106,7 @@ const ResourceUploader = () => {
         </label>
       </div>
 
-      {/* Resources list */}
-      {resources.length > 0 && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Your Resources</h3>
-          <div className="space-y-2">
-            {resources.map(resource => (
-              <div
-                key={resource.id}
-                className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
-              >
-                <FileText className="h-5 w-5 text-primary" />
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{resource.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {resource.type} • {resource.size} • {resource.uploadDate}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <ResourceList resources={resources} />
     </div>
   );
 };
