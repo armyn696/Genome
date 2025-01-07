@@ -179,9 +179,6 @@ const StudyHub = () => {
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
             Organize your study materials and enhance your learning experience
           </p>
-          
-          {/* Resource List */}
-          <ResourceList resources={resources} />
         </motion.div>
       </main>
     </div>
