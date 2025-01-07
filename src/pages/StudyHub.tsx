@@ -1,10 +1,30 @@
-import { Menu } from "lucide-react";
+import { Menu, Home, MessageSquare, BookOpen, TestTube, Plus } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { Separator } from "@/components/ui/separator";
 
 const StudyHub = () => {
   console.log("Rendering StudyHub page");
+  
+  const menuItems = [
+    { icon: Home, label: "Home" },
+    { icon: MessageSquare, label: "Chat" },
+    { icon: BookOpen, label: "Flashcard" },
+    { icon: TestTube, label: "Test" },
+    { icon: BookOpen, label: "Quiz" },
+  ];
+
+  const renderMenuItem = (Icon: any, label: string) => (
+    <Button
+      variant="ghost"
+      className="w-full justify-start gap-2 hover:bg-accent"
+      key={label}
+    >
+      <Icon className="h-5 w-5 text-primary" />
+      {label}
+    </Button>
+  );
   
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -26,9 +46,34 @@ const StudyHub = () => {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] bg-background/95 backdrop-blur-sm">
-              <nav className="flex flex-col gap-4">
-                <h2 className="text-2xl font-bold text-primary">Dashboard</h2>
-                {/* We'll add more dashboard content later */}
+              <nav className="flex flex-col gap-4 mt-8">
+                {/* Main Menu Items */}
+                <div className="space-y-2">
+                  {menuItems.map(({ icon: Icon, label }) => renderMenuItem(Icon, label))}
+                </div>
+
+                {/* Separator */}
+                <Separator className="my-2" />
+
+                {/* Resources Section */}
+                <div className="space-y-2">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2 hover:bg-accent"
+                  >
+                    <BookOpen className="h-5 w-5 text-primary" />
+                    Your Resources
+                  </Button>
+                  
+                  {/* Add Button */}
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start gap-2 border-primary/50 hover:bg-primary/10"
+                  >
+                    <Plus className="h-5 w-5 text-primary" />
+                    Add Resource
+                  </Button>
+                </div>
               </nav>
             </SheetContent>
           </Sheet>
