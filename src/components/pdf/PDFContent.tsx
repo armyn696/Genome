@@ -18,7 +18,7 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
   useEffect(() => {
     const baseWidth = 800;
     const containerWidthPx = window.innerWidth * (containerWidth / 100);
-    const newScale = Math.min(1, containerWidthPx / baseWidth);
+    const newScale = containerWidthPx / baseWidth;
     setScale(newScale);
   }, [containerWidth]);
 
@@ -43,18 +43,18 @@ const PDFContent = ({ pdfUrl, containerWidth }: PDFContentProps) => {
   return (
     <div className="h-full w-full">
       <ScrollArea className="h-full w-full">
-        <div className="flex flex-col items-center min-h-full">
+        <div className="flex flex-col w-full">
           {pdfUrl ? (
             <Document
               file={pdfUrl}
               onLoadSuccess={onDocumentLoadSuccess}
               onLoadError={onDocumentLoadError}
-              className="flex flex-col items-center w-full"
+              className="w-full"
             >
               {Array.from(new Array(numPages || 0), (el, index) => (
                 <div 
                   key={`page_${index + 1}`} 
-                  className="mb-8 last:mb-0 w-full flex justify-center"
+                  className="mb-8 last:mb-0 w-full"
                 >
                   <Page
                     pageNumber={index + 1}
