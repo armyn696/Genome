@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const features = [
   {
@@ -38,6 +39,7 @@ const features = [
 
 const Index = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
   console.log("Login state:", isLoggedIn);
 
   const handleAuthClick = () => {
@@ -78,6 +80,7 @@ const Index = () => {
             <Button 
               variant="ghost"
               className="bg-gradient-to-r from-purple-500/20 to-indigo-500/20 hover:from-purple-500/30 hover:to-indigo-500/30 text-purple-400 hover:text-purple-300 border border-purple-500/50 hover:border-purple-400 transition-all duration-300 backdrop-blur-sm shadow-lg hover:shadow-purple-500/20"
+              onClick={() => navigate('/studyhub')}
             >
               Your Study Hub
             </Button>
