@@ -19,12 +19,12 @@ interface StudyHubSidebarProps {
   resources: Resource[];
   onResourceAdd: (resource: Resource) => void;
   onResourceSelect: (resource: Resource) => void;
-  onViewChange: (view: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame') => void;
+  onViewChange: (view: 'home' | 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame') => void;
 }
 
 export const StudyHubSidebar = ({ resources, onResourceAdd, onResourceSelect, onViewChange }: StudyHubSidebarProps) => {
   const menuItems = [
-    { icon: Home, label: "Home" },
+    { icon: Home, label: "Home", view: 'home' as const },
     { icon: MessageSquare, label: "Chat", view: 'chat' as const },
     { icon: BookOpen, label: "Quiz", view: 'quiz' as const },
     { icon: Bookmark, label: "Flashcards", view: 'flashcards' as const },
@@ -46,7 +46,7 @@ export const StudyHubSidebar = ({ resources, onResourceAdd, onResourceSelect, on
               <SidebarMenuItem
                 key={item.label}
                 {...item}
-                onClick={item.view ? onViewChange : undefined}
+                onClick={item.view ? () => onViewChange(item.view) : undefined}
               />
             ))}
           </div>
