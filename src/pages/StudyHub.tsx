@@ -1,4 +1,4 @@
-import { Menu, Home, MessageSquare, BookOpen, Plus, FileText, Mic2, Video, AudioLines, Image, Text, LayoutList, Trees, GamePad } from "lucide-react";
+import { Menu, Home, MessageSquare, BookOpen, Plus, FileText, Mic2, Video, AudioLines, Image, Text, LayoutList, Trees, Gamepad } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -52,7 +52,7 @@ const StudyHub = () => {
     { icon: BookOpen, label: "Quiz", view: 'quiz' as const },
     { icon: BookOpen, label: "Flashcards", view: 'flashcards' as const },
     { icon: Trees, label: "Mind Maps", view: 'mindmap' as const },
-    { icon: GamePad, label: "Match Game", view: 'matchgame' as const },
+    { icon: Gamepad, label: "Match Game", view: 'matchgame' as const },
   ];
 
   const resourceTypes = [
