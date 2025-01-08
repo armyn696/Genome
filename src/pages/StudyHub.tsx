@@ -76,8 +76,6 @@ const StudyHub = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Background className="!fixed" />
-
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border h-16">
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
@@ -154,40 +152,67 @@ const StudyHub = () => {
       </header>
 
       {/* Main Content */}
-      <main className="h-screen pt-16">
+      <main className="h-screen pt-16 bg-[#1A1B1E]">
         {selectedResource ? (
-          <div className="h-full bg-black">
-            <div className="h-full">
-              <PDFViewerNav currentView={currentView} onViewChange={setCurrentView} />
-              <div className="h-[calc(100vh-7rem)]">
-                <ResizablePanelGroup direction="horizontal" className="h-full">
-                  <ResizablePanel defaultSize={60} minSize={30}>
-                    <PDFContent currentView={currentView} resourceId={selectedResource.id} />
-                  </ResizablePanel>
-                  <ResizableHandle withHandle />
-                  <ResizablePanel defaultSize={40} minSize={30}>
-                    <ChatInterface resourceId={selectedResource.id} />
-                  </ResizablePanel>
-                </ResizablePanelGroup>
-              </div>
+          <div className="h-full">
+            <PDFViewerNav currentView={currentView} onViewChange={setCurrentView} />
+            <div className="h-[calc(100vh-7rem)]">
+              <ResizablePanelGroup direction="horizontal" className="h-full">
+                <ResizablePanel defaultSize={60} minSize={30}>
+                  <PDFContent currentView={currentView} resourceId={selectedResource.id} />
+                </ResizablePanel>
+                <ResizableHandle withHandle />
+                <ResizablePanel defaultSize={40} minSize={30}>
+                  <ChatInterface resourceId={selectedResource.id} />
+                </ResizablePanel>
+              </ResizablePanelGroup>
             </div>
           </div>
         ) : (
-          <div className="container mx-auto px-4 h-full flex items-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-center w-full"
-            >
-              <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
-                Your Study Hub
-              </h1>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-                Organize your study materials and enhance your learning experience
-              </p>
-              <ResourceList resources={resources} onResourceSelect={handleResourceSelect} />
-            </motion.div>
+          <div className="container mx-auto h-[calc(100vh-4rem)] flex flex-col">
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
+              <img 
+                src="/lovable-uploads/7001b6ad-8f50-4612-93a2-e92b7542fe0c.png" 
+                alt="AI Assistant" 
+                className="w-32 h-32 mb-6"
+              />
+              <h1 className="text-2xl font-bold mb-2 text-white">Hi, I'm Spark.E</h1>
+              <p className="text-gray-400 mb-8">Ask me anything about learning, or try one of these examples:</p>
+              <div className="grid gap-4 max-w-2xl w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start text-left p-4 h-auto"
+                >
+                  <MessageSquare className="h-5 w-5 mr-2 text-primary" />
+                  Find me 3 insightful quotes from the materials I selected
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start text-left p-4 h-auto"
+                >
+                  <MessageSquare className="h-5 w-5 mr-2 text-primary" />
+                  What is the main idea of the materials I selected?
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start text-left p-4 h-auto"
+                >
+                  <MessageSquare className="h-5 w-5 mr-2 text-primary" />
+                  Summarize my course materials for me like im 5 years old
+                </Button>
+              </div>
+            </div>
+            <div className="p-4 border-t border-gray-800">
+              <div className="max-w-2xl mx-auto flex items-center gap-4">
+                <div className="flex-1 text-sm text-red-400">
+                  You have no materials selected, select a material to chat about it with Spark.E
+                </div>
+                <Button variant="outline" className="gap-2">
+                  <FileText className="h-4 w-4" />
+                  <span>Select Materials</span>
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </main>
