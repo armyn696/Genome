@@ -2,8 +2,8 @@ import { Button } from "@/components/ui/button";
 import { FileText, MessageSquare, BookOpen, LayoutPanelLeft } from "lucide-react";
 
 interface PDFViewerNavProps {
-  currentView: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards';
-  onViewChange: (view: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards') => void;
+  currentView: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap';
+  onViewChange: (view: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap') => void;
 }
 
 export const PDFViewerNav = ({ currentView, onViewChange }: PDFViewerNavProps) => {
