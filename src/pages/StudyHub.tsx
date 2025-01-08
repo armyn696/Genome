@@ -154,11 +154,11 @@ const StudyHub = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 pt-24">
+      <main className="container mx-auto px-4 pt-20">
         {selectedResource ? (
-          <>
+          <div className="space-y-2">
             <PDFViewerNav currentView={currentView} onViewChange={setCurrentView} />
-            <ResizablePanelGroup direction="horizontal" className="min-h-[80vh] rounded-lg border">
+            <ResizablePanelGroup direction="horizontal" className="min-h-[calc(100vh-10rem)] rounded-lg border">
               <ResizablePanel defaultSize={60} minSize={30}>
                 <PDFContent currentView={currentView} resourceId={selectedResource.id} />
               </ResizablePanel>
@@ -167,7 +167,7 @@ const StudyHub = () => {
                 <ChatInterface resourceId={selectedResource.id} />
               </ResizablePanel>
             </ResizablePanelGroup>
-          </>
+          </div>
         ) : (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
