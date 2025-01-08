@@ -10,8 +10,8 @@ import MatchGameHub from "@/components/matchgame/MatchGameHub";
 import { StudyHubSidebar } from "@/components/studyhub/StudyHubSidebar";
 import ResourceProgress from "@/components/studyhub/ResourceProgress";
 import FeaturesSection from "@/components/studyhub/FeaturesSection";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface Resource {
   id: string;
@@ -28,6 +28,16 @@ const StudyHub = () => {
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [currentView, setCurrentView] = useState<ViewType>('home');
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Handle initial view from location state
+  useEffect(() => {
+    if (location.state?.view) {
+      setCurrentView(location.state.view);
+      // Clear the state after using it
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const handleResourceAdd = (newResource: Resource) => {
     setResources(prev => [...prev, newResource]);
@@ -47,11 +57,25 @@ const StudyHub = () => {
   };
 
   const handleViewChange = (view: ViewType | 'chat') => {
-    if (view === 'chat') {
-      navigate('/studyhub/chat');
-      return;
+    switch (view) {
+      case 'chat':
+        navigate('/studyhub/chat');
+        break;
+      case 'quiz':
+        navigate('/studyhub/quiz');
+        break;
+      case 'flashcards':
+        navigate('/studyhub/flashcards');
+        break;
+      case 'mindmap':
+        navigate('/studyhub/mindmap');
+        break;
+      case 'matchgame':
+        navigate('/studyhub/matchgame');
+        break;
+      default:
+        setCurrentView(view as ViewType);
     }
-    setCurrentView(view as ViewType);
   };
 
   const renderContent = () => {
