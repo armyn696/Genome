@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { PDFChatInput } from './chat/PDFChatInput';
+import { ChatInput } from './chat/ChatInput';
 import { ChatMessage } from './chat/ChatMessage';
 import { ChatWelcome } from './chat/ChatWelcome';
 
@@ -85,7 +85,7 @@ export const PDFChatInterface = ({ resourceId }: PDFChatInterfaceProps) => {
         )}
       </ScrollArea>
 
-      <PDFChatInput
+      <ChatInput
         onSendMessage={handleSendMessage}
         onSendImage={handleSendImage}
         onSendVoice={handleSendVoice}
