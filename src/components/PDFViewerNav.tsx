@@ -1,49 +1,37 @@
 import { Button } from "@/components/ui/button";
-import { FileText, MessageSquare, BookOpen, LayoutPanelLeft } from "lucide-react";
+import { ViewType } from "@/types/view";
 
 interface PDFViewerNavProps {
-  currentView: 'notes' | 'pdf' | 'transcript' | 'dual';
-  onViewChange: (view: 'notes' | 'pdf' | 'transcript' | 'dual') => void;
+  currentView: ViewType;
+  onViewChange: (view: ViewType) => void;
 }
 
 export const PDFViewerNav = ({ currentView, onViewChange }: PDFViewerNavProps) => {
   return (
-    <div className="flex space-x-2 p-2 bg-background/95 backdrop-blur-sm border-b">
+    <div className="flex items-center justify-center gap-2 bg-background/80 backdrop-blur-sm border-b border-border p-2">
       <Button
-        variant={currentView === 'notes' ? 'default' : 'ghost'}
-        size="sm"
-        onClick={() => onViewChange('notes')}
-        className="gap-2"
+        variant={currentView === "notes" ? "default" : "ghost"}
+        onClick={() => onViewChange("notes")}
       >
-        <MessageSquare className="h-4 w-4" />
         Notes
       </Button>
       <Button
-        variant={currentView === 'pdf' ? 'default' : 'ghost'}
-        size="sm"
-        onClick={() => onViewChange('pdf')}
-        className="gap-2"
+        variant={currentView === "pdf" ? "default" : "ghost"}
+        onClick={() => onViewChange("pdf")}
       >
-        <FileText className="h-4 w-4" />
-        View PDF
+        PDF
       </Button>
       <Button
-        variant={currentView === 'transcript' ? 'default' : 'ghost'}
-        size="sm"
-        onClick={() => onViewChange('transcript')}
-        className="gap-2"
+        variant={currentView === "transcript" ? "default" : "ghost"}
+        onClick={() => onViewChange("transcript")}
       >
-        <BookOpen className="h-4 w-4" />
         Transcript
       </Button>
       <Button
-        variant={currentView === 'dual' ? 'default' : 'ghost'}
-        size="sm"
-        onClick={() => onViewChange('dual')}
-        className="gap-2"
+        variant={currentView === "dual" ? "default" : "ghost"}
+        onClick={() => onViewChange("dual")}
       >
-        <LayoutPanelLeft className="h-4 w-4" />
-        Dual View
+        Dual
       </Button>
     </div>
   );

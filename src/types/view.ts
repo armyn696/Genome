@@ -1,0 +1,1 @@
+export type ViewType = "notes" | "pdf" | "transcript" | "dual" | "chat";
