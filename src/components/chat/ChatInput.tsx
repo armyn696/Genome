@@ -1,9 +1,8 @@
 import { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Image, Mic, FileText, Globe, GraduationCap } from "lucide-react";
+import { Send, Image, Mic, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ResourceList from '../ResourceList';
 
@@ -31,8 +30,6 @@ export const ChatInput = ({
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const [webBrowsingEnabled, setWebBrowsingEnabled] = useState(false);
-  const [academicSearchEnabled, setAcademicSearchEnabled] = useState(false);
 
   const handleSendMessage = () => {
     if (!message.trim() || isLoading) return;
@@ -91,93 +88,77 @@ export const ChatInput = ({
   };
 
   return (
-    <div className="border-t p-4 bg-background/95 backdrop-blur-sm space-y-2">
-      <div className="flex items-center gap-2 max-w-3xl mx-auto">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2 h-8 px-3 text-sm">
-              <FileText className="h-4 w-4" />
-              {selectedResources.length} material(s) selected
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Select Materials</DialogTitle>
-            </DialogHeader>
-            <ResourceList
-              resources={resources}
-              onResourceSelect={onResourceSelect}
-            />
-          </DialogContent>
-        </Dialog>
-
-        <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1">
-          <Globe className="h-4 w-4" />
-          <span className="text-xs">Web Browsing</span>
-          <Switch
-            checked={webBrowsingEnabled}
-            onCheckedChange={setWebBrowsingEnabled}
-            className="scale-75"
-          />
+    <div className="border-t p-4 bg-background/95 backdrop-blur-sm space-y-4">
+      {resources && resources.length > 0 && (
+        <div className="flex justify-center mb-4">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2 h-8 px-3 text-sm">
+                <FileText className="h-4 w-4" />
+                {selectedResources?.length || 0} material(s) selected
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Select Materials</DialogTitle>
+              </DialogHeader>
+              <ResourceList
+                resources={resources}
+                onResourceSelect={onResourceSelect}
+              />
+            </DialogContent>
+          </Dialog>
         </div>
-
-        <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1">
-          <GraduationCap className="h-4 w-4" />
-          <span className="text-xs">Search Academic Papers</span>
-          <Switch
-            checked={academicSearchEnabled}
-            onCheckedChange={setAcademicSearchEnabled}
-            className="scale-75"
-          />
-        </div>
-      </div>
+      )}
 
       <div className="max-w-3xl mx-auto flex items-center gap-2 bg-muted rounded-lg p-2">
-        <input
-          type="file"
-          ref={fileInputRef}
-          className="hidden"
-          accept="image/*"
-          onChange={handleImageUpload}
-        />
-        <Button
-          variant="ghost"
-          size="icon"
-          className="shrink-0 hover:bg-background/50"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <Image className="h-5 w-5" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={cn(
-            "shrink-0 hover:bg-background/50",
-            isRecording && "text-red-500 animate-pulse"
-          )}
-          onClick={isRecording ? stopRecording : startRecording}
-        >
-          <Mic className="h-5 w-5" />
-        </Button>
-        <Textarea
-          placeholder="Ask your AI tutor anything..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className="min-h-[44px] resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-2"
-          rows={1}
-        />
-        <Button
-          onClick={handleSendMessage}
-          size="icon"
-          className={cn(
-            "shrink-0",
-            !message.trim() && "opacity-50 cursor-not-allowed"
-          )}
-          disabled={!message.trim() || isLoading}
-        >
-          <Send className="h-5 w-5" />
-        </Button>
+        <div className="flex justify-center gap-2 w-full">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="shrink-0 hover:bg-background/50"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Image className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+              "shrink-0 hover:bg-background/50",
+              isRecording && "text-red-500 animate-pulse"
+            )}
+            onClick={isRecording ? stopRecording : startRecording}
+          >
+            <Mic className="h-5 w-5" />
+          </Button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept="image/*"
+            onChange={handleImageUpload}
+          />
+          <Textarea
+            placeholder="Ask your AI tutor anything..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="min-h-[44px] resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-2"
+            rows={1}
+          />
+          <Button
+            onClick={handleSendMessage}
+            size="icon"
+            className={cn(
+              "shrink-0",
+              !message.trim() && "opacity-50 cursor-not-allowed"
+            )}
+            disabled={!message.trim() || isLoading}
+          >
+            <Send className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
     </div>
   );
