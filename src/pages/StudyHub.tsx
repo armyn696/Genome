@@ -1,4 +1,4 @@
-import { Menu, Home, MessageSquare, BookOpen, TestTube, Plus, FileText } from "lucide-react";
+import { Menu, Home, MessageSquare, BookOpen, TestTube, Plus, FileText, Mic2, Video, AudioLines, Image, Text, LayoutList } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -49,16 +49,16 @@ const StudyHub = () => {
       description: "pdf, pptx, docx", 
       component: (props: any) => <ResourceUploader onResourceAdd={props.onResourceAdd} /> 
     },
-    { icon: Mic, label: "Record Live Lecture" },
-    { icon: Youtube, label: "YouTube Video" },
-    { icon: FileAudio, label: "Upload Audio", description: "mp3, wav" },
-    { icon: FileVideo, label: "Upload Video", description: "mp4" },
+    { icon: Mic2, label: "Record Live Lecture" },
+    { icon: Video, label: "YouTube Video" },
+    { icon: AudioLines, label: "Upload Audio", description: "mp3, wav" },
+    { icon: Video, label: "Upload Video", description: "mp4" },
     { icon: BookOpen, label: "Google Docs" },
     { icon: Image, label: "Handwritten Notes" },
     { icon: FileText, label: "Blank Document" },
     { icon: Text, label: "Paste Notes" },
     { icon: BookOpen, label: "Quizlet Set" },
-    { icon: BarChart, label: "Essay Grader" },
+    { icon: LayoutList, label: "Essay Grader" },
     { icon: BookOpen, label: "Brightspace" },
     { icon: BookOpen, label: "Canvas" },
   ];

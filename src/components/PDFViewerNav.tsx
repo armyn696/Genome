@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { FileText, MessageSquare, BookOpen, LayoutSplit } from "lucide-react";
+import { FileText, MessageSquare, BookOpen, LayoutPanelLeft } from "lucide-react";
 
 interface PDFViewerNavProps {
   currentView: 'notes' | 'pdf' | 'transcript' | 'dual';
@@ -38,7 +38,7 @@ export const PDFViewerNav = ({ currentView, onViewChange }: PDFViewerNavProps) =
         onClick={() => onViewChange('dual')}
         className="gap-2"
       >
-        <LayoutSplit className="h-4 w-4" />
+        <LayoutPanelLeft className="h-4 w-4" />
         Dual View
       </Button>
     </div>
