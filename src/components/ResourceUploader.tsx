@@ -14,6 +14,8 @@ interface ResourceUploaderProps {
   onResourceAdd: (resource: Resource) => void;
 }
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB limit
+
 const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
   const { toast } = useToast();
   const [isDragging, setIsDragging] = useState(false);
@@ -32,36 +34,75 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
       return;
     }
 
+    if (file.size > MAX_FILE_SIZE) {
+      toast({
+        variant: "destructive",
+        title: "File too large",
+        description: "Please upload a PDF file smaller than 5MB"
+      });
+      return;
+    }
+
     const size = file.size < 1024 * 1024 
       ? `${(file.size / 1024).toFixed(2)} KB`
       : `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
 
     const id = Date.now().toString();
     
-    // Create a data URL from the file
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const dataUrl = e.target?.result as string;
-      // Store the PDF data URL
-      localStorage.setItem(`pdf_${id}`, dataUrl);
-    };
-    reader.readAsDataURL(file);
+    try {
+      // Create a data URL from the file
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = (e) => reject(e);
+        reader.readAsDataURL(file);
+      });
 
-    const newResource: Resource = {
-      id,
-      name: file.name,
-      type: 'PDF',
-      size,
-      uploadDate: new Date().toLocaleDateString()
-    };
+      try {
+        // Clear some storage if needed
+        const keys = Object.keys(localStorage);
+        const pdfKeys = keys.filter(key => key.startsWith('pdf_'));
+        if (pdfKeys.length > 5) { // Keep only last 5 PDFs
+          pdfKeys
+            .sort((a, b) => parseInt(a.split('_')[1]) - parseInt(b.split('_')[1]))
+            .slice(0, pdfKeys.length - 5)
+            .forEach(key => localStorage.removeItem(key));
+        }
 
-    onResourceAdd(newResource);
-    console.log("Resource added:", newResource);
-    
-    toast({
-      title: "File uploaded successfully",
-      description: `${file.name} has been added to your resources`
-    });
+        localStorage.setItem(`pdf_${id}`, dataUrl);
+      } catch (storageError) {
+        console.error("Storage error:", storageError);
+        toast({
+          variant: "destructive",
+          title: "Storage error",
+          description: "Could not store the PDF. Try clearing your browser storage."
+        });
+        return;
+      }
+
+      const newResource: Resource = {
+        id,
+        name: file.name,
+        type: 'PDF',
+        size,
+        uploadDate: new Date().toLocaleDateString()
+      };
+
+      onResourceAdd(newResource);
+      console.log("Resource added:", newResource);
+      
+      toast({
+        title: "File uploaded successfully",
+        description: `${file.name} has been added to your resources`
+      });
+    } catch (error) {
+      console.error("File reading error:", error);
+      toast({
+        variant: "destructive",
+        title: "Upload failed",
+        description: "There was an error uploading your file"
+      });
+    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -79,13 +120,6 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
     handleFileUpload(file);
-  };
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      handleFileUpload(file);
-    }
   };
 
   return (
@@ -119,7 +153,7 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
           >
             <Upload className="h-8 w-8 text-primary" />
             <span className="font-medium">Upload PDF</span>
-            <span className="text-sm text-muted-foreground">Drag and drop or click to upload</span>
+            <span className="text-sm text-muted-foreground">Drag and drop or click to upload (max 5MB)</span>
           </div>
         </label>
       </div>
