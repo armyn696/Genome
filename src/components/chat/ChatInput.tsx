@@ -112,7 +112,7 @@ export const ChatInput = ({
       )}
 
       <div className="max-w-3xl mx-auto flex items-center gap-2 bg-muted rounded-lg p-2">
-        <div className="flex justify-center gap-2 w-full">
+        <div className="flex justify-center items-center gap-2 w-full">
           <Button
             variant="ghost"
             size="icon"
