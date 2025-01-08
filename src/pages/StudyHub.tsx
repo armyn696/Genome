@@ -84,20 +84,18 @@ const StudyHub = () => {
     // If a resource is selected, show the split panel layout
     if (selectedResource) {
       return (
-        <div className="h-full bg-black">
-          <div className="h-full">
-            <PDFViewerNav currentView={currentView} onViewChange={setCurrentView} />
-            <div className="h-[calc(100vh-7rem)]">
-              <ResizablePanelGroup direction="horizontal" className="h-full">
-                <ResizablePanel defaultSize={60} minSize={30}>
-                  <PDFContent currentView={currentView} resourceId={selectedResource.id} />
-                </ResizablePanel>
-                <ResizableHandle withHandle />
-                <ResizablePanel defaultSize={40} minSize={30}>
-                  <PDFChatInterface resourceId={selectedResource.id} />
-                </ResizablePanel>
-              </ResizablePanelGroup>
-            </div>
+        <div className="h-[calc(100vh-4rem)] bg-black">
+          <PDFViewerNav currentView={currentView} onViewChange={setCurrentView} />
+          <div className="h-[calc(100vh-7rem)]">
+            <ResizablePanelGroup direction="horizontal" className="h-full">
+              <ResizablePanel defaultSize={60} minSize={30}>
+                <PDFContent currentView={currentView} resourceId={selectedResource.id} />
+              </ResizablePanel>
+              <ResizableHandle withHandle />
+              <ResizablePanel defaultSize={40} minSize={30}>
+                <PDFChatInterface resourceId={selectedResource.id} />
+              </ResizablePanel>
+            </ResizablePanelGroup>
           </div>
         </div>
       );
