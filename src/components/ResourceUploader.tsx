@@ -14,7 +14,7 @@ interface ResourceUploaderProps {
   onResourceAdd: (resource: Resource) => void;
 }
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB limit
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB limit
 
 const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
   const { toast } = useToast();
@@ -38,7 +38,7 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
       toast({
         variant: "destructive",
         title: "File too large",
-        description: "Please upload a PDF file smaller than 5MB"
+        description: "Please upload a PDF file smaller than 50MB"
       });
       return;
     }
@@ -62,10 +62,10 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
         // Clear some storage if needed
         const keys = Object.keys(localStorage);
         const pdfKeys = keys.filter(key => key.startsWith('pdf_'));
-        if (pdfKeys.length > 5) { // Keep only last 5 PDFs
+        if (pdfKeys.length > 3) { // Keep only last 3 PDFs to save storage space
           pdfKeys
             .sort((a, b) => parseInt(a.split('_')[1]) - parseInt(b.split('_')[1]))
-            .slice(0, pdfKeys.length - 5)
+            .slice(0, pdfKeys.length - 3)
             .forEach(key => localStorage.removeItem(key));
         }
 
@@ -75,7 +75,7 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
         toast({
           variant: "destructive",
           title: "Storage error",
-          description: "Could not store the PDF. Try clearing your browser storage."
+          description: "Storage is full. Please try removing some existing PDFs first."
         });
         return;
       }
@@ -100,7 +100,7 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
       toast({
         variant: "destructive",
         title: "Upload failed",
-        description: "There was an error uploading your file"
+        description: "There was an error uploading your file. Try with a smaller file or clear some storage."
       });
     }
   };
@@ -153,7 +153,7 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
           >
             <Upload className="h-8 w-8 text-primary" />
             <span className="font-medium">Upload PDF</span>
-            <span className="text-sm text-muted-foreground">Drag and drop or click to upload (max 5MB)</span>
+            <span className="text-sm text-muted-foreground">Drag and drop or click to upload (max 50MB)</span>
           </div>
         </label>
       </div>
