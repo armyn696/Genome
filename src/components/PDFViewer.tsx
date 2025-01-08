@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { retrievePdf } from '@/utils/pdfStorage';
 
 interface PDFViewerProps {
   resourceId: string;
@@ -8,12 +9,13 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    // For now, we'll use a data URL from the uploaded file
-    // In a real app, this would fetch from your API
-    const storedPdf = localStorage.getItem(`pdf_${resourceId}`);
-    if (storedPdf) {
-      setPdfUrl(storedPdf);
-    }
+    const loadPdf = async () => {
+      const pdf = await retrievePdf(resourceId);
+      if (pdf) {
+        setPdfUrl(pdf);
+      }
+    };
+    loadPdf();
   }, [resourceId]);
 
   if (!pdfUrl) {

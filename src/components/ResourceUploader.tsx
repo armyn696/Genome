@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Upload } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { storePdf } from "@/utils/pdfStorage";
 
 interface Resource {
   id: string;
@@ -58,27 +59,7 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
         reader.readAsDataURL(file);
       });
 
-      try {
-        // Clear some storage if needed
-        const keys = Object.keys(localStorage);
-        const pdfKeys = keys.filter(key => key.startsWith('pdf_'));
-        if (pdfKeys.length > 3) { // Keep only last 3 PDFs to save storage space
-          pdfKeys
-            .sort((a, b) => parseInt(a.split('_')[1]) - parseInt(b.split('_')[1]))
-            .slice(0, pdfKeys.length - 3)
-            .forEach(key => localStorage.removeItem(key));
-        }
-
-        localStorage.setItem(`pdf_${id}`, dataUrl);
-      } catch (storageError) {
-        console.error("Storage error:", storageError);
-        toast({
-          variant: "destructive",
-          title: "Storage error",
-          description: "Storage is full. Please try removing some existing PDFs first."
-        });
-        return;
-      }
+      await storePdf(id, dataUrl);
 
       const newResource: Resource = {
         id,
@@ -100,7 +81,7 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
       toast({
         variant: "destructive",
         title: "Upload failed",
-        description: "There was an error uploading your file. Try with a smaller file or clear some storage."
+        description: "There was an error uploading your file. Please try again."
       });
     }
   };
