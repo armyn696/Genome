@@ -9,6 +9,7 @@ import FlashcardsHub from "@/components/flashcards/FlashcardsHub";
 import MindmapHub from "@/components/mindmap/MindmapHub";
 import MatchGameHub from "@/components/matchgame/MatchGameHub";
 import { StudyHubSidebar } from "@/components/studyhub/StudyHubSidebar";
+import ResourceProgress from "@/components/studyhub/ResourceProgress";
 import { useState } from "react";
 
 interface Resource {
@@ -22,7 +23,7 @@ interface Resource {
 const StudyHub = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
-  const [currentView, setCurrentView] = useState<'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame'>('chat');
+  const [currentView, setCurrentView] = useState<'home' | 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame'>('home');
 
   const handleResourceAdd = (newResource: Resource) => {
     setResources(prev => [...prev, newResource]);
@@ -34,6 +35,14 @@ const StudyHub = () => {
   };
 
   const renderContent = () => {
+    if (currentView === 'home') {
+      return (
+        <div className="container mx-auto px-4 py-8">
+          <ResourceProgress resources={resources} />
+        </div>
+      );
+    }
+
     // If a resource is selected and we're in PDF view mode
     if (selectedResource && currentView === 'pdf') {
       return (
