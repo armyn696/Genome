@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatMessage } from "@/components/pdf/ChatMessage";
 import { ChatInput } from "@/components/pdf/ChatInput";
 import { Message } from "@/types/chat";
@@ -52,7 +52,6 @@ const ChatInterface = ({ resourceName }: ChatInterfaceProps) => {
           ))}
           <div ref={messagesEndRef} />
         </div>
-        <ScrollBar />
       </ScrollArea>
 
       <ChatInput

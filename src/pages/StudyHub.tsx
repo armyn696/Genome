@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Menu, Home, MessageSquare, BookOpen, TestTube, Plus } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,6 @@ import ResourceList from "@/components/ResourceList";
 import ResourceUploader from "@/components/ResourceUploader";
 import ChatInterface from "@/components/ChatInterface";
 import PDFViewer from "@/components/PDFViewer";
-import { useState } from "react";
 
 interface Resource {
   id: string;
@@ -26,6 +26,7 @@ const StudyHub = () => {
   
   const handleResourceAdd = (newResource: Resource) => {
     setResources(prev => [...prev, newResource]);
+    setSelectedResource(newResource); // Automatically select newly uploaded resource
   };
 
   const handleResourceClick = (resource: Resource) => {
@@ -33,9 +34,7 @@ const StudyHub = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      <Background />
-
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -109,18 +108,18 @@ const StudyHub = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 pt-24">
+      <main className="container mx-auto px-4 pt-24 pb-8">
         {selectedResource ? (
-          <div className="min-h-[calc(100vh-8rem)] bg-background/95 backdrop-blur-sm rounded-lg border shadow-lg">
+          <div className="min-h-[calc(100vh-8rem)] bg-background/95 backdrop-blur-sm rounded-lg border shadow-lg overflow-hidden">
             <ResizablePanelGroup direction="horizontal">
-              <ResizablePanel defaultSize={50} minSize={30}>
+              <ResizablePanel defaultSize={60} minSize={40}>
                 <PDFViewer 
                   resourceId={selectedResource.id} 
                   resourceName={selectedResource.name} 
                 />
               </ResizablePanel>
               <ResizableHandle withHandle />
-              <ResizablePanel defaultSize={50} minSize={30}>
+              <ResizablePanel defaultSize={40} minSize={30}>
                 <ChatInterface resourceName={selectedResource.name} />
               </ResizablePanel>
             </ResizablePanelGroup>
@@ -130,14 +129,31 @@ const StudyHub = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-center"
+            className="text-center py-20"
           >
             <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
               Your Study Hub
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              Organize your study materials and enhance your learning experience
+              Upload a PDF to start studying with AI assistance
             </p>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  size="lg"
+                  className="bg-primary/90 hover:bg-primary text-primary-foreground"
+                >
+                  <Plus className="h-5 w-5 mr-2" />
+                  Upload PDF
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[800px] bg-background/95 backdrop-blur-sm">
+                <DialogHeader>
+                  <DialogTitle>Add Material</DialogTitle>
+                </DialogHeader>
+                <ResourceUploader onResourceAdd={handleResourceAdd} />
+              </DialogContent>
+            </Dialog>
           </motion.div>
         )}
       </main>
