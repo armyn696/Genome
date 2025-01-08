@@ -21,19 +21,19 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
 
   if (!pdfUrl) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center h-full bg-black">
         Loading PDF...
       </div>
     );
   }
 
   return (
-    <ScrollArea className="h-full">
+    <ScrollArea className="h-full bg-black">
       <iframe
         src={pdfUrl}
-        className="w-full h-full rounded-lg border-2 border-border"
+        className="w-full h-full"
         title="PDF Viewer"
-        style={{ height: '100%', backgroundColor: "white" }}
+        style={{ height: 'calc(100vh - 7rem)', backgroundColor: "black" }}
       />
     </ScrollArea>
   );

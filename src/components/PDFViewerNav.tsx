@@ -8,7 +8,7 @@ interface PDFViewerNavProps {
 
 export const PDFViewerNav = ({ currentView, onViewChange }: PDFViewerNavProps) => {
   return (
-    <div className="flex space-x-2 mb-2 bg-background/80 backdrop-blur-sm p-2 rounded-lg">
+    <div className="flex space-x-2 p-2 bg-black">
       <Button
         variant={currentView === 'notes' ? 'default' : 'ghost'}
         size="sm"

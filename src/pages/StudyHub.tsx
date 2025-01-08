@@ -73,14 +73,14 @@ const StudyHub = () => {
       {label}
     </Button>
   );
-  
+
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      <Background />
+    <div className="min-h-screen bg-background">
+      <Background className="!fixed" />
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border h-16">
+        <div className="container mx-auto px-4 h-full flex items-center justify-between">
           {/* Dashboard Menu Button */}
           <Sheet>
             <SheetTrigger asChild>
@@ -156,11 +156,11 @@ const StudyHub = () => {
       {/* Main Content */}
       <main className="h-screen pt-16">
         {selectedResource ? (
-          <div className="h-full">
-            <div className="container mx-auto px-4 h-full py-4">
+          <div className="h-full bg-black">
+            <div className="h-full">
               <PDFViewerNav currentView={currentView} onViewChange={setCurrentView} />
-              <div className="h-[calc(100%-3.5rem)]">
-                <ResizablePanelGroup direction="horizontal" className="h-full rounded-lg border">
+              <div className="h-[calc(100vh-7rem)]">
+                <ResizablePanelGroup direction="horizontal" className="h-full">
                   <ResizablePanel defaultSize={60} minSize={30}>
                     <PDFContent currentView={currentView} resourceId={selectedResource.id} />
                   </ResizablePanel>
