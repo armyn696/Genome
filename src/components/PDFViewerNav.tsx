@@ -8,12 +8,11 @@ interface PDFViewerNavProps {
 
 export const PDFViewerNav = ({ currentView, onViewChange }: PDFViewerNavProps) => {
   return (
-    <div className="flex space-x-2 bg-background/80 backdrop-blur-sm p-1.5 rounded-lg">
+    <div className="flex space-x-2 mb-4 bg-background/80 backdrop-blur-sm p-2 rounded-lg">
       <Button
         variant={currentView === 'notes' ? 'default' : 'ghost'}
         onClick={() => onViewChange('notes')}
         className="gap-2"
-        size="sm"
       >
         <MessageSquare className="h-4 w-4" />
         Notes
@@ -22,7 +21,6 @@ export const PDFViewerNav = ({ currentView, onViewChange }: PDFViewerNavProps) =
         variant={currentView === 'pdf' ? 'default' : 'ghost'}
         onClick={() => onViewChange('pdf')}
         className="gap-2"
-        size="sm"
       >
         <FileText className="h-4 w-4" />
         View PDF
@@ -31,7 +29,6 @@ export const PDFViewerNav = ({ currentView, onViewChange }: PDFViewerNavProps) =
         variant={currentView === 'transcript' ? 'default' : 'ghost'}
         onClick={() => onViewChange('transcript')}
         className="gap-2"
-        size="sm"
       >
         <BookOpen className="h-4 w-4" />
         Transcript
@@ -40,7 +37,6 @@ export const PDFViewerNav = ({ currentView, onViewChange }: PDFViewerNavProps) =
         variant={currentView === 'dual' ? 'default' : 'ghost'}
         onClick={() => onViewChange('dual')}
         className="gap-2"
-        size="sm"
       >
         <LayoutPanelLeft className="h-4 w-4" />
         Dual View
