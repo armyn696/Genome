@@ -91,7 +91,7 @@ export const ChatInput = ({
   };
 
   return (
-    <div className="border-t p-4 bg-background/95 backdrop-blur-sm space-y-4">
+    <div className="border-t p-4 bg-background/95 backdrop-blur-sm space-y-4 max-w-5xl mx-auto">
       <div className="flex justify-center items-center gap-4 mb-4">
         <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1">
           <Globe className="h-4 w-4" />
