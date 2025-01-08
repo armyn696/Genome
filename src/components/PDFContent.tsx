@@ -1,12 +1,18 @@
 import { PDFViewer } from "@/components/PDFViewer";
 
 interface PDFContentProps {
-  currentView: 'notes' | 'pdf' | 'transcript' | 'dual';
+  currentView: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual';
   resourceId: string;
 }
 
 export const PDFContent = ({ currentView, resourceId }: PDFContentProps) => {
   switch (currentView) {
+    case 'chat':
+      return (
+        <div className="h-full flex items-center justify-center text-muted-foreground">
+          Chat view coming soon...
+        </div>
+      );
     case 'notes':
       return (
         <div className="h-full flex items-center justify-center text-muted-foreground">
