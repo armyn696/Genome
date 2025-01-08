@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Message {
   text: string;
@@ -15,6 +16,7 @@ interface ChatInterfaceProps {
 export const ChatInterface = ({ resourceId }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState('');
+  const [isWebSearchEnabled] = useState(false);
 
   const handleSendMessage = async () => {
     if (!message.trim()) return;
@@ -44,69 +46,36 @@ export const ChatInterface = ({ resourceId }: ChatInterfaceProps) => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background">
-      <div className="flex-1 p-4 overflow-y-auto">
-        {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full">
-            <img
-              src="/lovable-uploads/ea974bf0-54b5-4e40-9981-0d849bfccbf7.png"
-              alt="AI Assistant"
-              className="w-16 h-16 rounded-full mb-4"
-            />
-            <h1 className="text-2xl font-bold mb-2">Hi, I'm Spark.E</h1>
-            <p className="text-muted-foreground text-center mb-8">
-              Ask me anything about learning, or try one of these examples:
-            </p>
-            <div className="grid gap-4 w-full max-w-2xl">
-              <Button
-                variant="outline"
-                className="h-auto py-4 px-6 text-left flex items-start gap-4"
-              >
-                <span className="text-primary text-lg">💡</span>
-                <span>Find me 3 insightful quotes from the materials I selected</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="h-auto py-4 px-6 text-left flex items-start gap-4"
-              >
-                <span className="text-primary text-lg">💡</span>
-                <span>What is the main idea of the materials I selected?</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="h-auto py-4 px-6 text-left flex items-start gap-4"
-              >
-                <span className="text-primary text-lg">💡</span>
-                <span>Summarize my course materials for me like I'm 5 years old</span>
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {messages.map((msg, index) => (
-              <div
-                key={index}
-                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                    msg.sender === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-foreground'
-                  }`}
-                >
-                  {msg.text}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+    <div className="flex flex-col h-full border rounded-lg bg-background/95 backdrop-blur-sm">
+      <div className="p-4 border-b bg-muted/50">
+        <h2 className="text-lg font-semibold text-foreground">Chat Assistant</h2>
       </div>
 
-      <div className="border-t bg-background p-4">
-        <div className="flex items-end gap-2 max-w-4xl mx-auto">
+      <ScrollArea className="flex-1 p-4">
+        <div className="space-y-4">
+          {messages.map((msg, index) => (
+            <div
+              key={index}
+              className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div
+                className={`max-w-[80%] rounded-lg px-4 py-2 shadow-sm ${
+                  msg.sender === 'user'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-foreground border'
+                }`}
+              >
+                {msg.text}
+              </div>
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
+
+      <div className="border-t bg-background/95 backdrop-blur-sm p-4 rounded-b-lg">
+        <div className="flex items-center gap-2">
           <Textarea
-            placeholder="Message Spark.E..."
+            placeholder="Ask a question about the PDF..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -116,9 +85,9 @@ export const ChatInterface = ({ resourceId }: ChatInterfaceProps) => {
           <Button
             onClick={handleSendMessage}
             size="icon"
-            className="shrink-0"
+            className="shrink-0 bg-primary hover:bg-primary/90"
           >
-            <Send className="h-5 w-5" />
+            <Send className="h-4 w-4" />
           </Button>
         </div>
       </div>
