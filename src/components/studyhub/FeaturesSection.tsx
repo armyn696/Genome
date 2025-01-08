@@ -16,22 +16,26 @@ const FeaturesSection = () => {
     {
       icon: <ScrollText className="w-12 h-12 text-primary" />,
       title: "Flashcards",
-      description: "Generate flashcards from your materials to practice memorizing concepts."
+      description: "Generate flashcards from your materials to practice memorizing concepts.",
+      route: "/studyhub/flashcards"
     },
     {
       icon: <TestTube className="w-12 h-12 text-primary" />,
       title: "Quiz",
-      description: "Generate quizzes from your materials learn as you answer questions."
+      description: "Generate quizzes from your materials learn as you answer questions.",
+      route: "/studyhub/quiz"
     },
     {
       icon: <Network className="w-12 h-12 text-primary" />,
       title: "Mind Maps",
-      description: "Create visual mind maps to better understand and connect concepts."
+      description: "Create visual mind maps to better understand and connect concepts.",
+      route: "/studyhub/mindmap"
     },
     {
       icon: <Gamepad className="w-12 h-12 text-primary" />,
       title: "Match Game",
-      description: "Practice learning terms by matching them with their definitions."
+      description: "Practice learning terms by matching them with their definitions.",
+      route: "/studyhub/matchgame"
     }
   ];
 
