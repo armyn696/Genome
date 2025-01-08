@@ -1,7 +1,6 @@
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import Background from "@/components/Background";
 import { ChatInterface } from "@/components/ChatInterface";
-import { EnhancedChatInterface } from "@/components/EnhancedChatInterface";
 import { PDFViewerNav } from "@/components/PDFViewerNav";
 import { PDFContent } from "@/components/PDFContent";
 import QuizHub from "@/components/quiz/QuizHub";
@@ -58,7 +57,23 @@ const StudyHub = () => {
       );
     }
 
-    // If a resource is selected, show the split panel layout for all views except home
+    // Special views that don't use the split panel layout
+    if (['quiz', 'flashcards', 'mindmap', 'matchgame'].includes(currentView)) {
+      switch (currentView) {
+        case 'quiz':
+          return <QuizHub />;
+        case 'flashcards':
+          return <FlashcardsHub />;
+        case 'mindmap':
+          return <MindmapHub />;
+        case 'matchgame':
+          return <MatchGameHub />;
+        default:
+          return null;
+      }
+    }
+
+    // If a resource is selected, show the split panel layout
     if (selectedResource) {
       return (
         <div className="h-full bg-black">
@@ -80,25 +95,7 @@ const StudyHub = () => {
       );
     }
 
-    // For all other views when no resource is selected
-    switch (currentView) {
-      case 'chat':
-        return (
-          <div className="h-[calc(100vh-4rem)]">
-            <EnhancedChatInterface resources={resources} />
-          </div>
-        );
-      case 'quiz':
-        return <QuizHub />;
-      case 'flashcards':
-        return <FlashcardsHub />;
-      case 'mindmap':
-        return <MindmapHub />;
-      case 'matchgame':
-        return <MatchGameHub />;
-      default:
-        return null;
-    }
+    return null;
   };
 
   return (
