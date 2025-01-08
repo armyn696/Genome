@@ -88,8 +88,8 @@ export const EnhancedChatInterface = ({ resources }: EnhancedChatInterfaceProps)
         )}
       </ScrollArea>
 
-      <div className="border-t p-4 bg-background/95 backdrop-blur-sm space-y-4">
-        <div className="flex items-center gap-4 max-w-3xl mx-auto">
+      <div className="border-t p-4 bg-background/95 backdrop-blur-sm">
+        <div className="flex items-center gap-4 max-w-3xl mx-auto mb-4">
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline" className="gap-2">
