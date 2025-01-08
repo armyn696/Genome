@@ -9,9 +9,7 @@ import FlashcardsHub from "@/components/flashcards/FlashcardsHub";
 import MindmapHub from "@/components/mindmap/MindmapHub";
 import MatchGameHub from "@/components/matchgame/MatchGameHub";
 import { StudyHubSidebar } from "@/components/studyhub/StudyHubSidebar";
-import { HomePage } from "@/components/studyhub/HomePage";
 import { useState } from "react";
-import { SidebarProvider } from "@/components/ui/sidebar";
 
 interface Resource {
   id: string;
@@ -24,7 +22,7 @@ interface Resource {
 const StudyHub = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
-  const [currentView, setCurrentView] = useState<'home' | 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame'>('home');
+  const [currentView, setCurrentView] = useState<'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame'>('chat');
 
   const handleResourceAdd = (newResource: Resource) => {
     setResources(prev => [...prev, newResource]);
@@ -36,10 +34,7 @@ const StudyHub = () => {
   };
 
   const renderContent = () => {
-    if (currentView === 'home') {
-      return <HomePage resources={resources} onResourceSelect={handleResourceSelect} />;
-    }
-
+    // If a resource is selected and we're in PDF view mode
     if (selectedResource && currentView === 'pdf') {
       return (
         <div className="h-full bg-black">
@@ -61,6 +56,7 @@ const StudyHub = () => {
       );
     }
 
+    // For all other views
     switch (currentView) {
       case 'chat':
         return (
@@ -84,30 +80,26 @@ const StudyHub = () => {
   return (
     <div className="min-h-screen bg-background">
       <Background />
-      <SidebarProvider>
-        <div className="min-h-screen flex w-full">
-          <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border h-16">
-            <div className="container mx-auto px-4 h-full flex items-center justify-between">
-              <StudyHubSidebar
-                resources={resources}
-                onResourceAdd={handleResourceAdd}
-                onResourceSelect={handleResourceSelect}
-                onViewChange={setCurrentView}
-              />
-              <div className="flex items-center gap-2">
-                <img 
-                  src="/lovable-uploads/91f667b0-83b5-4bfe-9318-d58898e35220.png" 
-                  alt="Logo" 
-                  className="h-12 w-auto"
-                />
-              </div>
-            </div>
-          </header>
-          <main className="h-screen pt-16">
-            {renderContent()}
-          </main>
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border h-16">
+        <div className="container mx-auto px-4 h-full flex items-center justify-between">
+          <StudyHubSidebar
+            resources={resources}
+            onResourceAdd={handleResourceAdd}
+            onResourceSelect={handleResourceSelect}
+            onViewChange={setCurrentView}
+          />
+          <div className="flex items-center gap-2">
+            <img 
+              src="/lovable-uploads/91f667b0-83b5-4bfe-9318-d58898e35220.png" 
+              alt="Logo" 
+              className="h-12 w-auto"
+            />
+          </div>
         </div>
-      </SidebarProvider>
+      </header>
+      <main className="h-screen pt-16">
+        {renderContent()}
+      </main>
     </div>
   );
 };
