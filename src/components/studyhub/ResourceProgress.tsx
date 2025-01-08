@@ -44,19 +44,39 @@ const ResourceProgress = ({ resources, onResourceAdd }: ResourceProgressProps) =
           </Dialog>
         </div>
       ) : (
-        <div className="space-y-4">
-          {resources.map(resource => (
-            <div key={resource.id} className="flex items-center gap-4">
-              <FileText className="h-5 w-5 text-primary shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="font-medium truncate">{resource.name}</p>
-                  <span className="text-sm text-muted-foreground">0 / 14</span>
+        <div className="space-y-6">
+          <div className="space-y-4">
+            {resources.map(resource => (
+              <div key={resource.id} className="flex items-center gap-4">
+                <FileText className="h-5 w-5 text-primary shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="font-medium truncate">{resource.name}</p>
+                    <span className="text-sm text-muted-foreground">0 / 14</span>
+                  </div>
+                  <Progress value={0} className="h-2" />
                 </div>
-                <Progress value={0} className="h-2" />
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+          
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full gap-2 border-primary/50 hover:bg-primary/10"
+              >
+                <Plus className="h-5 w-5 text-primary" />
+                Add Another Resource
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[800px] bg-background/95 backdrop-blur-sm">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold text-center mb-4">Add Material</DialogTitle>
+              </DialogHeader>
+              {onResourceAdd && <ResourceUploader onResourceAdd={onResourceAdd} />}
+            </DialogContent>
+          </Dialog>
         </div>
       )}
     </Card>
