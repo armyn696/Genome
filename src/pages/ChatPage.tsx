@@ -2,6 +2,7 @@ import { StudyHubSidebar } from "@/components/studyhub/StudyHubSidebar";
 import Background from "@/components/Background";
 import { EnhancedChatInterface } from "@/components/EnhancedChatInterface";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface Resource {
   id: string;
@@ -13,6 +14,7 @@ interface Resource {
 
 const ChatPage = () => {
   const [resources, setResources] = useState<Resource[]>([]);
+  const navigate = useNavigate();
 
   const handleResourceAdd = (newResource: Resource) => {
     setResources(prev => [...prev, newResource]);
@@ -23,8 +25,25 @@ const ChatPage = () => {
   };
 
   const handleViewChange = (view: 'home' | 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame') => {
-    if (view === 'home') {
-      window.location.href = '/studyhub';
+    switch (view) {
+      case 'home':
+        navigate('/studyhub');
+        break;
+      case 'quiz':
+        navigate('/studyhub', { state: { view: 'quiz' } });
+        break;
+      case 'flashcards':
+        navigate('/studyhub', { state: { view: 'flashcards' } });
+        break;
+      case 'mindmap':
+        navigate('/studyhub', { state: { view: 'mindmap' } });
+        break;
+      case 'matchgame':
+        navigate('/studyhub', { state: { view: 'matchgame' } });
+        break;
+      default:
+        // For other views, stay on the current page
+        break;
     }
   };
 

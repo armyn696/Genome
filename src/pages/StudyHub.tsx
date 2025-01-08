@@ -11,6 +11,7 @@ import { StudyHubSidebar } from "@/components/studyhub/StudyHubSidebar";
 import ResourceProgress from "@/components/studyhub/ResourceProgress";
 import FeaturesSection from "@/components/studyhub/FeaturesSection";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface Resource {
   id: string;
@@ -26,6 +27,7 @@ const StudyHub = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [currentView, setCurrentView] = useState<ViewType>('home');
+  const navigate = useNavigate();
 
   const handleResourceAdd = (newResource: Resource) => {
     setResources(prev => [...prev, newResource]);
@@ -46,10 +48,10 @@ const StudyHub = () => {
 
   const handleViewChange = (view: ViewType | 'chat') => {
     if (view === 'chat') {
-      window.location.href = '/studyhub/chat';
+      navigate('/studyhub/chat');
       return;
     }
-    setCurrentView(view);
+    setCurrentView(view as ViewType);
   };
 
   const renderContent = () => {
