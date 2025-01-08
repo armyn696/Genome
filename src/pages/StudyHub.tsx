@@ -1,6 +1,7 @@
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import Background from "@/components/Background";
 import { ChatInterface } from "@/components/ChatInterface";
+import { EnhancedChatInterface } from "@/components/EnhancedChatInterface";
 import { PDFViewerNav } from "@/components/PDFViewerNav";
 import { PDFContent } from "@/components/PDFContent";
 import QuizHub from "@/components/quiz/QuizHub";
@@ -58,8 +59,14 @@ const StudyHub = () => {
     }
 
     // Special views that don't use the split panel layout
-    if (['quiz', 'flashcards', 'mindmap', 'matchgame'].includes(currentView)) {
+    if (['chat', 'quiz', 'flashcards', 'mindmap', 'matchgame'].includes(currentView)) {
       switch (currentView) {
+        case 'chat':
+          return (
+            <div className="h-[calc(100vh-4rem)]">
+              <EnhancedChatInterface resources={resources} />
+            </div>
+          );
         case 'quiz':
           return <QuizHub />;
         case 'flashcards':
