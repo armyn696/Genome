@@ -1,4 +1,4 @@
-import { Menu, Home, MessageSquare, BookOpen, Plus, FileText, Mic2, Video, AudioLines, Image, Text, LayoutList, Trees, Gamepad, Bookmark } from "lucide-react";
+import { Menu, Home, MessageSquare, BookOpen, Plus, FileText, Mic2, Video, AudioLines, Image, Text, LayoutList, Trees, Gamepad, Bookmark, Globe, GraduationCap } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -10,6 +10,7 @@ import ResourceList from "@/components/ResourceList";
 import ResourceUploader from "@/components/ResourceUploader";
 import { useState } from "react";
 import { ChatInterface } from "@/components/ChatInterface";
+import { EnhancedChatInterface } from "@/components/EnhancedChatInterface";
 import { PDFViewerNav } from "@/components/PDFViewerNav";
 import { PDFContent } from "@/components/PDFContent";
 import QuizHub from "@/components/quiz/QuizHub";
@@ -76,18 +77,6 @@ const StudyHub = () => {
     { icon: BookOpen, label: "Canvas" },
   ];
 
-  const renderMenuItem = (Icon: any, label: string, view?: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame') => (
-    <Button
-      variant="ghost"
-      className="w-full justify-start gap-2 hover:bg-accent"
-      key={label}
-      onClick={() => view && handleMenuItemClick(view)}
-    >
-      <Icon className="h-5 w-5 text-primary" />
-      {label}
-    </Button>
-  );
-
   const renderContent = () => {
     if (selectedResource) {
       return (
@@ -113,7 +102,7 @@ const StudyHub = () => {
     if (currentView === 'chat') {
       return (
         <div className="h-[calc(100vh-4rem)]">
-          <ChatInterface resourceId="dashboard" />
+          <EnhancedChatInterface resources={resources} />
         </div>
       );
     }
