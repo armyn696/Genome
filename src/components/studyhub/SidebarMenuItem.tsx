@@ -1,7 +1,7 @@
 import { LucideIcon } from 'lucide-react';
 import { Button } from '../ui/button';
 
-type ViewType = 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame';
+type ViewType = 'home' | 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame';
 
 interface SidebarMenuItemProps {
   icon: LucideIcon;
