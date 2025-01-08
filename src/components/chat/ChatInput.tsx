@@ -35,6 +35,9 @@ export const ChatInput = ({ onSendMessage, onSendImage, onSendVoice, isLoading }
     const file = e.target.files?.[0];
     if (file && onSendImage) {
       onSendImage(file);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -73,7 +76,7 @@ export const ChatInput = ({ onSendMessage, onSendImage, onSendVoice, isLoading }
 
   return (
     <div className="border-t p-4 bg-background/95 backdrop-blur-sm">
-      <div className="max-w-3xl mx-auto flex items-end gap-2">
+      <div className="max-w-3xl mx-auto flex items-center gap-2 bg-muted rounded-lg p-2">
         <input
           type="file"
           ref={fileInputRef}
@@ -84,7 +87,7 @@ export const ChatInput = ({ onSendMessage, onSendImage, onSendVoice, isLoading }
         <Button
           variant="ghost"
           size="icon"
-          className="shrink-0"
+          className="shrink-0 hover:bg-background/50"
           onClick={() => fileInputRef.current?.click()}
         >
           <Image className="h-5 w-5" />
@@ -92,7 +95,10 @@ export const ChatInput = ({ onSendMessage, onSendImage, onSendVoice, isLoading }
         <Button
           variant="ghost"
           size="icon"
-          className={cn("shrink-0", isRecording && "text-red-500")}
+          className={cn(
+            "shrink-0 hover:bg-background/50",
+            isRecording && "text-red-500 animate-pulse"
+          )}
           onClick={isRecording ? stopRecording : startRecording}
         >
           <Mic className="h-5 w-5" />
@@ -102,14 +108,17 @@ export const ChatInput = ({ onSendMessage, onSendImage, onSendVoice, isLoading }
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="min-h-[60px] resize-none bg-background"
+          className="min-h-[44px] resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-2"
           rows={1}
         />
         <Button
           onClick={handleSendMessage}
           size="icon"
-          className="shrink-0"
-          disabled={isLoading}
+          className={cn(
+            "shrink-0",
+            !message.trim() && "opacity-50 cursor-not-allowed"
+          )}
+          disabled={!message.trim() || isLoading}
         >
           <Send className="h-5 w-5" />
         </Button>
