@@ -1,13 +1,17 @@
 import { MessageSquare, ScrollText, TestTube, Network, Gamepad } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const FeaturesSection = () => {
+  const navigate = useNavigate();
+
   const features = [
     {
       icon: <MessageSquare className="w-12 h-12 text-primary" />,
       title: "Chat with Spark.E",
-      description: "Chat with Spark.E and learn about your documents in real time!"
+      description: "Chat with Spark.E and learn about your documents in real time!",
+      route: "/studyhub"
     },
     {
       icon: <ScrollText className="w-12 h-12 text-primary" />,
@@ -56,6 +60,8 @@ const FeaturesSection = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
             whileHover={{ scale: 1.02 }}
+            onClick={() => feature.route && navigate(feature.route)}
+            style={{ cursor: feature.route ? 'pointer' : 'default' }}
           >
             <Card className="relative h-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-muted backdrop-blur-sm bg-card/30 hover:border-accent/50 rounded-xl">
               <CardContent className="p-6">
