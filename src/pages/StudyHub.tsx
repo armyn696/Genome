@@ -1,4 +1,4 @@
-import { Menu, Home, MessageSquare, BookOpen, TestTube, Plus, FileText, Mic, Youtube, FileAudio, FileVideo, Image, Text, BarChart } from "lucide-react";
+import { Menu, Home, MessageSquare, BookOpen, TestTube, Plus, FileText } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -8,6 +8,8 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import Background from "@/components/Background";
 import ResourceList from "@/components/ResourceList";
 import ResourceUploader from "@/components/ResourceUploader";
+import ChatInterface from "@/components/ChatInterface";
+import PDFViewer from "@/components/PDFViewer";
 import { useState } from "react";
 
 interface Resource {
@@ -22,16 +24,12 @@ const StudyHub = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   
-  console.log("Rendering StudyHub page");
-  
   const handleResourceAdd = (newResource: Resource) => {
     setResources(prev => [...prev, newResource]);
-    console.log("Resources updated:", [...resources, newResource]);
   };
 
   const handleResourceClick = (resource: Resource) => {
     setSelectedResource(resource);
-    console.log("Resource selected:", resource);
   };
 
   const menuItems = [
@@ -42,38 +40,6 @@ const StudyHub = () => {
     { icon: BookOpen, label: "Quiz" },
   ];
 
-  const resourceTypes = [
-    { 
-      icon: FileText, 
-      label: "Upload Documents", 
-      description: "pdf, pptx, docx", 
-      component: (props: any) => <ResourceUploader onResourceAdd={props.onResourceAdd} /> 
-    },
-    { icon: Mic, label: "Record Live Lecture" },
-    { icon: Youtube, label: "YouTube Video" },
-    { icon: FileAudio, label: "Upload Audio", description: "mp3, wav" },
-    { icon: FileVideo, label: "Upload Video", description: "mp4" },
-    { icon: BookOpen, label: "Google Docs" },
-    { icon: Image, label: "Handwritten Notes" },
-    { icon: FileText, label: "Blank Document" },
-    { icon: Text, label: "Paste Notes" },
-    { icon: BookOpen, label: "Quizlet Set" },
-    { icon: BarChart, label: "Essay Grader" },
-    { icon: BookOpen, label: "Brightspace" },
-    { icon: BookOpen, label: "Canvas" },
-  ];
-
-  const renderMenuItem = (Icon: any, label: string) => (
-    <Button
-      variant="ghost"
-      className="w-full justify-start gap-2 hover:bg-accent"
-      key={label}
-    >
-      <Icon className="h-5 w-5 text-primary" />
-      {label}
-    </Button>
-  );
-  
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       <Background />
@@ -81,7 +47,6 @@ const StudyHub = () => {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          {/* Dashboard Menu Button */}
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="hover:bg-accent">
@@ -90,15 +55,21 @@ const StudyHub = () => {
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] bg-background/95 backdrop-blur-sm">
               <nav className="flex flex-col gap-4 mt-8">
-                {/* Main Menu Items */}
                 <div className="space-y-2">
-                  {menuItems.map(({ icon: Icon, label }) => renderMenuItem(Icon, label))}
+                  {menuItems.map(({ icon: Icon, label }) => (
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start gap-2 hover:bg-accent"
+                      key={label}
+                    >
+                      <Icon className="h-5 w-5 text-primary" />
+                      {label}
+                    </Button>
+                  ))}
                 </div>
 
-                {/* Separator */}
                 <Separator className="my-2" />
 
-                {/* Resources Section */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 px-2">
                     <BookOpen className="h-5 w-5 text-primary" />
@@ -107,7 +78,6 @@ const StudyHub = () => {
                   
                   <ResourceList resources={resources} onResourceClick={handleResourceClick} />
                   
-                  {/* Add Resource Button with Modal */}
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button
@@ -120,41 +90,9 @@ const StudyHub = () => {
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[800px] bg-background/95 backdrop-blur-sm">
                       <DialogHeader>
-                        <DialogTitle className="text-2xl font-bold text-center mb-4">Add Material</DialogTitle>
-                        <p className="text-sm text-muted-foreground text-center mb-6">
-                          Material you add will be used to personalize StudyFetch with your class material, which can then be used to create flashcards, quizzes, tests, chat with an AI tutor, etc.
-                        </p>
+                        <DialogTitle>Add Material</DialogTitle>
                       </DialogHeader>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {resourceTypes.map(({ icon: Icon, label, description, component: Component }) => (
-                          <Dialog key={label}>
-                            <DialogTrigger asChild>
-                              <Button
-                                variant="outline"
-                                className="h-auto py-6 flex flex-col items-center gap-3 hover:bg-primary/10 hover:border-primary transition-colors"
-                              >
-                                <Icon className="h-8 w-8 text-primary" />
-                                <div className="text-center">
-                                  <div className="font-semibold">{label}</div>
-                                  {description && (
-                                    <div className="text-xs text-muted-foreground mt-1">
-                                      {description}
-                                    </div>
-                                  )}
-                                </div>
-                              </Button>
-                            </DialogTrigger>
-                            {Component && (
-                              <DialogContent>
-                                <DialogHeader>
-                                  <DialogTitle>{label}</DialogTitle>
-                                </DialogHeader>
-                                <Component onResourceAdd={handleResourceAdd} />
-                              </DialogContent>
-                            )}
-                          </Dialog>
-                        ))}
-                      </div>
+                      <ResourceUploader onResourceAdd={handleResourceAdd} />
                     </DialogContent>
                   </Dialog>
                 </div>
@@ -162,7 +100,6 @@ const StudyHub = () => {
             </SheetContent>
           </Sheet>
 
-          {/* Logo */}
           <div className="flex items-center gap-2">
             <img 
               src="/lovable-uploads/91f667b0-83b5-4bfe-9318-d58898e35220.png" 
@@ -176,29 +113,20 @@ const StudyHub = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 pt-24">
         {selectedResource ? (
-          <ResizablePanelGroup direction="horizontal" className="min-h-[80vh] rounded-lg border">
-            <ResizablePanel defaultSize={50} minSize={30}>
-              <div className="h-full p-4">
-                <iframe 
-                  src={`/path-to-your-pdf/${selectedResource.id}`} 
-                  className="w-full h-full rounded-md"
-                  title={selectedResource.name}
+          <div className="min-h-[calc(100vh-8rem)] bg-background rounded-lg border">
+            <ResizablePanelGroup direction="horizontal">
+              <ResizablePanel defaultSize={50} minSize={30}>
+                <PDFViewer 
+                  resourceId={selectedResource.id} 
+                  resourceName={selectedResource.name} 
                 />
-              </div>
-            </ResizablePanel>
-            <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={50} minSize={30}>
-              <div className="h-full p-4 bg-background">
-                <div className="space-y-4">
-                  <h2 className="text-2xl font-bold">Chat with AI about {selectedResource.name}</h2>
-                  <p className="text-muted-foreground">
-                    Ask questions about the content of your document and get instant answers.
-                  </p>
-                  {/* Add your chat component here */}
-                </div>
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
+              </ResizablePanel>
+              <ResizableHandle withHandle />
+              <ResizablePanel defaultSize={50} minSize={30}>
+                <ChatInterface resourceName={selectedResource.name} />
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </div>
         ) : (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
