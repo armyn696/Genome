@@ -69,44 +69,6 @@ export const EnhancedChatInterface = ({ resources }: EnhancedChatInterfaceProps)
 
   return (
     <div className="flex flex-col h-full">
-      <div className="border-b p-4 flex items-center gap-2 bg-background/95 backdrop-blur-sm">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline" className="gap-2">
-              <FileText className="h-4 w-4" />
-              {selectedResources.length} material(s) selected
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Select Materials</DialogTitle>
-            </DialogHeader>
-            <ResourceList
-              resources={resources}
-              onResourceSelect={handleResourceSelect}
-            />
-          </DialogContent>
-        </Dialog>
-
-        <div className="flex items-center gap-2">
-          <Globe className="h-4 w-4" />
-          <span className="text-sm">Web Browsing</span>
-          <Switch
-            checked={webBrowsingEnabled}
-            onCheckedChange={setWebBrowsingEnabled}
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <GraduationCap className="h-4 w-4" />
-          <span className="text-sm">Search Academic Papers</span>
-          <Switch
-            checked={academicSearchEnabled}
-            onCheckedChange={setAcademicSearchEnabled}
-          />
-        </div>
-      </div>
-
       <ScrollArea className="flex-1 p-4 space-y-4">
         {messages.length === 0 ? (
           <ChatWelcome onSuggestionClick={handleSendMessage} />
@@ -126,10 +88,52 @@ export const EnhancedChatInterface = ({ resources }: EnhancedChatInterfaceProps)
         )}
       </ScrollArea>
 
-      <ChatInput
-        onSendMessage={handleSendMessage}
-        isLoading={isLoading}
-      />
+      <div className="border-t p-4 bg-background/95 backdrop-blur-sm space-y-2">
+        <div className="flex items-center gap-2 max-w-3xl mx-auto">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2 h-8 px-3 text-sm">
+                <FileText className="h-4 w-4" />
+                {selectedResources.length} material(s) selected
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Select Materials</DialogTitle>
+              </DialogHeader>
+              <ResourceList
+                resources={resources}
+                onResourceSelect={handleResourceSelect}
+              />
+            </DialogContent>
+          </Dialog>
+
+          <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1">
+            <Globe className="h-4 w-4" />
+            <span className="text-xs">Web Browsing</span>
+            <Switch
+              checked={webBrowsingEnabled}
+              onCheckedChange={setWebBrowsingEnabled}
+              className="scale-75"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1">
+            <GraduationCap className="h-4 w-4" />
+            <span className="text-xs">Search Academic Papers</span>
+            <Switch
+              checked={academicSearchEnabled}
+              onCheckedChange={setAcademicSearchEnabled}
+              className="scale-75"
+            />
+          </div>
+        </div>
+
+        <ChatInput
+          onSendMessage={handleSendMessage}
+          isLoading={isLoading}
+        />
+      </div>
     </div>
   );
 };
