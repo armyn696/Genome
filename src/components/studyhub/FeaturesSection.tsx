@@ -1,4 +1,4 @@
-import { MessageSquare, Cards, TestTube, Network, Gamepad } from "lucide-react";
+import { MessageSquare, ScrollText, TestTube, Network, Gamepad } from "lucide-react";
 
 const FeaturesSection = () => {
   const features = [
@@ -8,7 +8,7 @@ const FeaturesSection = () => {
       description: "Chat with Spark.E and learn about your documents in real time!"
     },
     {
-      icon: <Cards className="w-12 h-12 text-primary" />,
+      icon: <ScrollText className="w-12 h-12 text-primary" />,
       title: "Flashcards",
       description: "Generate flashcards from your materials to practice memorizing concepts."
     },
