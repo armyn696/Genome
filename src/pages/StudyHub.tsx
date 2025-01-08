@@ -1,4 +1,4 @@
-import { Menu, Home, MessageSquare, BookOpen, Plus, FileText, Mic2, Video, AudioLines, Image, Text, LayoutList, Trees } from "lucide-react";
+import { Menu, Home, MessageSquare, BookOpen, Plus, FileText, Mic2, Video, AudioLines, Image, Text, LayoutList, Trees, GamePad } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -15,6 +15,7 @@ import { PDFContent } from "@/components/PDFContent";
 import QuizHub from "@/components/quiz/QuizHub";
 import FlashcardsHub from "@/components/flashcards/FlashcardsHub";
 import MindmapHub from "@/components/mindmap/MindmapHub";
+import MatchGameHub from "@/components/matchgame/MatchGameHub";
 
 interface Resource {
   id: string;
@@ -27,7 +28,7 @@ interface Resource {
 const StudyHub = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
-  const [currentView, setCurrentView] = useState<'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap'>('chat');
+  const [currentView, setCurrentView] = useState<'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame'>('chat');
 
   const handleResourceAdd = (newResource: Resource) => {
     setResources(prev => [...prev, newResource]);
@@ -38,9 +39,9 @@ const StudyHub = () => {
     setCurrentView('pdf');
   };
 
-  const handleMenuItemClick = (view: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap') => {
+  const handleMenuItemClick = (view: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame') => {
     setCurrentView(view);
-    if (view === 'chat' || view === 'quiz' || view === 'flashcards' || view === 'mindmap') {
+    if (view === 'chat' || view === 'quiz' || view === 'flashcards' || view === 'mindmap' || view === 'matchgame') {
       setSelectedResource(null);
     }
   };
@@ -51,6 +52,7 @@ const StudyHub = () => {
     { icon: BookOpen, label: "Quiz", view: 'quiz' as const },
     { icon: BookOpen, label: "Flashcards", view: 'flashcards' as const },
     { icon: Trees, label: "Mind Maps", view: 'mindmap' as const },
+    { icon: GamePad, label: "Match Game", view: 'matchgame' as const },
   ];
 
   const resourceTypes = [
@@ -74,7 +76,7 @@ const StudyHub = () => {
     { icon: BookOpen, label: "Canvas" },
   ];
 
-  const renderMenuItem = (Icon: any, label: string, view?: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap') => (
+  const renderMenuItem = (Icon: any, label: string, view?: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame') => (
     <Button
       variant="ghost"
       className="w-full justify-start gap-2 hover:bg-accent"
@@ -126,6 +128,10 @@ const StudyHub = () => {
 
     if (currentView === 'mindmap') {
       return <MindmapHub />;
+    }
+
+    if (currentView === 'matchgame') {
+      return <MatchGameHub />;
     }
 
     return (
