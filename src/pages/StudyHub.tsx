@@ -1,4 +1,4 @@
-import { Menu, Home, MessageSquare, BookOpen, TestTube, Plus, FileText, Mic, Youtube, FileAudio, FileVideo, Image, Text, BarChart } from "lucide-react";
+import { Menu, Home, MessageSquare, BookOpen, TestTube, Plus, FileText } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -9,8 +9,9 @@ import Background from "@/components/Background";
 import ResourceList from "@/components/ResourceList";
 import ResourceUploader from "@/components/ResourceUploader";
 import { useState } from "react";
-import { PDFViewer } from "@/components/PDFViewer";
 import { ChatInterface } from "@/components/ChatInterface";
+import { PDFViewerNav } from "@/components/PDFViewerNav";
+import { PDFContent } from "@/components/PDFContent";
 
 interface Resource {
   id: string;
@@ -23,11 +24,10 @@ interface Resource {
 const StudyHub = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
-  console.log("Rendering StudyHub page");
-  
+  const [currentView, setCurrentView] = useState<'notes' | 'pdf' | 'transcript' | 'dual'>('pdf');
+
   const handleResourceAdd = (newResource: Resource) => {
     setResources(prev => [...prev, newResource]);
-    console.log("Resources updated:", [...resources, newResource]);
   };
 
   const handleResourceSelect = (resource: Resource) => {
@@ -119,7 +119,7 @@ const StudyHub = () => {
                     ))}
                   </div>
                   
-                  {/* Add Resource Button with Modal */}
+                  {/* Add Resource Button */}
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button
@@ -133,40 +133,8 @@ const StudyHub = () => {
                     <DialogContent className="sm:max-w-[800px] bg-background/95 backdrop-blur-sm">
                       <DialogHeader>
                         <DialogTitle className="text-2xl font-bold text-center mb-4">Add Material</DialogTitle>
-                        <p className="text-sm text-muted-foreground text-center mb-6">
-                          Material you add will be used to personalize StudyFetch with your class material, which can then be used to create flashcards, quizzes, tests, chat with an AI tutor, etc.
-                        </p>
                       </DialogHeader>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {resourceTypes.map(({ icon: Icon, label, description, component: Component }) => (
-                          <Dialog key={label}>
-                            <DialogTrigger asChild>
-                              <Button
-                                variant="outline"
-                                className="h-auto py-6 flex flex-col items-center gap-3 hover:bg-primary/10 hover:border-primary transition-colors"
-                              >
-                                <Icon className="h-8 w-8 text-primary" />
-                                <div className="text-center">
-                                  <div className="font-semibold">{label}</div>
-                                  {description && (
-                                    <div className="text-xs text-muted-foreground mt-1">
-                                      {description}
-                                    </div>
-                                  )}
-                                </div>
-                              </Button>
-                            </DialogTrigger>
-                            {Component && (
-                              <DialogContent>
-                                <DialogHeader>
-                                  <DialogTitle>{label}</DialogTitle>
-                                </DialogHeader>
-                                <Component onResourceAdd={handleResourceAdd} />
-                              </DialogContent>
-                            )}
-                          </Dialog>
-                        ))}
-                      </div>
+                      <ResourceUploader onResourceAdd={handleResourceAdd} />
                     </DialogContent>
                   </Dialog>
                 </div>
@@ -188,15 +156,18 @@ const StudyHub = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 pt-24">
         {selectedResource ? (
-          <ResizablePanelGroup direction="horizontal" className="min-h-[80vh] rounded-lg border">
-            <ResizablePanel defaultSize={60} minSize={30}>
-              <PDFViewer resourceId={selectedResource.id} />
-            </ResizablePanel>
-            <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={40} minSize={30}>
-              <ChatInterface resourceId={selectedResource.id} />
-            </ResizablePanel>
-          </ResizablePanelGroup>
+          <>
+            <PDFViewerNav currentView={currentView} onViewChange={setCurrentView} />
+            <ResizablePanelGroup direction="horizontal" className="min-h-[80vh] rounded-lg border">
+              <ResizablePanel defaultSize={60} minSize={30}>
+                <PDFContent currentView={currentView} resourceId={selectedResource.id} />
+              </ResizablePanel>
+              <ResizableHandle withHandle />
+              <ResizablePanel defaultSize={40} minSize={30}>
+                <ChatInterface resourceId={selectedResource.id} />
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </>
         ) : (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
