@@ -30,17 +30,17 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <div className="space-y-6 mb-8">
-      <h2 className="text-2xl font-bold">Our Features</h2>
+    <div className="relative z-10 space-y-6 mb-8">
+      <h2 className="text-2xl font-bold text-foreground">Our Features</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {features.map((feature, index) => (
           <div
             key={index}
-            className="flex items-start gap-4 p-6 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+            className="flex items-start gap-4 p-6 rounded-lg border bg-card/80 backdrop-blur-sm hover:bg-accent/50 transition-colors"
           >
             <div className="shrink-0">{feature.icon}</div>
             <div>
-              <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
+              <h3 className="text-lg font-semibold mb-2 text-foreground">{feature.title}</h3>
               <p className="text-muted-foreground">{feature.description}</p>
             </div>
           </div>
