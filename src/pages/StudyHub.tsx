@@ -52,13 +52,14 @@ const StudyHub = () => {
             resources={resources} 
             onResourceAdd={handleResourceAdd} 
             onResourceDelete={handleResourceDelete}
+            onResourceSelect={handleResourceSelect}
           />
         </div>
       );
     }
 
-    // If a resource is selected and we're in PDF view mode
-    if (selectedResource && currentView === 'pdf') {
+    // If a resource is selected, show the split panel layout for all views except home
+    if (selectedResource) {
       return (
         <div className="h-full bg-black">
           <div className="h-full">
@@ -79,7 +80,7 @@ const StudyHub = () => {
       );
     }
 
-    // For all other views
+    // For all other views when no resource is selected
     switch (currentView) {
       case 'chat':
         return (
