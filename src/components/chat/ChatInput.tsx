@@ -1,9 +1,10 @@
 import { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Image, Mic, FileText } from "lucide-react";
+import { Send, Image, Mic, FileText, Globe, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 import ResourceList from '../ResourceList';
 
 interface ChatInputProps {
@@ -30,6 +31,8 @@ export const ChatInput = ({
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const [webBrowsingEnabled, setWebBrowsingEnabled] = useState(false);
+  const [academicSearchEnabled, setAcademicSearchEnabled] = useState(false);
 
   const handleSendMessage = () => {
     if (!message.trim() || isLoading) return;
@@ -89,8 +92,28 @@ export const ChatInput = ({
 
   return (
     <div className="border-t p-4 bg-background/95 backdrop-blur-sm space-y-4">
-      {resources && resources.length > 0 && (
-        <div className="flex justify-center mb-4">
+      <div className="flex justify-center items-center gap-4 mb-4">
+        <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1">
+          <Globe className="h-4 w-4" />
+          <span className="text-xs">Web Browsing</span>
+          <Switch
+            checked={webBrowsingEnabled}
+            onCheckedChange={setWebBrowsingEnabled}
+            className="scale-75"
+          />
+        </div>
+
+        <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1">
+          <GraduationCap className="h-4 w-4" />
+          <span className="text-xs">Search Academic Papers</span>
+          <Switch
+            checked={academicSearchEnabled}
+            onCheckedChange={setAcademicSearchEnabled}
+            className="scale-75"
+          />
+        </div>
+
+        {resources && resources.length > 0 && (
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2 h-8 px-3 text-sm">
@@ -108,8 +131,8 @@ export const ChatInput = ({
               />
             </DialogContent>
           </Dialog>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="max-w-3xl mx-auto flex items-center gap-2 bg-muted rounded-lg p-2">
         <div className="flex justify-center items-center gap-2 w-full">
