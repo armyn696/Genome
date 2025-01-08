@@ -2,12 +2,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Plus, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState } from "react";
+import CreateQuizDialog from "./CreateQuizDialog";
 
 const QuizHub = () => {
-  const handleCreateQuiz = () => {
-    // TODO: Implement quiz creation
-    console.log("Create quiz clicked");
-  };
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+
+  // Mock resources - in a real app, these would come from props or a data store
+  const mockResources = [
+    { id: "1", name: "Physics Notes.pdf", type: "pdf" },
+    { id: "2", name: "Chemistry Chapter 1.pdf", type: "pdf" },
+    { id: "3", name: "Math Formulas.pdf", type: "pdf" },
+  ];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -32,7 +38,7 @@ const QuizHub = () => {
             </CardHeader>
             <CardContent>
               <Button 
-                onClick={handleCreateQuiz}
+                onClick={() => setCreateDialogOpen(true)}
                 className="bg-emerald-600 hover:bg-emerald-700"
               >
                 Create Quiz
@@ -44,7 +50,7 @@ const QuizHub = () => {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-semibold">Quizzes</h2>
-            <Button variant="outline" onClick={handleCreateQuiz}>
+            <Button variant="outline" onClick={() => setCreateDialogOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
               Create Quiz
             </Button>
@@ -53,11 +59,17 @@ const QuizHub = () => {
           <div className="rounded-lg border bg-card p-8 text-center">
             <h3 className="text-xl font-semibold mb-2">No quizzes found</h3>
             <p className="text-muted-foreground mb-4">Create a quiz to get started</p>
-            <Button onClick={handleCreateQuiz}>
+            <Button onClick={() => setCreateDialogOpen(true)}>
               Create Practice Quiz
             </Button>
           </div>
         </div>
+
+        <CreateQuizDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          resources={mockResources}
+        />
       </motion.div>
     </div>
   );

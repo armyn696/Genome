@@ -25,7 +25,7 @@ const Background: React.FC<BackgroundProps> = ({ className }) => {
           particles.push({
             x: p.random(p.width),
             y: p.random(p.height),
-            speed: p.random(0.5, 2)
+            speed: p.random(0.125, 0.5) // Reduced speed to 1/4
           });
         }
       };
