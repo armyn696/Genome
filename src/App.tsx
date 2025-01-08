@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Mindmap from "./pages/Mindmap";
 import StudyHub from "./pages/StudyHub";
-import { EnhancedChatInterface } from "./components/EnhancedChatInterface";
+import ChatPage from "./pages/ChatPage";
 
 const queryClient = new QueryClient();
 
@@ -20,7 +20,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/mindmap" element={<Mindmap />} />
           <Route path="/studyhub" element={<StudyHub />} />
-          <Route path="/studyhub/chat" element={<EnhancedChatInterface resources={[]} />} />
+          <Route path="/studyhub/chat" element={<ChatPage />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
