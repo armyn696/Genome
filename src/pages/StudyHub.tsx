@@ -40,7 +40,7 @@ const StudyHub = () => {
       return (
         <div className="container mx-auto px-4 py-8">
           <FeaturesSection />
-          <ResourceProgress resources={resources} />
+          <ResourceProgress resources={resources} onResourceAdd={handleResourceAdd} />
         </div>
       );
     }
