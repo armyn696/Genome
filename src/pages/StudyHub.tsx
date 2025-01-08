@@ -24,7 +24,7 @@ interface Resource {
 const StudyHub = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
-  const [currentView, setCurrentView] = useState<'notes' | 'pdf' | 'transcript' | 'dual'>('pdf');
+  const [currentView, setCurrentView] = useState<'chat' | 'notes' | 'pdf' | 'transcript' | 'dual'>('chat');
 
   const handleResourceAdd = (newResource: Resource) => {
     setResources(prev => [...prev, newResource]);
@@ -32,11 +32,12 @@ const StudyHub = () => {
 
   const handleResourceSelect = (resource: Resource) => {
     setSelectedResource(resource);
+    setCurrentView('pdf');
   };
 
   const menuItems = [
     { icon: Home, label: "Home" },
-    { icon: MessageSquare, label: "Chat" },
+    { icon: MessageSquare, label: "Chat", view: 'chat' as const },
     { icon: BookOpen, label: "Flashcard" },
     { icon: TestTube, label: "Test" },
     { icon: BookOpen, label: "Quiz" },
@@ -63,11 +64,12 @@ const StudyHub = () => {
     { icon: BookOpen, label: "Canvas" },
   ];
 
-  const renderMenuItem = (Icon: any, label: string) => (
+  const renderMenuItem = (Icon: any, label: string, view?: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual') => (
     <Button
       variant="ghost"
       className="w-full justify-start gap-2 hover:bg-accent"
       key={label}
+      onClick={() => view && setCurrentView(view)}
     >
       <Icon className="h-5 w-5 text-primary" />
       {label}
@@ -76,7 +78,7 @@ const StudyHub = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Background className="!fixed" />
+      <Background />
 
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border h-16">
@@ -92,7 +94,7 @@ const StudyHub = () => {
               <nav className="flex flex-col gap-4 mt-8">
                 {/* Main Menu Items */}
                 <div className="space-y-2">
-                  {menuItems.map(({ icon: Icon, label }) => renderMenuItem(Icon, label))}
+                  {menuItems.map(({ icon: Icon, label, view }) => renderMenuItem(Icon, label, view))}
                 </div>
 
                 {/* Separator */}
@@ -171,6 +173,10 @@ const StudyHub = () => {
                 </ResizablePanelGroup>
               </div>
             </div>
+          </div>
+        ) : currentView === 'chat' ? (
+          <div className="h-[calc(100vh-4rem)]">
+            <ChatInterface resourceId="dashboard" />
           </div>
         ) : (
           <div className="container mx-auto px-4 h-full flex items-center">
