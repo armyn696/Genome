@@ -1,41 +1,67 @@
-import React from 'react';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Send } from "lucide-react";
+import React, { useState, useRef, useEffect } from 'react';
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ChatMessage } from "@/components/pdf/ChatMessage";
+import { ChatInput } from "@/components/pdf/ChatInput";
+import { Message } from "@/types/chat";
 
 interface ChatInterfaceProps {
   resourceName: string;
 }
 
 const ChatInterface = ({ resourceName }: ChatInterfaceProps) => {
-  return (
-    <div className="flex flex-col h-full bg-background">
-      <div className="p-6 border-b">
-        <h2 className="text-2xl font-bold text-foreground">Chat with AI about {resourceName}</h2>
-        <p className="text-muted-foreground mt-2">
-          Ask questions about the content of your document and get instant answers.
-        </p>
-      </div>
-      
-      <div className="flex-1 overflow-auto p-6 bg-white/5">
-        {/* Chat messages will go here */}
-        <div className="text-muted-foreground text-center mt-8">
-          Start asking questions about your document
-        </div>
-      </div>
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [message, setMessage] = useState("");
+  const [isWebSearchEnabled, setIsWebSearchEnabled] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-      <div className="p-4 border-t bg-background/95">
-        <div className="flex gap-2">
-          <Input 
-            placeholder="Type your question here..." 
-            className="flex-1 bg-white/10"
-          />
-          <Button className="bg-primary hover:bg-primary/90">
-            <Send className="h-4 w-4 mr-2" />
-            Send
-          </Button>
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      scrollToBottom();
+    }
+  }, [messages]);
+
+  const handleSendMessage = (text: string) => {
+    if (text.trim()) {
+      const newMessage: Message = {
+        text: text.trim(),
+        sender: 'user'
+      };
+      setMessages(prev => [...prev, newMessage]);
+      
+      // Simulate AI response
+      setTimeout(() => {
+        const aiResponse: Message = {
+          text: "این یک پاسخ نمونه است. شما می‌توانید به صفحات [p.1] و [p.2, 3] مراجعه کنید.",
+          sender: 'ai'
+        };
+        setMessages(prev => [...prev, aiResponse]);
+      }, 1000);
+    }
+  };
+
+  return (
+    <div className="flex-1 bg-gray-50 flex flex-col h-full">
+      <ScrollArea className="flex-1 p-4">
+        <div className="space-y-4 flex flex-col">
+          {messages.map((msg, index) => (
+            <ChatMessage key={index} message={msg} />
+          ))}
+          <div ref={messagesEndRef} />
         </div>
-      </div>
+        <ScrollBar />
+      </ScrollArea>
+
+      <ChatInput
+        message={message}
+        setMessage={setMessage}
+        handleSendMessage={handleSendMessage}
+        isWebSearchEnabled={isWebSearchEnabled}
+        setIsWebSearchEnabled={setIsWebSearchEnabled}
+      />
     </div>
   );
 };
