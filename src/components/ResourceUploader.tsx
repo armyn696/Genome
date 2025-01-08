@@ -18,7 +18,7 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
   const { toast } = useToast();
   const [isDragging, setIsDragging] = useState(false);
 
-  const handleFileUpload = (file: File) => {
+  const handleFileUpload = async (file: File) => {
     console.log("Handling file upload:", file.name);
     
     if (!file) return;
@@ -36,11 +36,22 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
       ? `${(file.size / 1024).toFixed(2)} KB`
       : `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
 
+    const id = Date.now().toString();
+    
+    // Create a data URL from the file
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      // Store the PDF data URL
+      localStorage.setItem(`pdf_${id}`, dataUrl);
+    };
+    reader.readAsDataURL(file);
+
     const newResource: Resource = {
-      id: Date.now().toString(),
+      id,
       name: file.name,
       type: 'PDF',
-      size: size,
+      size,
       uploadDate: new Date().toLocaleDateString()
     };
 
@@ -84,7 +95,12 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
         id="pdf-upload"
         accept=".pdf"
         className="hidden"
-        onChange={handleInputChange}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            handleFileUpload(file);
+          }
+        }}
       />
 
       <div

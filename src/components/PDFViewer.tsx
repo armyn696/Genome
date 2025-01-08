@@ -8,8 +8,12 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    // In a real application, this would fetch from your API
-    setPdfUrl(`/api/resources/${resourceId}`);
+    // For now, we'll use a data URL from the uploaded file
+    // In a real app, this would fetch from your API
+    const storedPdf = localStorage.getItem(`pdf_${resourceId}`);
+    if (storedPdf) {
+      setPdfUrl(storedPdf);
+    }
   }, [resourceId]);
 
   if (!pdfUrl) {
@@ -21,7 +25,7 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   }
 
   return (
-    <div className="w-full h-full bg-gray-100 p-4">
+    <div className="w-full h-full bg-gray-100">
       <iframe
         src={pdfUrl}
         className="w-full h-full rounded-lg border border-gray-200"
