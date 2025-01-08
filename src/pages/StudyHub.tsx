@@ -4,10 +4,13 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import Background from "@/components/Background";
 import ResourceList from "@/components/ResourceList";
 import ResourceUploader from "@/components/ResourceUploader";
 import { useState } from "react";
+import { PDFViewer } from "@/components/PDFViewer";
+import { ChatInterface } from "@/components/ChatInterface";
 
 interface Resource {
   id: string;
@@ -19,11 +22,16 @@ interface Resource {
 
 const StudyHub = () => {
   const [resources, setResources] = useState<Resource[]>([]);
+  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   console.log("Rendering StudyHub page");
   
   const handleResourceAdd = (newResource: Resource) => {
     setResources(prev => [...prev, newResource]);
     console.log("Resources updated:", [...resources, newResource]);
+  };
+
+  const handleResourceSelect = (resource: Resource) => {
+    setSelectedResource(resource);
   };
 
   const menuItems = [
@@ -97,7 +105,19 @@ const StudyHub = () => {
                     <span className="font-medium">Resources</span>
                   </div>
                   
-                  <ResourceList resources={resources} />
+                  <div className="space-y-2">
+                    {resources.map(resource => (
+                      <Button
+                        key={resource.id}
+                        variant="ghost"
+                        className="w-full justify-start gap-2 hover:bg-accent"
+                        onClick={() => handleResourceSelect(resource)}
+                      >
+                        <FileText className="h-5 w-5 text-primary" />
+                        {resource.name}
+                      </Button>
+                    ))}
+                  </div>
                   
                   {/* Add Resource Button with Modal */}
                   <Dialog>
@@ -167,19 +187,32 @@ const StudyHub = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 pt-24">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center"
-        >
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
-            Your Study Hub
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-            Organize your study materials and enhance your learning experience
-          </p>
-        </motion.div>
+        {selectedResource ? (
+          <ResizablePanelGroup direction="horizontal" className="min-h-[80vh] rounded-lg border">
+            <ResizablePanel defaultSize={60} minSize={30}>
+              <PDFViewer resourceId={selectedResource.id} />
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+            <ResizablePanel defaultSize={40} minSize={30}>
+              <ChatInterface resourceId={selectedResource.id} />
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center"
+          >
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
+              Your Study Hub
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+              Organize your study materials and enhance your learning experience
+            </p>
+            <ResourceList resources={resources} onResourceSelect={handleResourceSelect} />
+          </motion.div>
+        )}
       </main>
     </div>
   );
