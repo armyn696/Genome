@@ -30,6 +30,14 @@ const StudyHub = () => {
     setResources(prev => [...prev, newResource]);
   };
 
+  const handleResourceDelete = (resourceId: string) => {
+    setResources(prev => prev.filter(resource => resource.id !== resourceId));
+    if (selectedResource?.id === resourceId) {
+      setSelectedResource(null);
+      setCurrentView('home');
+    }
+  };
+
   const handleResourceSelect = (resource: Resource) => {
     setSelectedResource(resource);
     setCurrentView('pdf');
@@ -40,7 +48,11 @@ const StudyHub = () => {
       return (
         <div className="container mx-auto px-4 py-8">
           <FeaturesSection />
-          <ResourceProgress resources={resources} onResourceAdd={handleResourceAdd} />
+          <ResourceProgress 
+            resources={resources} 
+            onResourceAdd={handleResourceAdd} 
+            onResourceDelete={handleResourceDelete}
+          />
         </div>
       );
     }
