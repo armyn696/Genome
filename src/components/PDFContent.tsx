@@ -1,7 +1,7 @@
 import { PDFViewer } from "@/components/PDFViewer";
 
 interface PDFContentProps {
-  currentView: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual';
+  currentView: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz';
   resourceId: string;
 }
 
@@ -31,6 +31,12 @@ export const PDFContent = ({ currentView, resourceId }: PDFContentProps) => {
       return (
         <div className="h-full flex items-center justify-center text-muted-foreground">
           Dual view coming soon...
+        </div>
+      );
+    case 'quiz':
+      return (
+        <div className="h-full flex items-center justify-center text-muted-foreground">
+          Quiz view coming soon...
         </div>
       );
     default:
