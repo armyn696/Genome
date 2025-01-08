@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { retrievePdf } from '@/utils/pdfStorage';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface PDFViewerProps {
   resourceId: string;
@@ -27,12 +28,18 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   }
 
   return (
-    <div className="w-full h-full bg-gray-100">
-      <iframe
-        src={pdfUrl}
-        className="w-full h-full rounded-lg border border-gray-200"
-        title="PDF Viewer"
-      />
-    </div>
+    <ScrollArea className="w-full h-full">
+      <div className="w-full h-full bg-white rounded-lg">
+        <iframe
+          src={pdfUrl}
+          className="w-full h-full rounded-lg border-2 border-border"
+          title="PDF Viewer"
+          style={{
+            minHeight: "calc(100vh - 8rem)",
+            backgroundColor: "white",
+          }}
+        />
+      </div>
+    </ScrollArea>
   );
 };

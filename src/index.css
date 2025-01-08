@@ -53,4 +53,9 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  iframe {
+    background-color: white !important;
+    color: black !important;
+  }
 }
