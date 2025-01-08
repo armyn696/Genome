@@ -154,35 +154,41 @@ const StudyHub = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 pt-24">
+      <main className="h-screen pt-16">
         {selectedResource ? (
-          <>
-            <PDFViewerNav currentView={currentView} onViewChange={setCurrentView} />
-            <ResizablePanelGroup direction="horizontal" className="min-h-[80vh] rounded-lg border">
-              <ResizablePanel defaultSize={60} minSize={30}>
-                <PDFContent currentView={currentView} resourceId={selectedResource.id} />
-              </ResizablePanel>
-              <ResizableHandle withHandle />
-              <ResizablePanel defaultSize={40} minSize={30}>
-                <ChatInterface resourceId={selectedResource.id} />
-              </ResizablePanel>
-            </ResizablePanelGroup>
-          </>
+          <div className="h-full">
+            <div className="container mx-auto px-4 h-full py-4">
+              <PDFViewerNav currentView={currentView} onViewChange={setCurrentView} />
+              <div className="h-[calc(100%-3.5rem)]">
+                <ResizablePanelGroup direction="horizontal" className="h-full rounded-lg border">
+                  <ResizablePanel defaultSize={60} minSize={30}>
+                    <PDFContent currentView={currentView} resourceId={selectedResource.id} />
+                  </ResizablePanel>
+                  <ResizableHandle withHandle />
+                  <ResizablePanel defaultSize={40} minSize={30}>
+                    <ChatInterface resourceId={selectedResource.id} />
+                  </ResizablePanel>
+                </ResizablePanelGroup>
+              </div>
+            </div>
+          </div>
         ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
-              Your Study Hub
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              Organize your study materials and enhance your learning experience
-            </p>
-            <ResourceList resources={resources} onResourceSelect={handleResourceSelect} />
-          </motion.div>
+          <div className="container mx-auto px-4 h-full flex items-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-center w-full"
+            >
+              <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
+                Your Study Hub
+              </h1>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+                Organize your study materials and enhance your learning experience
+              </p>
+              <ResourceList resources={resources} onResourceSelect={handleResourceSelect} />
+            </motion.div>
+          </div>
         )}
       </main>
     </div>

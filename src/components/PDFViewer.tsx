@@ -28,18 +28,13 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   }
 
   return (
-    <ScrollArea className="w-full h-full">
-      <div className="w-full h-full bg-white rounded-lg">
-        <iframe
-          src={pdfUrl}
-          className="w-full h-full rounded-lg border-2 border-border"
-          title="PDF Viewer"
-          style={{
-            minHeight: "calc(100vh - 8rem)",
-            backgroundColor: "white",
-          }}
-        />
-      </div>
+    <ScrollArea className="h-full">
+      <iframe
+        src={pdfUrl}
+        className="w-full h-full rounded-lg border-2 border-border"
+        title="PDF Viewer"
+        style={{ height: '100%', backgroundColor: "white" }}
+      />
     </ScrollArea>
   );
 };
