@@ -34,7 +34,8 @@ const StudyHub = () => {
   };
 
   const renderContent = () => {
-    if (selectedResource) {
+    // If a resource is selected and we're in PDF view mode
+    if (selectedResource && currentView === 'pdf') {
       return (
         <div className="h-full bg-black">
           <div className="h-full">
@@ -55,6 +56,7 @@ const StudyHub = () => {
       );
     }
 
+    // For all other views
     switch (currentView) {
       case 'chat':
         return (
