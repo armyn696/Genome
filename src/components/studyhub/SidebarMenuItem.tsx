@@ -1,11 +1,13 @@
 import { LucideIcon } from 'lucide-react';
 import { Button } from '../ui/button';
 
+type ViewType = 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame';
+
 interface SidebarMenuItemProps {
   icon: LucideIcon;
   label: string;
-  view?: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame';
-  onClick?: (view: typeof view) => void;
+  view?: ViewType;
+  onClick?: (view: ViewType) => void;
 }
 
 export const SidebarMenuItem = ({ icon: Icon, label, view, onClick }: SidebarMenuItemProps) => {
