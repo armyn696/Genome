@@ -90,11 +90,9 @@ const FlashcardsHub = () => {
                                   className="flex flex-col items-center gap-4 p-4 rounded-lg border-2 cursor-pointer hover:bg-accent"
                                 >
                                   <RadioGroupItem value="scratch" id="scratch" className="sr-only" />
-                                  <img 
-                                    src="/lovable-uploads/b6f66e17-ea50-475e-85f5-31387824454f.png" 
-                                    alt="Start from scratch" 
-                                    className="w-24 h-24"
-                                  />
+                                  <span className="text-6xl" role="img" aria-label="Create from scratch">
+                                    ✏️
+                                  </span>
                                   <div className="text-center">
                                     <h4 className="font-semibold">Start From Scratch</h4>
                                     <p className="text-sm text-muted-foreground">
@@ -108,11 +106,9 @@ const FlashcardsHub = () => {
                                   className="flex flex-col items-center gap-4 p-4 rounded-lg border-2 cursor-pointer hover:bg-accent"
                                 >
                                   <RadioGroupItem value="material" id="material" className="sr-only" />
-                                  <img 
-                                    src="/lovable-uploads/b6f66e17-ea50-475e-85f5-31387824454f.png" 
-                                    alt="Create from material" 
-                                    className="w-24 h-24"
-                                  />
+                                  <span className="text-6xl" role="img" aria-label="Create from material">
+                                    📚
+                                  </span>
                                   <div className="text-center">
                                     <h4 className="font-semibold">Create From Material</h4>
                                     <p className="text-sm text-muted-foreground">
