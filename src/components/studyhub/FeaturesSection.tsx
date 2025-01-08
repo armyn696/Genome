@@ -11,7 +11,7 @@ const FeaturesSection = () => {
       icon: <MessageSquare className="w-12 h-12 text-primary" />,
       title: "Chat with Spark.E",
       description: "Chat with Spark.E and learn about your documents in real time!",
-      route: "/studyhub"
+      route: "/studyhub/chat"
     },
     {
       icon: <ScrollText className="w-12 h-12 text-primary" />,
