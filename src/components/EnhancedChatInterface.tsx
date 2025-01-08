@@ -3,11 +3,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatInput } from './chat/ChatInput';
 import { ChatMessage } from './chat/ChatMessage';
 import { ChatWelcome } from './chat/ChatWelcome';
-import { Button } from './ui/button';
-import { FileText, Globe, GraduationCap } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Switch } from "@/components/ui/switch";
-import ResourceList from './ResourceList';
 
 interface Message {
   text: string;
@@ -32,8 +27,6 @@ export const EnhancedChatInterface = ({ resources }: EnhancedChatInterfaceProps)
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedResources, setSelectedResources] = useState<Resource[]>([]);
-  const [webBrowsingEnabled, setWebBrowsingEnabled] = useState(false);
-  const [academicSearchEnabled, setAcademicSearchEnabled] = useState(false);
 
   const handleSendMessage = async (text: string) => {
     if (!text.trim() || isLoading) return;
@@ -88,52 +81,13 @@ export const EnhancedChatInterface = ({ resources }: EnhancedChatInterfaceProps)
         )}
       </ScrollArea>
 
-      <div className="border-t p-4 bg-background/95 backdrop-blur-sm space-y-2">
-        <div className="flex items-center gap-2 max-w-3xl mx-auto">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 h-8 px-3 text-sm">
-                <FileText className="h-4 w-4" />
-                {selectedResources.length} material(s) selected
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Select Materials</DialogTitle>
-              </DialogHeader>
-              <ResourceList
-                resources={resources}
-                onResourceSelect={handleResourceSelect}
-              />
-            </DialogContent>
-          </Dialog>
-
-          <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1">
-            <Globe className="h-4 w-4" />
-            <span className="text-xs">Web Browsing</span>
-            <Switch
-              checked={webBrowsingEnabled}
-              onCheckedChange={setWebBrowsingEnabled}
-              className="scale-75"
-            />
-          </div>
-
-          <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1">
-            <GraduationCap className="h-4 w-4" />
-            <span className="text-xs">Search Academic Papers</span>
-            <Switch
-              checked={academicSearchEnabled}
-              onCheckedChange={setAcademicSearchEnabled}
-              className="scale-75"
-            />
-          </div>
-        </div>
-
-        <ChatInput
-          onSendMessage={handleSendMessage}
-          isLoading={isLoading}
-        />
-      </div>
+      <ChatInput
+        onSendMessage={handleSendMessage}
+        isLoading={isLoading}
+        resources={resources}
+        onResourceSelect={handleResourceSelect}
+        selectedResources={selectedResources}
+      />
     </div>
   );
 };

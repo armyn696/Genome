@@ -1,22 +1,38 @@
 import { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Image, Mic } from "lucide-react";
+import { Send, Image, Mic, FileText, Globe, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import ResourceList from '../ResourceList';
 
 interface ChatInputProps {
   onSendMessage: (text: string) => void;
   onSendImage?: (file: File) => void;
   onSendVoice?: (blob: Blob) => void;
   isLoading?: boolean;
+  resources?: any[];
+  onResourceSelect?: (resource: any) => void;
+  selectedResources?: any[];
 }
 
-export const ChatInput = ({ onSendMessage, onSendImage, onSendVoice, isLoading }: ChatInputProps) => {
+export const ChatInput = ({ 
+  onSendMessage, 
+  onSendImage, 
+  onSendVoice, 
+  isLoading,
+  resources = [],
+  onResourceSelect,
+  selectedResources = []
+}: ChatInputProps) => {
   const [message, setMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const [webBrowsingEnabled, setWebBrowsingEnabled] = useState(false);
+  const [academicSearchEnabled, setAcademicSearchEnabled] = useState(false);
 
   const handleSendMessage = () => {
     if (!message.trim() || isLoading) return;
@@ -75,7 +91,47 @@ export const ChatInput = ({ onSendMessage, onSendImage, onSendVoice, isLoading }
   };
 
   return (
-    <div className="border-t p-4 bg-background/95 backdrop-blur-sm">
+    <div className="border-t p-4 bg-background/95 backdrop-blur-sm space-y-2">
+      <div className="flex items-center gap-2 max-w-3xl mx-auto">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2 h-8 px-3 text-sm">
+              <FileText className="h-4 w-4" />
+              {selectedResources.length} material(s) selected
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Select Materials</DialogTitle>
+            </DialogHeader>
+            <ResourceList
+              resources={resources}
+              onResourceSelect={onResourceSelect}
+            />
+          </DialogContent>
+        </Dialog>
+
+        <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1">
+          <Globe className="h-4 w-4" />
+          <span className="text-xs">Web Browsing</span>
+          <Switch
+            checked={webBrowsingEnabled}
+            onCheckedChange={setWebBrowsingEnabled}
+            className="scale-75"
+          />
+        </div>
+
+        <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1">
+          <GraduationCap className="h-4 w-4" />
+          <span className="text-xs">Search Academic Papers</span>
+          <Switch
+            checked={academicSearchEnabled}
+            onCheckedChange={setAcademicSearchEnabled}
+            className="scale-75"
+          />
+        </div>
+      </div>
+
       <div className="max-w-3xl mx-auto flex items-center gap-2 bg-muted rounded-lg p-2">
         <input
           type="file"
