@@ -13,6 +13,7 @@ import { ChatInterface } from "@/components/ChatInterface";
 import { PDFViewerNav } from "@/components/PDFViewerNav";
 import { PDFContent } from "@/components/PDFContent";
 import QuizHub from "@/components/quiz/QuizHub";
+import FlashcardsHub from "@/components/flashcards/FlashcardsHub";
 
 interface Resource {
   id: string;
@@ -25,7 +26,7 @@ interface Resource {
 const StudyHub = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
-  const [currentView, setCurrentView] = useState<'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz'>('chat');
+  const [currentView, setCurrentView] = useState<'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards'>('chat');
 
   const handleResourceAdd = (newResource: Resource) => {
     setResources(prev => [...prev, newResource]);
@@ -36,9 +37,9 @@ const StudyHub = () => {
     setCurrentView('pdf');
   };
 
-  const handleMenuItemClick = (view: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz') => {
+  const handleMenuItemClick = (view: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards') => {
     setCurrentView(view);
-    if (view === 'chat' || view === 'quiz') {
+    if (view === 'chat' || view === 'quiz' || view === 'flashcards') {
       setSelectedResource(null);
     }
   };
@@ -47,6 +48,7 @@ const StudyHub = () => {
     { icon: Home, label: "Home" },
     { icon: MessageSquare, label: "Chat", view: 'chat' as const },
     { icon: BookOpen, label: "Quiz", view: 'quiz' as const },
+    { icon: BookOpen, label: "Flashcards", view: 'flashcards' as const },
   ];
 
   const resourceTypes = [
@@ -70,7 +72,7 @@ const StudyHub = () => {
     { icon: BookOpen, label: "Canvas" },
   ];
 
-  const renderMenuItem = (Icon: any, label: string, view?: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz') => (
+  const renderMenuItem = (Icon: any, label: string, view?: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards') => (
     <Button
       variant="ghost"
       className="w-full justify-start gap-2 hover:bg-accent"
@@ -114,6 +116,10 @@ const StudyHub = () => {
 
     if (currentView === 'quiz') {
       return <QuizHub />;
+    }
+
+    if (currentView === 'flashcards') {
+      return <FlashcardsHub />;
     }
 
     return (
