@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Plus, Check, Search } from "lucide-react";
 import { toast } from "sonner";
+import { Slider } from "@/components/ui/slider";
 
 interface Resource {
   id: string;
@@ -18,23 +19,50 @@ interface CreateQuizDialogProps {
   resources: Resource[];
 }
 
+interface QuestionType {
+  id: string;
+  label: string;
+  count: number;
+}
+
 const CreateQuizDialog = ({ open, onOpenChange, resources }: CreateQuizDialogProps) => {
-  const [step, setStep] = useState<'name' | 'materials'>('name');
+  const [step, setStep] = useState<'name' | 'materials' | 'questionTypes'>('name');
   const [quizName, setQuizName] = useState("");
   const [selectedMaterials, setSelectedMaterials] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [questionTypes, setQuestionTypes] = useState<QuestionType[]>([
+    { id: 'multiple', label: 'Multiple Choice', count: 10 },
+    { id: 'short', label: 'Short Answer', count: 0 },
+    { id: 'frq', label: 'Free Response (FRQ)', count: 0 },
+    { id: 'truefalse', label: 'True or False', count: 0 },
+    { id: 'fill', label: 'Fill in the Blank', count: 0 },
+  ]);
 
   const handleNext = () => {
-    if (!quizName.trim()) {
-      toast.error("Please enter a quiz name");
-      return;
+    if (step === 'name') {
+      if (!quizName.trim()) {
+        toast.error("Please enter a quiz name");
+        return;
+      }
+      setStep('materials');
+    } else if (step === 'materials') {
+      if (selectedMaterials.length === 0) {
+        toast.error("Please select at least one material");
+        return;
+      }
+      setStep('questionTypes');
     }
-    setStep('materials');
+  };
+
+  const handleBack = () => {
+    if (step === 'materials') setStep('name');
+    else if (step === 'questionTypes') setStep('materials');
   };
 
   const handleCreateQuiz = () => {
-    if (selectedMaterials.length === 0) {
-      toast.error("Please select at least one material");
+    const totalQuestions = questionTypes.reduce((sum, type) => sum + type.count, 0);
+    if (totalQuestions === 0) {
+      toast.error("Please select at least one question type");
       return;
     }
     // TODO: Implement quiz creation logic
@@ -43,6 +71,7 @@ const CreateQuizDialog = ({ open, onOpenChange, resources }: CreateQuizDialogPro
     setStep('name');
     setQuizName("");
     setSelectedMaterials([]);
+    setQuestionTypes(questionTypes.map(type => ({ ...type, count: type.id === 'multiple' ? 10 : 0 })));
   };
 
   const toggleMaterial = (id: string) => {
@@ -53,6 +82,14 @@ const CreateQuizDialog = ({ open, onOpenChange, resources }: CreateQuizDialogPro
 
   const selectAll = () => {
     setSelectedMaterials(resources.map(r => r.id));
+  };
+
+  const updateQuestionCount = (typeId: string, newCount: number) => {
+    setQuestionTypes(prev =>
+      prev.map(type =>
+        type.id === typeId ? { ...type, count: newCount } : type
+      )
+    );
   };
 
   const filteredResources = resources.filter(r => 
@@ -66,7 +103,7 @@ const CreateQuizDialog = ({ open, onOpenChange, resources }: CreateQuizDialogPro
           <DialogTitle className="text-2xl">Create a Test</DialogTitle>
         </DialogHeader>
 
-        {step === 'name' ? (
+        {step === 'name' && (
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="quizName">Name</Label>
@@ -84,7 +121,9 @@ const CreateQuizDialog = ({ open, onOpenChange, resources }: CreateQuizDialogPro
               <Button onClick={handleNext}>Next</Button>
             </div>
           </div>
-        ) : (
+        )}
+
+        {step === 'materials' && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">Materials</h2>
@@ -134,11 +173,50 @@ const CreateQuizDialog = ({ open, onOpenChange, resources }: CreateQuizDialogPro
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setStep('name')}>
+              <Button variant="outline" onClick={handleBack}>
+                Back
+              </Button>
+              <Button onClick={handleNext}>
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {step === 'questionTypes' && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-lg font-semibold mb-2">Question Types</h2>
+              <p className="text-muted-foreground">What type of questions do you want to be asked?</p>
+            </div>
+
+            <div className="space-y-6">
+              {questionTypes.map((type) => (
+                <div key={type.id} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label>{type.label}</Label>
+                    <div className="w-16 h-8 rounded-md border flex items-center justify-center bg-background">
+                      {type.count}
+                    </div>
+                  </div>
+                  <Slider
+                    value={[type.count]}
+                    min={0}
+                    max={20}
+                    step={1}
+                    onValueChange={(value) => updateQuestionCount(type.id, value[0])}
+                    className="w-full"
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={handleBack}>
                 Back
               </Button>
               <Button onClick={handleCreateQuiz}>
-                Create Quiz
+                Create Test
               </Button>
             </div>
           </div>
