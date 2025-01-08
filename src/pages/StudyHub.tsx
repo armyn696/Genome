@@ -35,6 +35,13 @@ const StudyHub = () => {
     setCurrentView('pdf');
   };
 
+  const handleMenuItemClick = (view: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual') => {
+    setCurrentView(view);
+    if (view === 'chat') {
+      setSelectedResource(null); // Clear selected resource when switching to chat
+    }
+  };
+
   const menuItems = [
     { icon: Home, label: "Home" },
     { icon: MessageSquare, label: "Chat", view: 'chat' as const },
@@ -69,7 +76,7 @@ const StudyHub = () => {
       variant="ghost"
       className="w-full justify-start gap-2 hover:bg-accent"
       key={label}
-      onClick={() => view && setCurrentView(view)}
+      onClick={() => view && handleMenuItemClick(view)}
     >
       <Icon className="h-5 w-5 text-primary" />
       {label}
