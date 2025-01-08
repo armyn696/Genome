@@ -29,10 +29,10 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
 
   return (
     <ScrollArea className="w-full h-full">
-      <div className="w-full h-full bg-white p-4 rounded-xl">
+      <div className="w-full h-full bg-white rounded-xl p-2">
         <iframe
           src={pdfUrl}
-          className="w-full h-full rounded-xl border-2 border-border shadow-lg"
+          className="w-full h-full rounded-xl border-2 border-border shadow-sm"
           title="PDF Viewer"
           style={{
             minHeight: "calc(100vh - 8rem)",
