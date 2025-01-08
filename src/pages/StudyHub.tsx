@@ -10,6 +10,7 @@ import MindmapHub from "@/components/mindmap/MindmapHub";
 import MatchGameHub from "@/components/matchgame/MatchGameHub";
 import { StudyHubSidebar } from "@/components/studyhub/StudyHubSidebar";
 import ResourceProgress from "@/components/studyhub/ResourceProgress";
+import FeaturesSection from "@/components/studyhub/FeaturesSection";
 import { useState } from "react";
 
 interface Resource {
@@ -38,6 +39,7 @@ const StudyHub = () => {
     if (currentView === 'home') {
       return (
         <div className="container mx-auto px-4 py-8">
+          <FeaturesSection />
           <ResourceProgress resources={resources} />
         </div>
       );
