@@ -134,57 +134,53 @@ export const ChatInput = ({
         )}
       </div>
 
-      <div className="relative max-w-3xl mx-auto">
-        <div className="flex items-center gap-2 bg-muted rounded-t-lg p-2" style={{
-          clipPath: 'polygon(0 0, 100% 0, 100% 80%, 95% 100%, 5% 100%, 0 80%)'
-        }}>
-          <div className="flex justify-center items-center gap-2 w-full">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="shrink-0 hover:bg-background/50"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Image className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "shrink-0 hover:bg-background/50",
-                isRecording && "text-red-500 animate-pulse"
-              )}
-              onClick={isRecording ? stopRecording : startRecording}
-            >
-              <Mic className="h-5 w-5" />
-            </Button>
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              accept="image/*"
-              onChange={handleImageUpload}
-            />
-            <Textarea
-              placeholder="Ask your AI tutor anything..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="min-h-[44px] resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-2"
-              rows={1}
-            />
-            <Button
-              onClick={handleSendMessage}
-              size="icon"
-              className={cn(
-                "shrink-0",
-                !message.trim() && "opacity-50 cursor-not-allowed"
-              )}
-              disabled={!message.trim() || isLoading}
-            >
-              <Send className="h-5 w-5" />
-            </Button>
-          </div>
+      <div className="max-w-3xl mx-auto flex items-center gap-2 bg-muted rounded-lg p-2">
+        <div className="flex justify-center items-center gap-2 w-full">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="shrink-0 hover:bg-background/50"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Image className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+              "shrink-0 hover:bg-background/50",
+              isRecording && "text-red-500 animate-pulse"
+            )}
+            onClick={isRecording ? stopRecording : startRecording}
+          >
+            <Mic className="h-5 w-5" />
+          </Button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept="image/*"
+            onChange={handleImageUpload}
+          />
+          <Textarea
+            placeholder="Ask your AI tutor anything..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="min-h-[44px] resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-2"
+            rows={1}
+          />
+          <Button
+            onClick={handleSendMessage}
+            size="icon"
+            className={cn(
+              "shrink-0",
+              !message.trim() && "opacity-50 cursor-not-allowed"
+            )}
+            disabled={!message.trim() || isLoading}
+          >
+            <Send className="h-5 w-5" />
+          </Button>
         </div>
       </div>
     </div>
