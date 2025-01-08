@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Mic, Send, Image as ImageIcon, StopCircle } from "lucide-react";
+import { Mic, Send, Image as ImageIcon, StopCircle, Search, GraduationCap } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 
 interface ChatInputProps {
@@ -73,13 +73,25 @@ export const PDFChatInput = ({ onSendMessage, onSendImage, onSendVoice, isLoadin
   return (
     <div className="border-t p-4 space-y-4">
       <div className="flex gap-2">
-        <Textarea
-          placeholder="Type a message..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className="min-h-[60px]"
-        />
+        <div className="flex-1">
+          <div className="flex gap-2 mb-2">
+            <Button variant="outline" size="sm" className="flex-1">
+              <Search className="mr-2 h-4 w-4" />
+              Search web
+            </Button>
+            <Button variant="outline" size="sm" className="flex-1">
+              <GraduationCap className="mr-2 h-4 w-4" />
+              Search academic
+            </Button>
+          </div>
+          <Textarea
+            placeholder="Type a message..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="min-h-[60px]"
+          />
+        </div>
         <div className="flex flex-col gap-2">
           <Button
             variant="outline"
