@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import Background from "@/components/Background";
 import ResourceList from "@/components/ResourceList";
 import ResourceUploader from "@/components/ResourceUploader";
@@ -19,11 +20,18 @@ interface Resource {
 
 const StudyHub = () => {
   const [resources, setResources] = useState<Resource[]>([]);
+  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
+  
   console.log("Rendering StudyHub page");
   
   const handleResourceAdd = (newResource: Resource) => {
     setResources(prev => [...prev, newResource]);
     console.log("Resources updated:", [...resources, newResource]);
+  };
+
+  const handleResourceClick = (resource: Resource) => {
+    setSelectedResource(resource);
+    console.log("Resource selected:", resource);
   };
 
   const menuItems = [
@@ -97,7 +105,7 @@ const StudyHub = () => {
                     <span className="font-medium">Resources</span>
                   </div>
                   
-                  <ResourceList resources={resources} />
+                  <ResourceList resources={resources} onResourceClick={handleResourceClick} />
                   
                   {/* Add Resource Button with Modal */}
                   <Dialog>
@@ -167,19 +175,45 @@ const StudyHub = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 pt-24">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center"
-        >
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
-            Your Study Hub
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-            Organize your study materials and enhance your learning experience
-          </p>
-        </motion.div>
+        {selectedResource ? (
+          <ResizablePanelGroup direction="horizontal" className="min-h-[80vh] rounded-lg border">
+            <ResizablePanel defaultSize={50} minSize={30}>
+              <div className="h-full p-4">
+                <iframe 
+                  src={`/path-to-your-pdf/${selectedResource.id}`} 
+                  className="w-full h-full rounded-md"
+                  title={selectedResource.name}
+                />
+              </div>
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+            <ResizablePanel defaultSize={50} minSize={30}>
+              <div className="h-full p-4 bg-background">
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-bold">Chat with AI about {selectedResource.name}</h2>
+                  <p className="text-muted-foreground">
+                    Ask questions about the content of your document and get instant answers.
+                  </p>
+                  {/* Add your chat component here */}
+                </div>
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center"
+          >
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
+              Your Study Hub
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+              Organize your study materials and enhance your learning experience
+            </p>
+          </motion.div>
+        )}
       </main>
     </div>
   );
