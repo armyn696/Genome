@@ -5,6 +5,13 @@ import { useState } from "react";
 
 const StudyHub = () => {
   const [showFeatures, setShowFeatures] = useState(false);
+  const [resources] = useState<Array<{
+    id: string;
+    name: string;
+    type: string;
+    size: string;
+    uploadDate: string;
+  }>>([]);
 
   return (
     <div className="flex min-h-screen w-full">
@@ -13,7 +20,7 @@ const StudyHub = () => {
         {showFeatures ? (
           <FeaturesSection />
         ) : (
-          <EnhancedChatInterface />
+          <EnhancedChatInterface resources={resources} />
         )}
       </div>
     </div>

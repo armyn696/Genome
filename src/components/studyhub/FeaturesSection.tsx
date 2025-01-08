@@ -1,5 +1,5 @@
-import { Mic, BookOpen, Brain, Video, MessageSquare, GraduationCap, PuzzlePiece, Headphones } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Mic, BookOpen, Brain, Video, MessageSquare, GraduationCap, Gamepad2, Headphones } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 const features = [
   {
@@ -35,7 +35,7 @@ const features = [
   {
     title: "Match Game",
     description: "Practice learning terms by matching them with their definitions.",
-    icon: PuzzlePiece,
+    icon: Gamepad2,
   },
   {
     title: "Audio Recap",
