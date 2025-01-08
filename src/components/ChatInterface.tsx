@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 
 interface Message {
   text: string;
@@ -16,10 +17,10 @@ interface ChatInterfaceProps {
 export const ChatInterface = ({ resourceId }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState('');
-  const [isWebSearchEnabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSendMessage = async () => {
-    if (!message.trim()) return;
+    if (!message.trim() || isLoading) return;
 
     const userMessage: Message = {
       text: message,
@@ -28,14 +29,17 @@ export const ChatInterface = ({ resourceId }: ChatInterfaceProps) => {
     
     setMessages(prev => [...prev, userMessage]);
     setMessage('');
+    setIsLoading(true);
 
-    // TODO: Implement AI response logic here
-    const aiMessage: Message = {
-      text: `You said: ${message}`,
-      sender: 'ai'
-    };
-    
-    setMessages(prev => [...prev, aiMessage]);
+    // Simulate AI response
+    setTimeout(() => {
+      const aiMessage: Message = {
+        text: "I'm an AI assistant. I'm here to help you study and learn. How can I assist you today?",
+        sender: 'ai'
+      };
+      setMessages(prev => [...prev, aiMessage]);
+      setIsLoading(false);
+    }, 1000);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -46,46 +50,83 @@ export const ChatInterface = ({ resourceId }: ChatInterfaceProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full border rounded-lg bg-background/95 backdrop-blur-sm">
-      <div className="p-4 border-b bg-muted/50">
-        <h2 className="text-lg font-semibold text-foreground">Chat Assistant</h2>
-      </div>
-
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4">
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className={`max-w-[80%] rounded-lg px-4 py-2 shadow-sm ${
-                  msg.sender === 'user'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-foreground border'
-                }`}
-              >
-                {msg.text}
-              </div>
+    <div className="flex flex-col h-full">
+      <ScrollArea className="flex-1 p-4 space-y-4">
+        {messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full space-y-4 text-center">
+            <h1 className="text-4xl font-bold">AI Study Assistant</h1>
+            <p className="text-lg text-muted-foreground max-w-xl">
+              I'm your personal study assistant. Ask me anything about your study materials!
+            </p>
+            <div className="grid grid-cols-2 gap-4 mt-8 max-w-2xl w-full">
+              {[
+                "Explain this concept in simple terms",
+                "Create a study plan for me",
+                "Help me understand this topic",
+                "Quiz me on this material"
+              ].map((suggestion) => (
+                <Button
+                  key={suggestion}
+                  variant="outline"
+                  className="h-24 p-4 text-left flex items-start"
+                  onClick={() => {
+                    setMessage(suggestion);
+                    handleSendMessage();
+                  }}
+                >
+                  {suggestion}
+                </Button>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={cn(
+                  "flex w-full",
+                  msg.sender === 'user' ? "justify-end" : "justify-start"
+                )}
+              >
+                <div
+                  className={cn(
+                    "max-w-[80%] rounded-lg px-4 py-2",
+                    msg.sender === 'user'
+                      ? "bg-primary text-primary-foreground ml-auto"
+                      : "bg-muted"
+                  )}
+                >
+                  {msg.text}
+                </div>
+              </div>
+            ))}
+            {isLoading && (
+              <div className="flex items-center space-x-2 text-muted-foreground">
+                <div className="animate-bounce">●</div>
+                <div className="animate-bounce delay-100">●</div>
+                <div className="animate-bounce delay-200">●</div>
+              </div>
+            )}
+          </div>
+        )}
       </ScrollArea>
 
-      <div className="border-t bg-background/95 backdrop-blur-sm p-4 rounded-b-lg">
-        <div className="flex items-center gap-2">
+      <div className="border-t p-4">
+        <div className="max-w-3xl mx-auto flex items-end gap-2">
           <Textarea
-            placeholder="Ask a question about the PDF..."
+            placeholder="Message AI Study Assistant..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="resize-none bg-muted/50 border-muted-foreground/20"
+            className="min-h-[60px] resize-none bg-background"
             rows={1}
           />
           <Button
             onClick={handleSendMessage}
             size="icon"
-            className="shrink-0 bg-primary hover:bg-primary/90"
+            className="shrink-0"
+            disabled={isLoading}
           >
             <Send className="h-4 w-4" />
           </Button>
