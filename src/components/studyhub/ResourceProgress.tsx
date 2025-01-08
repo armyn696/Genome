@@ -17,9 +17,10 @@ interface ResourceProgressProps {
   resources: Resource[];
   onResourceAdd?: (resource: Resource) => void;
   onResourceDelete?: (resourceId: string) => void;
+  onResourceSelect?: (resource: Resource) => void;
 }
 
-const ResourceProgress = ({ resources, onResourceAdd, onResourceDelete }: ResourceProgressProps) => {
+const ResourceProgress = ({ resources, onResourceAdd, onResourceDelete, onResourceSelect }: ResourceProgressProps) => {
   return (
     <Card className="p-6 bg-card/50 backdrop-blur-sm">
       <h2 className="text-2xl font-bold mb-6">Progress of your Study Set</h2>
