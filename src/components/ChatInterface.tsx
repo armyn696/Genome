@@ -16,12 +16,11 @@ interface ChatInterfaceProps {
 export const ChatInterface = ({ resourceId }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState('');
-  const [isWebSearchEnabled, setIsWebSearchEnabled] = useState(false);
+  const [isWebSearchEnabled] = useState(false);
 
   const handleSendMessage = async () => {
     if (!message.trim()) return;
 
-    // Add user message
     const userMessage: Message = {
       text: message,
       sender: 'user'
@@ -31,7 +30,6 @@ export const ChatInterface = ({ resourceId }: ChatInterfaceProps) => {
     setMessage('');
 
     // TODO: Implement AI response logic here
-    // For now, we'll just echo back
     const aiMessage: Message = {
       text: `You said: ${message}`,
       sender: 'ai'
@@ -48,7 +46,11 @@ export const ChatInterface = ({ resourceId }: ChatInterfaceProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full border rounded-lg bg-background/95 backdrop-blur-sm">
+      <div className="p-4 border-b bg-muted/50">
+        <h2 className="text-lg font-semibold text-foreground">Chat Assistant</h2>
+      </div>
+
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
           {messages.map((msg, index) => (
@@ -57,10 +59,10 @@ export const ChatInterface = ({ resourceId }: ChatInterfaceProps) => {
               className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                className={`max-w-[80%] rounded-lg px-4 py-2 shadow-sm ${
                   msg.sender === 'user'
                     ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted'
+                    : 'bg-muted text-foreground border'
                 }`}
               >
                 {msg.text}
@@ -70,20 +72,20 @@ export const ChatInterface = ({ resourceId }: ChatInterfaceProps) => {
         </div>
       </ScrollArea>
 
-      <div className="sticky bottom-0 px-4">
-        <div className="flex items-center gap-2 w-full backdrop-blur-sm p-4 rounded-t-xl border-t">
+      <div className="border-t bg-background/95 backdrop-blur-sm p-4 rounded-b-lg">
+        <div className="flex items-center gap-2">
           <Textarea
             placeholder="Ask a question about the PDF..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="resize-none"
+            className="resize-none bg-muted/50 border-muted-foreground/20"
             rows={1}
           />
           <Button
             onClick={handleSendMessage}
             size="icon"
-            className="shrink-0"
+            className="shrink-0 bg-primary hover:bg-primary/90"
           >
             <Send className="h-4 w-4" />
           </Button>
