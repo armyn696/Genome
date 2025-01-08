@@ -33,7 +33,7 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
         src={pdfUrl}
         className="w-full h-full"
         title="PDF Viewer"
-        style={{ height: '100%', backgroundColor: "black" }}
+        style={{ height: 'calc(100vh - 7rem)', backgroundColor: "black" }}
       />
     </ScrollArea>
   );
