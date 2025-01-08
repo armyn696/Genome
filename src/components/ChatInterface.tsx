@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Send } from "lucide-react";
+import { Send, Image as ImageIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -47,10 +47,6 @@ export const ChatInterface = ({ resourceId }: ChatInterfaceProps) => {
 
   return (
     <div className="flex flex-col h-full border rounded-lg bg-background/95 backdrop-blur-sm">
-      <div className="p-4 border-b bg-muted/50">
-        <h2 className="text-lg font-semibold text-foreground">Chat Assistant</h2>
-      </div>
-
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
           {messages.map((msg, index) => (
@@ -72,22 +68,29 @@ export const ChatInterface = ({ resourceId }: ChatInterfaceProps) => {
         </div>
       </ScrollArea>
 
-      <div className="border-t bg-background/95 backdrop-blur-sm p-4 rounded-b-lg">
-        <div className="flex items-center gap-2">
+      <div className="border-t bg-background/95 backdrop-blur-sm p-4">
+        <div className="flex items-end gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="shrink-0"
+          >
+            <ImageIcon className="h-5 w-5" />
+          </Button>
           <Textarea
-            placeholder="Ask a question about the PDF..."
+            placeholder="Message Spark.E..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="resize-none bg-muted/50 border-muted-foreground/20"
+            className="resize-none bg-muted/50 border-muted-foreground/20 min-h-[2.5rem] max-h-[10rem]"
             rows={1}
           />
           <Button
             onClick={handleSendMessage}
             size="icon"
-            className="shrink-0 bg-primary hover:bg-primary/90"
+            className="shrink-0"
           >
-            <Send className="h-4 w-4" />
+            <Send className="h-5 w-5" />
           </Button>
         </div>
       </div>
