@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Upload, Trash2 } from "lucide-react";
+import { Upload } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { Button } from "@/components/ui/button";
 
 interface Resource {
   id: string;
@@ -16,30 +15,10 @@ interface ResourceUploaderProps {
 }
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB limit
-const MAX_STORAGE_SIZE = 150 * 1024 * 1024; // 150MB total storage limit
 
 const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
   const { toast } = useToast();
   const [isDragging, setIsDragging] = useState(false);
-
-  const clearAllStorage = () => {
-    const keys = Object.keys(localStorage);
-    const pdfKeys = keys.filter(key => key.startsWith('pdf_'));
-    pdfKeys.forEach(key => localStorage.removeItem(key));
-    toast({
-      title: "Storage cleared",
-      description: "All stored PDFs have been removed"
-    });
-  };
-
-  const getTotalStorageUsed = () => {
-    let total = 0;
-    const keys = Object.keys(localStorage);
-    keys.forEach(key => {
-      total += localStorage[key].length;
-    });
-    return total;
-  };
 
   const handleFileUpload = async (file: File) => {
     console.log("Handling file upload:", file.name);
@@ -71,22 +50,6 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
     const id = Date.now().toString();
     
     try {
-      // Check total storage before proceeding
-      const currentStorage = getTotalStorageUsed();
-      if (currentStorage + file.size * 1.37 > MAX_STORAGE_SIZE) { // 1.37 factor for base64 overhead
-        toast({
-          variant: "destructive",
-          title: "Storage full",
-          description: "Please clear some storage before uploading new files",
-          action: (
-            <Button variant="outline" size="sm" onClick={clearAllStorage}>
-              Clear All
-            </Button>
-          ),
-        });
-        return;
-      }
-
       // Create a data URL from the file
       const dataUrl = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -99,10 +62,10 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
         // Clear some storage if needed
         const keys = Object.keys(localStorage);
         const pdfKeys = keys.filter(key => key.startsWith('pdf_'));
-        if (pdfKeys.length > 2) { // Keep only last 2 PDFs to save storage space
+        if (pdfKeys.length > 3) { // Keep only last 3 PDFs to save storage space
           pdfKeys
             .sort((a, b) => parseInt(a.split('_')[1]) - parseInt(b.split('_')[1]))
-            .slice(0, pdfKeys.length - 2)
+            .slice(0, pdfKeys.length - 3)
             .forEach(key => localStorage.removeItem(key));
         }
 
@@ -112,12 +75,7 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
         toast({
           variant: "destructive",
           title: "Storage error",
-          description: "Storage is full. Please clear some PDFs first",
-          action: (
-            <Button variant="outline" size="sm" onClick={clearAllStorage}>
-              Clear All
-            </Button>
-          ),
+          description: "Storage is full. Please try removing some existing PDFs first."
         });
         return;
       }
@@ -142,12 +100,7 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
       toast({
         variant: "destructive",
         title: "Upload failed",
-        description: "There was an error uploading your file. Please try again with a smaller file or clear some storage.",
-        action: (
-          <Button variant="outline" size="sm" onClick={clearAllStorage}>
-            Clear All
-          </Button>
-        ),
+        description: "There was an error uploading your file. Try with a smaller file or clear some storage."
       });
     }
   };
@@ -204,15 +157,6 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
           </div>
         </label>
       </div>
-
-      <Button 
-        variant="outline" 
-        className="w-full flex items-center gap-2" 
-        onClick={clearAllStorage}
-      >
-        <Trash2 className="h-4 w-4" />
-        Clear All PDFs
-      </Button>
     </div>
   );
 };
