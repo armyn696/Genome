@@ -20,10 +20,12 @@ interface Resource {
   uploadDate: string;
 }
 
+type ViewType = 'home' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame';
+
 const StudyHub = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
-  const [currentView, setCurrentView] = useState<'home' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame'>('home');
+  const [currentView, setCurrentView] = useState<ViewType>('home');
 
   const handleResourceAdd = (newResource: Resource) => {
     setResources(prev => [...prev, newResource]);
@@ -40,6 +42,14 @@ const StudyHub = () => {
   const handleResourceSelect = (resource: Resource) => {
     setSelectedResource(resource);
     setCurrentView('pdf');
+  };
+
+  const handleViewChange = (view: ViewType | 'chat') => {
+    if (view === 'chat') {
+      window.location.href = '/studyhub/chat';
+      return;
+    }
+    setCurrentView(view);
   };
 
   const renderContent = () => {
@@ -78,7 +88,7 @@ const StudyHub = () => {
       return (
         <div className="h-full bg-black">
           <div className="h-full">
-            <PDFViewerNav currentView={currentView} onViewChange={setCurrentView} />
+            <PDFViewerNav currentView={currentView} onViewChange={handleViewChange} />
             <div className="h-[calc(100vh-7rem)]">
               <ResizablePanelGroup direction="horizontal" className="h-full">
                 <ResizablePanel defaultSize={60} minSize={30}>
@@ -107,7 +117,7 @@ const StudyHub = () => {
             resources={resources}
             onResourceAdd={handleResourceAdd}
             onResourceSelect={handleResourceSelect}
-            onViewChange={setCurrentView}
+            onViewChange={handleViewChange}
           />
           <div className="flex items-center gap-2">
             <img 

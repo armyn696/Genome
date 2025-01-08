@@ -20,7 +20,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/mindmap" element={<Mindmap />} />
           <Route path="/studyhub" element={<StudyHub />} />
-          <Route path="/studyhub/chat" element={<EnhancedChatInterface />} />
+          <Route path="/studyhub/chat" element={<EnhancedChatInterface resources={[]} />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
