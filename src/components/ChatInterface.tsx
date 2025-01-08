@@ -17,17 +17,20 @@ const ChatInterface = ({ resourceName }: ChatInterfaceProps) => {
         </p>
       </div>
       
-      <div className="flex-1 overflow-auto p-6">
+      <div className="flex-1 overflow-auto p-6 bg-white/5">
         {/* Chat messages will go here */}
+        <div className="text-muted-foreground text-center mt-8">
+          Start asking questions about your document
+        </div>
       </div>
 
-      <div className="p-4 border-t">
+      <div className="p-4 border-t bg-background/95">
         <div className="flex gap-2">
           <Input 
             placeholder="Type your question here..." 
-            className="flex-1"
+            className="flex-1 bg-white/10"
           />
-          <Button>
+          <Button className="bg-primary hover:bg-primary/90">
             <Send className="h-4 w-4 mr-2" />
             Send
           </Button>

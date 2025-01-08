@@ -1,4 +1,4 @@
-import { Menu, Home, MessageSquare, BookOpen, TestTube, Plus, FileText } from "lucide-react";
+import { Menu, Home, MessageSquare, BookOpen, TestTube, Plus } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -32,14 +32,6 @@ const StudyHub = () => {
     setSelectedResource(resource);
   };
 
-  const menuItems = [
-    { icon: Home, label: "Home" },
-    { icon: MessageSquare, label: "Chat" },
-    { icon: BookOpen, label: "Flashcard" },
-    { icon: TestTube, label: "Test" },
-    { icon: BookOpen, label: "Quiz" },
-  ];
-
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       <Background />
@@ -56,11 +48,17 @@ const StudyHub = () => {
             <SheetContent side="left" className="w-[300px] bg-background/95 backdrop-blur-sm">
               <nav className="flex flex-col gap-4 mt-8">
                 <div className="space-y-2">
-                  {menuItems.map(({ icon: Icon, label }) => (
+                  {[
+                    { icon: Home, label: "Home" },
+                    { icon: MessageSquare, label: "Chat" },
+                    { icon: BookOpen, label: "Flashcard" },
+                    { icon: TestTube, label: "Test" },
+                    { icon: BookOpen, label: "Quiz" },
+                  ].map(({ icon: Icon, label }) => (
                     <Button
+                      key={label}
                       variant="ghost"
                       className="w-full justify-start gap-2 hover:bg-accent"
-                      key={label}
                     >
                       <Icon className="h-5 w-5 text-primary" />
                       {label}
@@ -113,7 +111,7 @@ const StudyHub = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 pt-24">
         {selectedResource ? (
-          <div className="min-h-[calc(100vh-8rem)] bg-background rounded-lg border">
+          <div className="min-h-[calc(100vh-8rem)] bg-background/95 backdrop-blur-sm rounded-lg border shadow-lg">
             <ResizablePanelGroup direction="horizontal">
               <ResizablePanel defaultSize={50} minSize={30}>
                 <PDFViewer 
