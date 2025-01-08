@@ -16,30 +16,30 @@ const QuizHub = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 relative z-10">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-4xl font-bold mb-2 text-white">Practice</h1>
-        <p className="text-gray-300 mb-8">Get ready for your test, it's time to practice!</p>
+        <h1 className="text-4xl font-bold mb-2">Practice</h1>
+        <p className="text-muted-foreground mb-8">Get ready for your test, it's time to practice!</p>
 
         <div className="grid md:grid-cols-2 gap-6 mb-12">
-          <Card className="bg-purple-900/30 border-purple-500/50 backdrop-blur-sm">
+          <Card className="bg-emerald-600/10 border-emerald-600/20">
             <CardHeader>
-              <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center mb-4">
-                <BookOpen className="h-6 w-6 text-purple-400" />
+              <div className="w-12 h-12 rounded-full bg-emerald-600/20 flex items-center justify-center mb-4">
+                <BookOpen className="h-6 w-6 text-emerald-600" />
               </div>
-              <CardTitle className="text-2xl text-white">Take a Practice Quiz</CardTitle>
-              <CardDescription className="text-base text-gray-300">
+              <CardTitle className="text-2xl">Take a Practice Quiz</CardTitle>
+              <CardDescription className="text-base">
                 Generate a practice quiz from your study set, and test your knowledge.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button 
                 onClick={() => setCreateDialogOpen(true)}
-                className="bg-purple-500 hover:bg-purple-600 text-white"
+                className="bg-emerald-600 hover:bg-emerald-700"
               >
                 Create Quiz
               </Button>
@@ -49,24 +49,17 @@ const QuizHub = () => {
 
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-semibold text-white">Quizzes</h2>
-            <Button 
-              variant="outline" 
-              onClick={() => setCreateDialogOpen(true)}
-              className="border-purple-500/50 text-purple-400 hover:bg-purple-500/20"
-            >
+            <h2 className="text-2xl font-semibold">Quizzes</h2>
+            <Button variant="outline" onClick={() => setCreateDialogOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
               Create Quiz
             </Button>
           </div>
 
-          <div className="rounded-lg border border-purple-500/50 bg-purple-900/30 backdrop-blur-sm p-8 text-center">
-            <h3 className="text-xl font-semibold mb-2 text-white">No quizzes found</h3>
-            <p className="text-gray-300 mb-4">Create a quiz to get started</p>
-            <Button 
-              onClick={() => setCreateDialogOpen(true)}
-              className="bg-purple-500 hover:bg-purple-600 text-white"
-            >
+          <div className="rounded-lg border bg-card p-8 text-center">
+            <h3 className="text-xl font-semibold mb-2">No quizzes found</h3>
+            <p className="text-muted-foreground mb-4">Create a quiz to get started</p>
+            <Button onClick={() => setCreateDialogOpen(true)}>
               Create Practice Quiz
             </Button>
           </div>
