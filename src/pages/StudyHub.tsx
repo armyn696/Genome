@@ -1,7 +1,6 @@
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import Background from "@/components/Background";
 import { ChatInterface } from "@/components/ChatInterface";
-import { PDFChatInterface } from "@/components/chat/PDFChatInterface";
 import { EnhancedChatInterface } from "@/components/EnhancedChatInterface";
 import { PDFViewerNav } from "@/components/PDFViewerNav";
 import { PDFContent } from "@/components/PDFContent";
@@ -94,7 +93,7 @@ const StudyHub = () => {
                 </ResizablePanel>
                 <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={40} minSize={30}>
-                  <PDFChatInterface resourceId={selectedResource.id} />
+                  <ChatInterface resourceId={selectedResource.id} />
                 </ResizablePanel>
               </ResizablePanelGroup>
             </div>
