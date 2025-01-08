@@ -1,8 +1,6 @@
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import Background from "@/components/Background";
-import { ChatInterface } from "@/components/ChatInterface";
 import { PDFChatInterface } from "@/components/PDFChatInterface";
-import { EnhancedChatInterface } from "@/components/EnhancedChatInterface";
 import { PDFViewerNav } from "@/components/PDFViewerNav";
 import { PDFContent } from "@/components/PDFContent";
 import QuizHub from "@/components/quiz/QuizHub";
@@ -25,7 +23,7 @@ interface Resource {
 const StudyHub = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
-  const [currentView, setCurrentView] = useState<'home' | 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame'>('home');
 
   const handleResourceAdd = (newResource: Resource) => {
     setResources(prev => [...prev, newResource]);
@@ -60,14 +58,8 @@ const StudyHub = () => {
     }
 
     // Special views that don't use the split panel layout
-    if (['chat', 'quiz', 'flashcards', 'mindmap', 'matchgame'].includes(currentView)) {
+    if (['quiz', 'flashcards', 'mindmap', 'matchgame'].includes(currentView)) {
       switch (currentView) {
-        case 'chat':
-          return (
-            <div className="h-[calc(100vh-4rem)]">
-              <EnhancedChatInterface resources={resources} />
-            </div>
-          );
         case 'quiz':
           return <QuizHub />;
         case 'flashcards':
