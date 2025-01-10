@@ -19,9 +19,7 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
 
     // Load the PDF page as background
     FabricImage.fromURL(pageUrl, {
-      crossOrigin: 'anonymous',
-      scaleX: 1,
-      scaleY: 1
+      crossOrigin: 'anonymous'
     }).then((img) => {
       if (fabricRef.current) {
         img.scaleToWidth(canvas.width || 800);
