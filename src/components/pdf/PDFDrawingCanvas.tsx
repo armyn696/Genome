@@ -14,10 +14,16 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
     if (!canvasRef.current) return;
 
     const canvas = new FabricCanvas(canvasRef.current, {
-      isDrawingMode: isDrawingMode,
+      isDrawingMode: true,
       width: 800,
       height: 600,
     });
+
+    // Set up drawing brush
+    if (canvas.freeDrawingBrush) {
+      canvas.freeDrawingBrush.color = '#FF0000';
+      canvas.freeDrawingBrush.width = 2;
+    }
 
     Image.fromURL(pageUrl, {
       crossOrigin: 'anonymous',
@@ -44,5 +50,15 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
     }
   }, [isDrawingMode]);
 
-  return <canvas ref={canvasRef} className="w-full h-full" />;
+  return (
+    <canvas 
+      ref={canvasRef} 
+      className="max-w-full h-auto shadow-lg rounded-lg"
+      style={{
+        width: '100%',
+        height: 'auto',
+        objectFit: 'contain'
+      }}
+    />
+  );
 };

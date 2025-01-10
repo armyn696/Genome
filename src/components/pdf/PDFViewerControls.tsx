@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Wand } from "lucide-react";
-import { useState } from "react";
 
 interface PDFViewerControlsProps {
   zoom: number;
@@ -10,6 +9,8 @@ interface PDFViewerControlsProps {
   onZoomOut: () => void;
   onResetZoom: () => void;
   onPageChange: (page: number) => void;
+  isDrawingMode: boolean;
+  onToggleDrawingMode: () => void;
 }
 
 export const PDFViewerControls = ({
@@ -20,15 +21,9 @@ export const PDFViewerControls = ({
   onZoomOut,
   onResetZoom,
   onPageChange,
+  isDrawingMode,
+  onToggleDrawingMode,
 }: PDFViewerControlsProps) => {
-  const [isDrawingMode, setIsDrawingMode] = useState(false);
-
-  const toggleDrawingMode = () => {
-    setIsDrawingMode(!isDrawingMode);
-    // Add drawing mode logic here when canvas is implemented
-    console.log("Drawing mode:", !isDrawingMode);
-  };
-
   return (
     <div className="sticky top-0 z-50 flex items-center justify-between gap-2 bg-background/80 backdrop-blur-sm border-b p-2">
       <div className="flex items-center gap-1">
@@ -96,7 +91,7 @@ export const PDFViewerControls = ({
           variant={isDrawingMode ? "default" : "ghost"}
           size="icon"
           className="h-8 w-8"
-          onClick={toggleDrawingMode}
+          onClick={onToggleDrawingMode}
           title="Drawing Mode"
         >
           <Wand className="h-4 w-4" />
