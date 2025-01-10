@@ -91,11 +91,11 @@ export const ChatInput = ({
   };
 
   return (
-    <div className="border-t p-4 bg-background/95 backdrop-blur-sm space-y-4 w-full max-w-[70vw] mx-auto rounded-t-2xl">
-      <div className="flex justify-center items-center gap-4 mb-4">
+    <div className="border-t p-4 bg-background/95 backdrop-blur-sm space-y-4 w-full">
+      <div className="flex flex-wrap justify-center items-center gap-2 mb-4">
         <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1">
           <Globe className="h-4 w-4" />
-          <span className="text-xs">Web Browsing</span>
+          <span className="text-xs whitespace-nowrap">Web Browsing</span>
           <Switch
             checked={webBrowsingEnabled}
             onCheckedChange={setWebBrowsingEnabled}
@@ -105,7 +105,7 @@ export const ChatInput = ({
 
         <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1">
           <GraduationCap className="h-4 w-4" />
-          <span className="text-xs">Search Academic Papers</span>
+          <span className="text-xs whitespace-nowrap">Search Academic Papers</span>
           <Switch
             checked={academicSearchEnabled}
             onCheckedChange={setAcademicSearchEnabled}
@@ -116,7 +116,7 @@ export const ChatInput = ({
         {resources && resources.length > 0 && (
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 h-8 px-3 text-sm">
+              <Button variant="outline" size="sm" className="gap-2 h-8 px-3 text-sm whitespace-nowrap">
                 <FileText className="h-4 w-4" />
                 {selectedResources?.length || 0} material(s) selected
               </Button>
@@ -134,7 +134,7 @@ export const ChatInput = ({
         )}
       </div>
 
-      <div className="max-w-[70vw] w-full mx-auto flex items-center gap-2 bg-muted rounded-lg p-2">
+      <div className="w-full flex items-center gap-2 bg-muted rounded-lg p-2">
         <div className="flex justify-center items-center gap-2 w-full">
           <Button
             variant="ghost"
@@ -167,7 +167,7 @@ export const ChatInput = ({
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="min-h-[44px] resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-2"
+            className="min-h-[44px] resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-2 flex-1"
             rows={1}
           />
           <Button
