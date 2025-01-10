@@ -50,10 +50,18 @@ const ResourceProgress = ({ resources, onResourceAdd, onResourceDelete, onResour
           <div className="space-y-4">
             {resources.map(resource => (
               <div key={resource.id} className="flex items-center gap-4">
-                <FileText className="h-5 w-5 text-primary shrink-0" />
+                <FileText 
+                  className="h-5 w-5 text-primary shrink-0 cursor-pointer hover:text-primary/80" 
+                  onClick={() => onResourceSelect?.(resource)}
+                />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="font-medium truncate">{resource.name}</p>
+                    <p 
+                      className="font-medium truncate cursor-pointer hover:text-primary"
+                      onClick={() => onResourceSelect?.(resource)}
+                    >
+                      {resource.name}
+                    </p>
                     <div className="flex items-center gap-4">
                       <span className="text-sm text-muted-foreground">0 / 14</span>
                       <Button
