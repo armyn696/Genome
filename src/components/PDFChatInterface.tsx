@@ -82,9 +82,11 @@ export const PDFChatInterface = ({ resourceId }: PDFChatInterfaceProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full relative">
-      <Background />
-      <ScrollArea className="flex-1 p-4 space-y-4">
+    <div className="flex flex-col h-full relative bg-background">
+      <div className="absolute inset-0 pointer-events-none">
+        <Background />
+      </div>
+      <ScrollArea className="flex-1 p-4 space-y-4 relative">
         {messages.length === 0 ? (
           <ChatWelcome onSuggestionClick={handleSendMessage} />
         ) : (
@@ -103,7 +105,7 @@ export const PDFChatInterface = ({ resourceId }: PDFChatInterfaceProps) => {
         )}
       </ScrollArea>
 
-      <div className="border-t p-4 bg-background/95 backdrop-blur-sm space-y-2">
+      <div className="border-t p-4 bg-background/95 backdrop-blur-sm space-y-2 relative">
         <div className="flex items-center gap-2 max-w-3xl mx-auto">
           <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1">
             <Globe className="h-4 w-4" />
