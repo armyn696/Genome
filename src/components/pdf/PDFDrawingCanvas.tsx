@@ -26,7 +26,8 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
       // Load the PDF page as background
       Image.fromURL(pageUrl).then((img) => {
         img.scaleToWidth(fabricCanvas.getWidth()!);
-        fabricCanvas.setBackgroundImage(img, fabricCanvas.renderAll.bind(fabricCanvas));
+        fabricCanvas.backgroundImage = img;
+        fabricCanvas.renderAll();
       });
 
       setCanvas(fabricCanvas);
