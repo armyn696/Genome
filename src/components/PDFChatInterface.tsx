@@ -8,7 +8,6 @@ import { Switch } from "@/components/ui/switch";
 import { Globe, GraduationCap } from "lucide-react";
 import { ChatMessage } from './chat/ChatMessage';
 import { ChatWelcome } from './chat/ChatWelcome';
-import { useNavigate } from 'react-router-dom';
 
 interface Message {
   text: string;
@@ -22,7 +21,6 @@ interface PDFChatInterfaceProps {
 }
 
 export const PDFChatInterface = ({ resourceId }: PDFChatInterfaceProps) => {
-  const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -84,14 +82,6 @@ export const PDFChatInterface = ({ resourceId }: PDFChatInterfaceProps) => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="absolute top-4 right-4">
-        <img 
-          src="/lovable-uploads/91f667b0-83b5-4bfe-9318-d58898e35220.png" 
-          alt="Logo" 
-          className="h-12 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={() => navigate('/studyhub')}
-        />
-      </div>
       <ScrollArea className="flex-1 p-4 space-y-4">
         {messages.length === 0 ? (
           <ChatWelcome onSuggestionClick={handleSendMessage} />

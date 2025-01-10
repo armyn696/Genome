@@ -30,16 +30,16 @@ const ChatPage = () => {
         navigate('/studyhub');
         break;
       case 'quiz':
-        navigate('/studyhub/quiz');
+        navigate('/studyhub', { state: { view: 'quiz' } });
         break;
       case 'flashcards':
-        navigate('/studyhub/flashcards');
+        navigate('/studyhub', { state: { view: 'flashcards' } });
         break;
       case 'mindmap':
-        navigate('/studyhub/mindmap');
+        navigate('/studyhub', { state: { view: 'mindmap' } });
         break;
       case 'matchgame':
-        navigate('/studyhub/matchgame');
+        navigate('/studyhub', { state: { view: 'matchgame' } });
         break;
       default:
         // For other views, stay on the current page
@@ -62,8 +62,7 @@ const ChatPage = () => {
             <img 
               src="/lovable-uploads/91f667b0-83b5-4bfe-9318-d58898e35220.png" 
               alt="Logo" 
-              className="h-12 w-auto cursor-pointer hover:opacity-80"
-              onClick={() => navigate('/studyhub')}
+              className="h-12 w-auto"
             />
           </div>
         </div>
