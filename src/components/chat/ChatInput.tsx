@@ -91,7 +91,7 @@ export const ChatInput = ({
   };
 
   return (
-    <div className="border-t p-4 bg-background/95 backdrop-blur-sm space-y-4 w-full max-w-[95vw] mx-auto rounded-t-2xl">
+    <div className="border-t p-4 bg-background/95 backdrop-blur-sm space-y-4 w-full max-w-[70vw] mx-auto rounded-t-2xl">
       <div className="flex justify-center items-center gap-4 mb-4">
         <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1">
           <Globe className="h-4 w-4" />
@@ -134,7 +134,7 @@ export const ChatInput = ({
         )}
       </div>
 
-      <div className="max-w-[95vw] w-full mx-auto flex items-center gap-2 bg-muted rounded-lg p-2">
+      <div className="max-w-[70vw] w-full mx-auto flex items-center gap-2 bg-muted rounded-lg p-2">
         <div className="flex justify-center items-center gap-2 w-full">
           <Button
             variant="ghost"
