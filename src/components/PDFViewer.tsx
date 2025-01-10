@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { retrievePdf } from '@/utils/pdfStorage';
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { PDFViewerControls } from './pdf/PDFViewerControls';
 import * as pdfjsLib from 'pdfjs-dist';
 
 interface PDFViewerProps {
@@ -16,6 +17,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
 export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   const [pages, setPages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [zoom, setZoom] = useState(100);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const loadPdf = async () => {
@@ -62,6 +65,11 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
     loadPdf();
   }, [resourceId]);
 
+  const handleZoomIn = () => setZoom(prev => Math.min(prev + 10, 200));
+  const handleZoomOut = () => setZoom(prev => Math.max(prev - 10, 50));
+  const handleResetZoom = () => setZoom(100);
+  const handlePageChange = (page: number) => setCurrentPage(page);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full bg-black">
@@ -71,22 +79,37 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   }
 
   return (
-    <ScrollArea className="h-full bg-black">
-      <div className="flex flex-col items-center gap-4 p-4">
-        {pages.map((pageUrl, index) => (
-          <div 
-            key={index}
-            className="w-full flex justify-center"
-          >
-            <img 
-              src={pageUrl} 
-              alt={`Page ${index + 1}`}
-              className="max-w-full h-auto"
-              loading="lazy"
-            />
-          </div>
-        ))}
-      </div>
-    </ScrollArea>
+    <div className="flex flex-col h-full bg-background">
+      <PDFViewerControls
+        zoom={zoom}
+        currentPage={currentPage}
+        totalPages={pages.length}
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+        onResetZoom={handleResetZoom}
+        onPageChange={handlePageChange}
+      />
+      <ScrollArea className="flex-1">
+        <div className="flex flex-col items-center gap-4 p-4">
+          {pages.map((pageUrl, index) => (
+            <div 
+              key={index}
+              className="w-full flex justify-center"
+              style={{
+                maxWidth: `${zoom}%`,
+                transition: 'max-width 0.2s ease-in-out'
+              }}
+            >
+              <img 
+                src={pageUrl} 
+                alt={`Page ${index + 1}`}
+                className="max-w-full h-auto shadow-lg rounded-lg"
+                loading="lazy"
+              />
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
+    </div>
   );
 };
