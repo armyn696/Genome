@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { retrievePdf } from '@/utils/pdfStorage';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PDFViewerControls } from './pdf/PDFViewerControls';
-import { PDFDrawingCanvas } from './pdf/PDFDrawingCanvas';
 import * as pdfjsLib from 'pdfjs-dist';
 
 interface PDFViewerProps {
@@ -19,7 +18,6 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   const [loading, setLoading] = useState(true);
   const [zoom, setZoom] = useState(100);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isDrawingMode, setIsDrawingMode] = useState(false);
 
   useEffect(() => {
     const loadPdf = async () => {
@@ -71,7 +69,6 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 10, 50));
   const handleResetZoom = () => setZoom(100);
   const handlePageChange = (page: number) => setCurrentPage(page);
-  const toggleDrawingMode = () => setIsDrawingMode(prev => !prev);
 
   if (loading) {
     return (
@@ -91,39 +88,32 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
         onZoomOut={handleZoomOut}
         onResetZoom={handleResetZoom}
         onPageChange={handlePageChange}
-        isDrawingMode={isDrawingMode}
-        onToggleDrawing={toggleDrawingMode}
       />
       <ScrollArea className="flex-1 relative">
         <div className="flex flex-col items-center gap-4 p-4 min-h-full">
           {pages.map((pageUrl, index) => (
             <div 
               key={index}
-              className="w-full flex justify-center relative"
+              className="w-full flex justify-center"
               style={{
                 transform: `scale(${zoom / 100})`,
                 transformOrigin: 'top center',
                 transition: 'transform 0.2s ease-in-out',
+                width: '100%',
+                height: 'auto'
               }}
             >
-              {isDrawingMode ? (
-                <PDFDrawingCanvas 
-                  isDrawingMode={isDrawingMode} 
-                  pageUrl={pageUrl}
-                />
-              ) : (
-                <img 
-                  src={pageUrl} 
-                  alt={`Page ${index + 1}`}
-                  className="max-w-full h-auto shadow-lg rounded-lg"
-                  style={{
-                    width: '100%',
-                    height: 'auto',
-                    objectFit: 'contain'
-                  }}
-                  loading="lazy"
-                />
-              )}
+              <img 
+                src={pageUrl} 
+                alt={`Page ${index + 1}`}
+                className="max-w-full h-auto shadow-lg rounded-lg"
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  objectFit: 'contain'
+                }}
+                loading="lazy"
+              />
             </div>
           ))}
         </div>
