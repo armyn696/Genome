@@ -5,12 +5,14 @@ interface PDFDrawingCanvasProps {
   pageUrl: string;
   isDrawingMode: boolean;
   onSelectionComplete?: (selection: string) => void;
+  setMessage?: (message: string) => void;
 }
 
 export const PDFDrawingCanvas = ({ 
   pageUrl, 
   isDrawingMode,
-  onSelectionComplete 
+  onSelectionComplete,
+  setMessage 
 }: PDFDrawingCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fabricCanvas, setFabricCanvas] = useState<FabricCanvas | null>(null);
@@ -52,7 +54,7 @@ export const PDFDrawingCanvas = ({
 
       // Handle mouse up event
       const handleMouseUp = () => {
-        if (isDrawingMode && lastPathRef.current && onSelectionComplete) {
+        if (isDrawingMode && lastPathRef.current && setMessage) {
           // Capture the entire canvas with both the PDF and drawing
           const dataUrl = canvas.toDataURL({
             format: 'png',
@@ -61,8 +63,8 @@ export const PDFDrawingCanvas = ({
             enableRetinaScaling: false
           });
           
-          // Send both the image and drawing to the AI
-          onSelectionComplete(dataUrl);
+          // Add the image to the draft message
+          setMessage(prev => prev + `\n[Drawn Image: ${dataUrl}]`);
           
           // Remove the path immediately after capturing
           canvas.remove(lastPathRef.current);
@@ -116,7 +118,7 @@ export const PDFDrawingCanvas = ({
     return () => {
       cleanup.then(cleanupFn => cleanupFn?.());
     };
-  }, [pageUrl, isDrawingMode]); // Reinitialize when pageUrl or isDrawingMode changes
+  }, [pageUrl, isDrawingMode, setMessage]); 
 
   // Update drawing mode when isDrawingMode changes
   useEffect(() => {
