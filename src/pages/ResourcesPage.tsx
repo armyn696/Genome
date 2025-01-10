@@ -13,7 +13,12 @@ const ResourcesPage = () => {
     <div className="min-h-screen bg-background">
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border h-16">
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
-          <div></div>
+          <button
+            onClick={() => navigate('/studyhub')}
+            className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-md"
+          >
+            Dashboard
+          </button>
           <div className="flex items-center gap-2">
             <img 
               src="/lovable-uploads/91f667b0-83b5-4bfe-9318-d58898e35220.png" 
@@ -34,7 +39,7 @@ const ResourcesPage = () => {
                   <PDFContent currentView={currentView} resourceId="default" />
                 </ResizablePanel>
                 <ResizableHandle withHandle />
-                <ResizablePanel defaultSize={40} minSize={30}>
+                <ResizablePanel defaultSize={40} minSize={30} className="bg-background">
                   <PDFChatInterface resourceId="default" />
                 </ResizablePanel>
               </ResizablePanelGroup>
