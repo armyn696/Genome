@@ -109,7 +109,7 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
           className="absolute top-0 left-0 w-full h-full cursor-crosshair"
           style={{ 
             height: 'calc(100vh - 7rem)',
-            pointerEvents: 'auto',
+            pointerEvents: isDrawing ? 'auto' : 'none',
             touchAction: 'none'
           }}
           onMouseDown={startDrawing}
