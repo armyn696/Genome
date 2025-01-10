@@ -54,9 +54,9 @@ export const PDFContent = ({ currentView, resourceId }: PDFContentProps) => {
               <ResizablePanel 
                 defaultSize={50} 
                 minSize={30}
-                className="h-full"
+                className="h-full relative"
               >
-                <div className="h-full overflow-hidden">
+                <div className="absolute inset-0 overflow-hidden">
                   <PDFViewer 
                     resourceId={resourceId} 
                     onSelectionComplete={handleSelectionComplete}
