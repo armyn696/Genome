@@ -23,19 +23,23 @@ export const PDFDrawingCanvas = ({ isDrawingMode, pageUrl }: PDFDrawingCanvasPro
 
     // Load the PDF page as background
     Image.fromURL(pageUrl, {
-      crossOrigin: 'anonymous'
+      crossOrigin: 'anonymous',
     }).then((img) => {
       if (fabricRef.current) {
-        fabricRef.current.setBackgroundImage(img, fabricRef.current.renderAll.bind(fabricRef.current), {
-          scaleX: fabricRef.current.width! / img.width!,
-          scaleY: fabricRef.current.height! / img.height!,
-        });
+        // In Fabric.js v6, we set the background image directly
+        fabricRef.current.backgroundImage = img;
+        if (img.width && img.height && fabricRef.current.width && fabricRef.current.height) {
+          img.scaleX = fabricRef.current.width / img.width;
+          img.scaleY = fabricRef.current.height / img.height;
+        }
+        fabricRef.current.renderAll();
       }
     });
 
     // Cleanup function
     return () => {
       if (fabricRef.current) {
+        // Important: Remove all event listeners and dispose of the canvas
         fabricRef.current.dispose();
         fabricRef.current = null;
       }
