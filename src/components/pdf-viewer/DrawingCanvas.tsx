@@ -42,13 +42,16 @@ export const DrawingCanvas = ({
     const canvas = fabricCanvasRef.current;
     if (!canvas) return;
 
+    const brush = new fabric.PencilBrush(canvas);
+    canvas.freeDrawingBrush = brush;
+
     if (currentTool === 'brush') {
-      canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
-      canvas.freeDrawingBrush.color = currentColor;
-      canvas.freeDrawingBrush.width = currentSize;
+      brush.color = currentColor;
+      brush.width = currentSize;
     } else {
-      canvas.freeDrawingBrush = new fabric.EraserBrush(canvas);
-      canvas.freeDrawingBrush.width = currentSize * 2;
+      // For eraser, we'll use white color (or your background color)
+      brush.color = '#FFFFFF';
+      brush.width = currentSize * 2;
     }
   }, [currentTool, currentColor, currentSize]);
 
