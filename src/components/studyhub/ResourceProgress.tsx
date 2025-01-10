@@ -28,7 +28,7 @@ const ResourceProgress = ({ resources, onResourceAdd, onResourceDelete, onResour
     if (onResourceSelect) {
       onResourceSelect(resource);
     }
-    navigate('/studyhub/resources');
+    navigate('/studyhub/resources', { state: { resourceId: resource.id } });
   };
 
   return (

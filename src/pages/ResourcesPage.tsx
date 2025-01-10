@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { PDFChatInterface } from "@/components/PDFChatInterface";
 import { PDFViewerNav } from "@/components/PDFViewerNav";
@@ -11,9 +11,10 @@ type ViewType = 'notes' | 'pdf' | 'transcript' | 'dual';
 const ResourcesPage = () => {
   const [currentView, setCurrentView] = useState<ViewType>('pdf');
   const navigate = useNavigate();
+  const location = useLocation();
   
-  // Get resourceId from URL or state management (for now using a dummy value)
-  const resourceId = "dummyId"; // This should be replaced with actual resource ID logic
+  // Get resourceId from state
+  const resourceId = location.state?.resourceId || "dummyId";
 
   const handleViewChange = (view: ViewType) => {
     setCurrentView(view);
