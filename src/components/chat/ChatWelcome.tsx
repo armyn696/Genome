@@ -14,20 +14,20 @@ export const ChatWelcome = ({ onSuggestionClick }: ChatWelcomeProps) => {
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center h-full space-y-4 text-center px-4">
-      <h1 className="text-2xl md:text-3xl font-bold">AI Study Assistant</h1>
-      <p className="text-sm md:text-base text-muted-foreground max-w-lg">
+    <div className="flex flex-col items-center justify-center h-full space-y-3 text-center px-3">
+      <h1 className="text-xl md:text-2xl font-bold">AI Study Assistant</h1>
+      <p className="text-xs md:text-sm text-muted-foreground max-w-md">
         I'm your personal study assistant. Ask me anything about your study materials!
       </p>
-      <div className="grid grid-cols-1 gap-2 mt-2 w-full max-w-xl">
+      <div className="grid grid-cols-1 gap-2 mt-1 w-full max-w-lg">
         {suggestions.map((suggestion) => (
           <Button
             key={suggestion}
             variant="outline"
-            className="w-full px-3 py-2 h-auto text-left flex items-center gap-2 bg-sidebar-accent hover:bg-sidebar-accent/80 text-xs md:text-sm"
+            className="w-full px-2 py-1.5 h-auto text-left flex items-center gap-1.5 bg-sidebar-accent hover:bg-sidebar-accent/80 text-xs"
             onClick={() => onSuggestionClick(suggestion)}
           >
-            <Lightbulb className="w-4 h-4 text-primary flex-shrink-0" />
+            <Lightbulb className="w-3 h-3 text-primary flex-shrink-0" />
             <span>{suggestion}</span>
           </Button>
         ))}
