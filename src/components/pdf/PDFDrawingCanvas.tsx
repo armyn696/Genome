@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Canvas, Image } from 'fabric';
+import { Canvas, Image, PencilBrush } from 'fabric';
 
 interface PDFDrawingCanvasProps {
   isDrawingMode: boolean;
@@ -20,7 +20,7 @@ export const PDFDrawingCanvas = ({ isDrawingMode, pageUrl }: PDFDrawingCanvasPro
     });
 
     // Initialize the drawing brush immediately after canvas creation
-    canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+    canvas.freeDrawingBrush = new PencilBrush(canvas);
     canvas.freeDrawingBrush.width = 2;
     canvas.freeDrawingBrush.color = '#ff0000';
 
