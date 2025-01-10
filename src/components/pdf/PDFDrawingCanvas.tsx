@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Canvas as FabricCanvas, Image as FabricImage, PencilBrush } from "fabric";
-import { toast } from "sonner";
 
 interface PDFDrawingCanvasProps {
   pageUrl: string;
@@ -82,7 +81,7 @@ export const PDFDrawingCanvas = ({
       canvas.backgroundColor = 'white';
       canvas.renderAll();
       
-      // Load and set background image
+      // Load and set background image using Fabric.js v6 API
       FabricImage.fromURL(pageUrl, {
         crossOrigin: 'anonymous',
       }).then((imgInstance) => {
@@ -93,7 +92,9 @@ export const PDFDrawingCanvas = ({
         imgInstance.scaleX = scale;
         imgInstance.scaleY = scale;
         
-        canvas.setBackgroundImage(imgInstance, canvas.renderAll.bind(canvas));
+        // Set the background image using the new API
+        canvas.backgroundImage = imgInstance;
+        canvas.renderAll();
       });
 
       setFabricCanvas(canvas);
