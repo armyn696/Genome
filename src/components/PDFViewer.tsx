@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { retrievePdf } from '@/utils/pdfStorage';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import * as pdfjsLib from 'pdfjs-dist';
+import { renderTextLayer } from 'pdfjs-dist/lib/web/text_layer_builder';
 
 interface PDFViewerProps {
   resourceId: string;
@@ -96,7 +97,7 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
         textLayerDiv.style.transform = `scale(${1.5})`;
         textLayerDiv.style.transformOrigin = '0 0';
 
-        pdfjsLib.renderTextLayer({
+        renderTextLayer({
           textContent: textContent,
           container: textLayerDiv,
           viewport: viewport,
