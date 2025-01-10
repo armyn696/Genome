@@ -16,19 +16,20 @@ export const PDFDrawingCanvas = ({
   const [fabricCanvas, setFabricCanvas] = useState<FabricCanvas | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastPathRef = useRef<any>(null);
+  const currentPageRef = useRef<string>(pageUrl);
 
   useEffect(() => {
+    if (!canvasRef.current || !containerRef.current) return;
+
+    // Get container dimensions
+    const container = containerRef.current;
+    const containerWidth = container.clientWidth;
+
+    // Create a temporary image to get dimensions
+    const img = new Image();
+    img.src = pageUrl;
+    
     const initCanvas = async () => {
-      if (!canvasRef.current || !containerRef.current) return;
-
-      // Get container dimensions
-      const container = containerRef.current;
-      const containerWidth = container.clientWidth;
-
-      // Create a temporary image to get dimensions
-      const img = new Image();
-      img.src = pageUrl;
-      
       await new Promise((resolve) => {
         img.onload = resolve;
       });
@@ -56,9 +57,10 @@ export const PDFDrawingCanvas = ({
           // Get the path that was just drawn
           const path = lastPathRef.current;
           
-          // If there's a selection handler, call it with the selected content
+          // If there's a selection handler, call it with both the drawn area and current page info
           if (onSelectionComplete) {
-            onSelectionComplete("Selected content from PDF page");
+            const pageNumber = currentPageRef.current;
+            onSelectionComplete(`User selected an area on page ${pageNumber} using the magic wand tool. Please analyze this section and provide relevant information.`);
           }
 
           // Remove the path after a short delay
@@ -113,9 +115,12 @@ export const PDFDrawingCanvas = ({
     // Initialize canvas and store cleanup function
     const cleanup = initCanvas();
 
+    // Update current page reference
+    currentPageRef.current = pageUrl;
+
     // Cleanup function for useEffect
     return () => {
-      cleanup?.then(cleanupFn => cleanupFn?.());
+      cleanup.then(cleanupFn => cleanupFn?.());
     };
   }, [pageUrl]); // Only reinitialize when pageUrl changes
 
