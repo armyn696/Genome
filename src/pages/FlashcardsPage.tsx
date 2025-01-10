@@ -62,7 +62,8 @@ const FlashcardsPage = () => {
             <img 
               src="/lovable-uploads/91f667b0-83b5-4bfe-9318-d58898e35220.png" 
               alt="Logo" 
-              className="h-12 w-auto"
+              className="h-12 w-auto cursor-pointer hover:opacity-80"
+              onClick={() => navigate('/studyhub')}
             />
           </div>
         </div>
