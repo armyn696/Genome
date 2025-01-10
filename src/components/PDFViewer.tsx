@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react';
 import { retrievePdf } from '@/utils/pdfStorage';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PDFViewerControls } from './pdf/PDFViewerControls';
+import { PDFDrawingCanvas } from './pdf/PDFDrawingCanvas';
 import * as pdfjsLib from 'pdfjs-dist';
 
 interface PDFViewerProps {
   resourceId: string;
+  isDrawingMode?: boolean;
+  onToggleDrawing?: () => void;
 }
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -13,7 +16,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url,
 ).toString();
 
-export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
+export const PDFViewer = ({ resourceId, isDrawingMode = false, onToggleDrawing }: PDFViewerProps) => {
   const [pages, setPages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [zoom, setZoom] = useState(100);
@@ -35,7 +38,7 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
 
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
-          const scale = 1.5;  // Base scale for initial render
+          const scale = 1.5;
           const viewport = page.getViewport({ scale });
           
           const canvas = document.createElement('canvas');
@@ -88,6 +91,8 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
         onZoomOut={handleZoomOut}
         onResetZoom={handleResetZoom}
         onPageChange={handlePageChange}
+        isDrawingMode={isDrawingMode}
+        onToggleDrawing={onToggleDrawing}
       />
       <ScrollArea className="flex-1 relative">
         <div className="flex flex-col items-center gap-4 p-4 min-h-full">
@@ -98,22 +103,27 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
               style={{
                 transform: `scale(${zoom / 100})`,
                 transformOrigin: 'top center',
-                transition: 'transform 0.2s ease-in-out',
-                width: '100%',
-                height: 'auto'
+                transition: 'transform 0.2s ease-in-out'
               }}
             >
-              <img 
-                src={pageUrl} 
-                alt={`Page ${index + 1}`}
-                className="max-w-full h-auto shadow-lg rounded-lg"
-                style={{
-                  width: '100%',
-                  height: 'auto',
-                  objectFit: 'contain'
-                }}
-                loading="lazy"
-              />
+              {isDrawingMode ? (
+                <PDFDrawingCanvas 
+                  pageUrl={pageUrl} 
+                  isDrawingMode={isDrawingMode} 
+                />
+              ) : (
+                <img 
+                  src={pageUrl} 
+                  alt={`Page ${index + 1}`}
+                  className="max-w-full h-auto shadow-lg rounded-lg"
+                  style={{
+                    width: '100%',
+                    height: 'auto',
+                    objectFit: 'contain'
+                  }}
+                  loading="lazy"
+                />
+              )}
             </div>
           ))}
         </div>
