@@ -64,7 +64,10 @@ export const PDFDrawingCanvas = ({
           });
           
           // Add the image to the draft message
-          setMessage(prev => prev + `\n[Drawn Image: ${dataUrl}]`);
+          if (setMessage) {
+            const newMessage = `[Drawn Image: ${dataUrl}]`;
+            setMessage(newMessage);
+          }
           
           // Remove the path immediately after capturing
           canvas.remove(lastPathRef.current);
