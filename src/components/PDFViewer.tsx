@@ -3,7 +3,7 @@ import { retrievePdf } from '@/utils/pdfStorage';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { WandSparkles } from "lucide-react";
-import { Canvas } from 'fabric';
+import { Canvas, PencilBrush } from 'fabric';
 import { toast } from "sonner";
 
 interface PDFViewerProps {
@@ -49,7 +49,8 @@ export const PDFViewer = ({ resourceId, onSendAnnotation }: PDFViewerProps) => {
       height: iframe.offsetHeight
     });
 
-    // Configure free drawing brush
+    // Initialize the drawing brush
+    canvas.freeDrawingBrush = new PencilBrush(canvas);
     canvas.freeDrawingBrush.color = 'red';
     canvas.freeDrawingBrush.width = 2;
 
