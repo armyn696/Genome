@@ -13,42 +13,35 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    const canvas = new Canvas(canvasRef.current, {
-      width: canvasRef.current.width,
-      height: canvasRef.current.height,
-    });
-
+    const canvas = new Canvas(canvasRef.current);
+    canvas.isDrawingMode = isDrawingMode;
     fabricRef.current = canvas;
 
-    // Load the PDF page as background using the correct API
-    Image.fromURL(pageUrl, {
-      crossOrigin: 'anonymous',
-    }).then((img) => {
+    // Load the PDF page as background
+    fabric.Image.fromURL(pageUrl, (img) => {
       if (fabricRef.current) {
-        fabricRef.current.backgroundImage = img;
-        fabricRef.current.renderAll();
+        img.scaleToWidth(canvas.width || 800);
+        fabricRef.current.setBackgroundImage(img, fabricRef.current.renderAll.bind(fabricRef.current));
       }
     });
 
     return () => {
-      canvas.dispose();
+      fabricRef.current?.dispose();
+      fabricRef.current = null;
     };
   }, [pageUrl]);
 
   useEffect(() => {
     if (fabricRef.current) {
       fabricRef.current.isDrawingMode = isDrawingMode;
-      if (isDrawingMode && fabricRef.current.freeDrawingBrush) {
-        fabricRef.current.freeDrawingBrush.color = '#FF0000';
-        fabricRef.current.freeDrawingBrush.width = 2;
-      }
     }
   }, [isDrawingMode]);
 
   return (
     <canvas 
-      ref={canvasRef}
+      ref={canvasRef} 
       className="w-full h-auto"
+      style={{ maxWidth: '100%' }}
     />
   );
 };
