@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Canvas } from 'fabric';
+import { Canvas, Image } from 'fabric';
 
 interface PDFDrawingCanvasProps {
   isDrawingMode: boolean;
@@ -22,11 +22,11 @@ export const PDFDrawingCanvas = ({ isDrawingMode, pageUrl }: PDFDrawingCanvasPro
     fabricRef.current = canvas;
 
     // Load the PDF page as background
-    Canvas.Image.fromURL(pageUrl, (img) => {
-      canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-        scaleX: canvas.width! / img.width!,
-        scaleY: canvas.height! / img.height!,
-      });
+    Image.fromURL(pageUrl).then((img) => {
+      canvas.backgroundImage = img;
+      img.scaleX = canvas.width! / img.width!;
+      img.scaleY = canvas.height! / img.height!;
+      canvas.renderAll();
     });
 
     return () => {
