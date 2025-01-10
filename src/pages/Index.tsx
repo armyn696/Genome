@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { SplineSceneBasic } from "@/components/ui/splite.demo";
 
 const features = [
   {
@@ -97,19 +98,14 @@ const Index = () => {
         </div>
 
         <main className="container mx-auto px-4 py-16 relative">
-          {/* Hero Section */}
+          {/* Hero Section with SplineSceneBasic */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-center mb-16"
+            className="mb-16"
           >
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400 tracking-tight">
-              Your Interactive Learning Platform
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Enhance your learning experience with our suite of interactive study tools
-            </p>
+            <SplineSceneBasic />
           </motion.div>
 
           {/* Features Grid */}
