@@ -3,25 +3,17 @@ import FlashcardsHub from "@/components/flashcards/FlashcardsHub";
 import { StudyHubSidebar } from "@/components/studyhub/StudyHubSidebar";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-interface Resource {
-  id: string;
-  name: string;
-  type: string;
-  size: string;
-  uploadDate: string;
-}
+import { useResources } from "@/hooks/useResources";
+import { Resource } from "@/types";
 
 const FlashcardsPage = () => {
-  const [resources, setResources] = useState<Resource[]>([]);
   const navigate = useNavigate();
-
-  const handleResourceAdd = (newResource: Resource) => {
-    setResources(prev => [...prev, newResource]);
-  };
+  const { resources, addResource } = useResources();
+  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
 
   const handleResourceSelect = (resource: Resource) => {
-    // Handle resource selection if needed
+    setSelectedResource(resource);
+    // You can add additional handling here if needed
   };
 
   const handleViewChange = (view: 'home' | 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame') => {
@@ -54,7 +46,7 @@ const FlashcardsPage = () => {
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
           <StudyHubSidebar
             resources={resources}
-            onResourceAdd={handleResourceAdd}
+            onResourceAdd={addResource}
             onResourceSelect={handleResourceSelect}
             onViewChange={handleViewChange}
           />
