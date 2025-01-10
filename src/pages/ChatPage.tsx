@@ -30,16 +30,16 @@ const ChatPage = () => {
         navigate('/studyhub');
         break;
       case 'quiz':
-        navigate('/studyhub', { state: { view: 'quiz' } });
+        navigate('/studyhub/quiz');
         break;
       case 'flashcards':
-        navigate('/studyhub', { state: { view: 'flashcards' } });
+        navigate('/studyhub/flashcards');
         break;
       case 'mindmap':
-        navigate('/studyhub', { state: { view: 'mindmap' } });
+        navigate('/studyhub/mindmap');
         break;
       case 'matchgame':
-        navigate('/studyhub', { state: { view: 'matchgame' } });
+        navigate('/studyhub/matchgame');
         break;
       default:
         // For other views, stay on the current page
@@ -58,7 +58,10 @@ const ChatPage = () => {
             onResourceSelect={handleResourceSelect}
             onViewChange={handleViewChange}
           />
-          <div className="flex items-center gap-2">
+          <div 
+            className="flex items-center gap-2 cursor-pointer" 
+            onClick={() => navigate('/studyhub')}
+          >
             <img 
               src="/lovable-uploads/91f667b0-83b5-4bfe-9318-d58898e35220.png" 
               alt="Logo" 
