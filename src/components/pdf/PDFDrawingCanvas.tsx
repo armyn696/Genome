@@ -51,14 +51,13 @@ export const PDFDrawingCanvas = ({
       canvas.freeDrawingBrush.width = 2;
 
       // Handle mouse up event
-      canvas.on('mouse:up', () => {
+      const handleMouseUp = () => {
         if (isDrawingMode && lastPathRef.current) {
           // Get the path that was just drawn
           const path = lastPathRef.current;
           
           // If there's a selection handler, call it with the selected content
           if (onSelectionComplete) {
-            // Here we're sending a message indicating the selection
             onSelectionComplete("Selected content from PDF page");
           }
 
@@ -71,46 +70,54 @@ export const PDFDrawingCanvas = ({
           // Clear the last path reference
           lastPathRef.current = null;
         }
-      });
+      };
 
       // Track the last path that was drawn
-      canvas.on('path:created', (e: any) => {
+      const handlePathCreated = (e: any) => {
         lastPathRef.current = e.path;
-      });
+      };
+
+      canvas.on('mouse:up', handleMouseUp);
+      canvas.on('path:created', handlePathCreated);
 
       // Set background color
       canvas.backgroundColor = 'white';
       canvas.renderAll();
       
-      // Load and set background image using Fabric.js v6 API
+      // Load and set background image
       FabricImage.fromURL(pageUrl, {
         crossOrigin: 'anonymous',
       }).then((imgInstance) => {
-        if (!imgInstance) return;
+        if (!imgInstance || !canvas) return;
         
         // Calculate and set the scale
         const scale = canvasWidth / img.width;
         imgInstance.scaleX = scale;
         imgInstance.scaleY = scale;
         
-        // Set the background image using the new API
         canvas.backgroundImage = imgInstance;
         canvas.renderAll();
       });
 
       setFabricCanvas(canvas);
+
+      // Return cleanup function
+      return () => {
+        canvas.off('mouse:up', handleMouseUp);
+        canvas.off('path:created', handlePathCreated);
+        canvas.dispose();
+        setFabricCanvas(null);
+      };
     };
 
-    // Initialize canvas
-    initCanvas();
+    // Initialize canvas and store cleanup function
+    const cleanup = initCanvas();
 
-    // Cleanup
+    // Cleanup function for useEffect
     return () => {
-      if (fabricCanvas) {
-        fabricCanvas.dispose();
-      }
+      cleanup?.then(cleanupFn => cleanupFn?.());
     };
-  }, [pageUrl]);
+  }, [pageUrl]); // Only reinitialize when pageUrl changes
 
   // Update drawing mode when isDrawingMode changes
   useEffect(() => {
