@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { SidebarMenuItem } from "./SidebarMenuItem";
 import ResourceUploader from "../ResourceUploader";
 import { FileText } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface Resource {
   id: string;
@@ -23,13 +24,15 @@ interface StudyHubSidebarProps {
 }
 
 export const StudyHubSidebar = ({ resources, onResourceAdd, onResourceSelect, onViewChange }: StudyHubSidebarProps) => {
+  const navigate = useNavigate();
+
   const menuItems = [
-    { icon: Home, label: "Home", view: 'home' as const },
-    { icon: MessageSquare, label: "Chat", view: 'chat' as const },
-    { icon: BookOpen, label: "Quiz", view: 'quiz' as const },
-    { icon: Bookmark, label: "Flashcards", view: 'flashcards' as const },
-    { icon: Trees, label: "Mind Maps", view: 'mindmap' as const },
-    { icon: Gamepad, label: "Match Game", view: 'matchgame' as const },
+    { icon: Home, label: "Home", onClick: () => navigate('/studyhub') },
+    { icon: MessageSquare, label: "Chat", onClick: () => navigate('/chat') },
+    { icon: BookOpen, label: "Quiz", onClick: () => navigate('/quiz') },
+    { icon: Bookmark, label: "Flashcards", onClick: () => navigate('/flashcards') },
+    { icon: Trees, label: "Mind Maps", onClick: () => navigate('/mindmap') },
+    { icon: Gamepad, label: "Match Game", onClick: () => navigate('/matchgame') },
   ];
 
   return (
@@ -45,8 +48,9 @@ export const StudyHubSidebar = ({ resources, onResourceAdd, onResourceSelect, on
             {menuItems.map((item) => (
               <SidebarMenuItem
                 key={item.label}
-                {...item}
-                onClick={item.view ? () => onViewChange(item.view) : undefined}
+                icon={item.icon}
+                label={item.label}
+                onClick={item.onClick}
               />
             ))}
           </div>

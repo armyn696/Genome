@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Globe, GraduationCap } from "lucide-react";
 import { ChatMessage } from './chat/ChatMessage';
 import { ChatWelcome } from './chat/ChatWelcome';
+import Background from './Background';
 
 interface Message {
   text: string;
@@ -81,7 +82,8 @@ export const PDFChatInterface = ({ resourceId }: PDFChatInterfaceProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
+      <Background />
       <ScrollArea className="flex-1 p-4 space-y-4">
         {messages.length === 0 ? (
           <ChatWelcome onSuggestionClick={handleSendMessage} />
