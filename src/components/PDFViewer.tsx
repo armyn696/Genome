@@ -65,17 +65,21 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   }, [resourceId]);
 
   useEffect(() => {
-    // Initialize canvas contexts after pages are loaded
     canvasRefs.current = new Array(pages.length).fill(null);
     contextRefs.current = new Array(pages.length).fill(null);
   }, [pages]);
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>, index: number) => {
-    const context = contextRefs.current[index];
+    const canvas = canvasRefs.current[index];
+    if (!canvas) return;
+
+    const context = canvas.getContext('2d');
     if (!context) return;
 
     setIsDrawing(true);
-    const rect = e.currentTarget.getBoundingClientRect();
+    contextRefs.current[index] = context;
+    
+    const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     
@@ -129,17 +133,12 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
               ref={el => {
                 if (el) {
                   canvasRefs.current[index] = el;
-                  const context = el.getContext('2d');
-                  if (context) {
-                    contextRefs.current[index] = context;
-                    // Set canvas size to match image
-                    const img = new Image();
-                    img.onload = () => {
-                      el.width = img.width;
-                      el.height = img.height;
-                    };
-                    img.src = pageUrl;
-                  }
+                  const img = new Image();
+                  img.onload = () => {
+                    el.width = img.width;
+                    el.height = img.height;
+                  };
+                  img.src = pageUrl;
                 }
               }}
               className="max-w-full h-auto cursor-crosshair"
