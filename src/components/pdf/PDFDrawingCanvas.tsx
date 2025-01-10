@@ -20,10 +20,14 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
 
     fabricRef.current = canvas;
 
-    // Load the PDF page as background
-    Image.fromURL(pageUrl, (img) => {
-      canvas.backgroundImage = img;
-      canvas.renderAll();
+    // Load the PDF page as background using the correct API
+    Image.fromURL(pageUrl, {
+      crossOrigin: 'anonymous',
+    }).then((img) => {
+      if (fabricRef.current) {
+        fabricRef.current.backgroundImage = img;
+        fabricRef.current.renderAll();
+      }
     });
 
     return () => {
