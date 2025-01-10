@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Canvas as FabricCanvas, Image as FabricImage } from "fabric";
+import { Canvas as FabricCanvas, Image as FabricImage, PencilBrush } from "fabric";
 
 interface PDFDrawingCanvasProps {
   pageUrl: string;
@@ -45,7 +45,8 @@ export const PDFDrawingCanvas = ({
         preserveObjectStacking: true,
       });
 
-      // Set up drawing brush
+      // Initialize the drawing brush
+      canvas.freeDrawingBrush = new PencilBrush(canvas);
       canvas.freeDrawingBrush.color = '#FF0000';
       canvas.freeDrawingBrush.width = 2;
 
@@ -64,10 +65,9 @@ export const PDFDrawingCanvas = ({
         
         // Calculate and set the scale
         const scale = canvasWidth / img.width;
-        imgInstance.scaleX = scale;
-        imgInstance.scaleY = scale;
+        imgInstance.scale(scale);
         
-        // Set the background image using the new API
+        // Set the background image
         canvas.backgroundImage = imgInstance;
         canvas.renderAll();
       });
