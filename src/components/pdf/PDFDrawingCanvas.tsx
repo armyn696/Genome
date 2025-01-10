@@ -19,6 +19,11 @@ export const PDFDrawingCanvas = ({ isDrawingMode, pageUrl }: PDFDrawingCanvasPro
       height: canvasRef.current.offsetHeight,
     });
 
+    // Initialize the drawing brush immediately after canvas creation
+    canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+    canvas.freeDrawingBrush.width = 2;
+    canvas.freeDrawingBrush.color = '#ff0000';
+
     fabricRef.current = canvas;
 
     // Load the PDF page as background
@@ -37,7 +42,9 @@ export const PDFDrawingCanvas = ({ isDrawingMode, pageUrl }: PDFDrawingCanvasPro
   useEffect(() => {
     if (!fabricRef.current) return;
     fabricRef.current.isDrawingMode = isDrawingMode;
-    if (isDrawingMode) {
+    
+    // Only update brush properties if we're in drawing mode
+    if (isDrawingMode && fabricRef.current.freeDrawingBrush) {
       fabricRef.current.freeDrawingBrush.width = 2;
       fabricRef.current.freeDrawingBrush.color = '#ff0000';
     }
