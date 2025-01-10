@@ -40,10 +40,9 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
       });
 
       // Set up drawing brush
-      if (canvas.freeDrawingBrush) {
-        canvas.freeDrawingBrush.color = '#FF0000';
-        canvas.freeDrawingBrush.width = 2;
-      }
+      canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+      canvas.freeDrawingBrush.color = '#FF0000';
+      canvas.freeDrawingBrush.width = 2;
 
       // Set background color
       canvas.backgroundColor = 'white';
