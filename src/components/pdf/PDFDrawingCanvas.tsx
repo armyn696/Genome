@@ -19,12 +19,15 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
       height: 600,
     });
 
-    Image.fromURL(pageUrl, (img) => {
+    Image.fromURL(pageUrl, {
+      crossOrigin: 'anonymous',
+    }).then((img) => {
       if (!img) return;
-      canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-        scaleX: canvas.getWidth() / img.width!,
-        scaleY: canvas.getHeight() / img.height!,
-      });
+      
+      canvas.backgroundImage = img;
+      img.scaleX = canvas.getWidth() / (img.width ?? 1);
+      img.scaleY = canvas.getHeight() / (img.height ?? 1);
+      canvas.renderAll();
     });
 
     setFabricCanvas(canvas);
