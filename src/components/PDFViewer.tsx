@@ -3,7 +3,7 @@ import { retrievePdf } from '@/utils/pdfStorage';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { WandSparkles } from "lucide-react";
-import { fabric } from 'fabric';
+import { Canvas } from 'fabric';
 import { toast } from "sonner";
 
 interface PDFViewerProps {
@@ -14,7 +14,7 @@ interface PDFViewerProps {
 export const PDFViewer = ({ resourceId, onSendAnnotation }: PDFViewerProps) => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isDrawingMode, setIsDrawingMode] = useState(false);
-  const canvasRef = useRef<fabric.Canvas | null>(null);
+  const canvasRef = useRef<Canvas | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export const PDFViewer = ({ resourceId, onSendAnnotation }: PDFViewerProps) => {
     iframe.parentElement?.appendChild(overlay);
 
     // Initialize Fabric canvas
-    const canvas = new fabric.Canvas(overlay, {
+    const canvas = new Canvas(overlay, {
       isDrawingMode: true,
       width: iframe.offsetWidth,
       height: iframe.offsetHeight
