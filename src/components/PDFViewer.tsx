@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import { retrievePdf } from '@/utils/pdfStorage';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import * as pdfjsLib from 'pdfjs-dist';
-import { renderTextLayer } from 'pdfjs-dist/lib/web/text_layer_builder';
 
 interface PDFViewerProps {
   resourceId: string;
@@ -92,16 +91,30 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
 
         // Get text content and render it
         const textContent = await page.getTextContent();
+        textLayerDiv.innerHTML = '';
         textLayerDiv.style.width = `${viewport.width}px`;
         textLayerDiv.style.height = `${viewport.height}px`;
         textLayerDiv.style.transform = `scale(${1.5})`;
         textLayerDiv.style.transformOrigin = '0 0';
 
-        renderTextLayer({
-          textContent: textContent,
-          container: textLayerDiv,
-          viewport: viewport,
-          textDivs: []
+        // Create text elements manually
+        textContent.items.forEach((item: any) => {
+          const tx = pdfjsLib.Util.transform(
+            viewport.transform,
+            item.transform
+          );
+          const style = `
+            left: ${tx[4]}px;
+            top: ${tx[5]}px;
+            font-size: ${Math.sqrt((tx[0] * tx[0]) + (tx[1] * tx[1]))}px;
+            transform: scaleX(${tx[0] / Math.sqrt((tx[0] * tx[0]) + (tx[1] * tx[1]))});
+          `;
+          
+          const textDiv = document.createElement('span');
+          textDiv.style.cssText = style;
+          textDiv.textContent = item.str;
+          textDiv.style.position = 'absolute';
+          textLayerDiv.appendChild(textDiv);
         });
       }
     };
