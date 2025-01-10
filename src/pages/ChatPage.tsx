@@ -1,6 +1,5 @@
 import Background from "@/components/Background";
 import { StudyHubSidebar } from "@/components/studyhub/StudyHubSidebar";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface Resource {

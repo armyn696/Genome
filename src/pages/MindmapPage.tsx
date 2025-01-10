@@ -1,7 +1,6 @@
 import Background from "@/components/Background";
 import MindmapHub from "@/components/mindmap/MindmapHub";
 import { StudyHubSidebar } from "@/components/studyhub/StudyHubSidebar";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface Resource {
@@ -12,13 +11,14 @@ interface Resource {
   uploadDate: string;
 }
 
-const MindmapPage = () => {
-  const [resources, setResources] = useState<Resource[]>([]);
-  const navigate = useNavigate();
+interface MindmapPageProps {
+  resources: Resource[];
+  onResourceAdd: (resource: Resource) => void;
+  onResourceDelete: (resourceId: string) => void;
+}
 
-  const handleResourceAdd = (newResource: Resource) => {
-    setResources(prev => [...prev, newResource]);
-  };
+const MindmapPage = ({ resources, onResourceAdd, onResourceDelete }: MindmapPageProps) => {
+  const navigate = useNavigate();
 
   const handleResourceSelect = (resource: Resource) => {
     // Handle resource selection if needed
@@ -54,7 +54,7 @@ const MindmapPage = () => {
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
           <StudyHubSidebar
             resources={resources}
-            onResourceAdd={handleResourceAdd}
+            onResourceAdd={onResourceAdd}
             onResourceSelect={handleResourceSelect}
             onViewChange={handleViewChange}
           />
