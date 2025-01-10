@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Canvas as FabricCanvas, Image as FabricImage } from "fabric";
+import { Canvas as FabricCanvas, Image as FabricImage, PencilBrush } from "fabric";
 
 interface PDFDrawingCanvasProps {
   pageUrl: string;
@@ -40,7 +40,7 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
       });
 
       // Set up drawing brush
-      canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+      canvas.freeDrawingBrush = new PencilBrush(canvas);
       canvas.freeDrawingBrush.color = '#FF0000';
       canvas.freeDrawingBrush.width = 2;
 
