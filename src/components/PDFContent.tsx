@@ -56,7 +56,7 @@ export const PDFContent = ({ currentView, resourceId }: PDFContentProps) => {
                 minSize={30}
                 className="h-full"
               >
-                <div className="h-full w-full relative">
+                <div className="h-full w-full">
                   <PDFViewer 
                     resourceId={resourceId} 
                     onSelectionComplete={handleSelectionComplete}

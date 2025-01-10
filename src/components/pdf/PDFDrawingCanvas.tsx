@@ -43,6 +43,7 @@ export const PDFDrawingCanvas = ({
         width: canvasWidth,
         height: canvasHeight,
         isDrawingMode: isDrawingMode,
+        preserveObjectStacking: true,
       });
 
       // Set up drawing brush
@@ -77,30 +78,22 @@ export const PDFDrawingCanvas = ({
         lastPathRef.current = e.path;
       });
 
-      // Set background color
-      canvas.backgroundColor = 'white';
-      canvas.renderAll();
-      
-      // Load and set background image using Fabric.js v6 API
+      // Load and set background image
       FabricImage.fromURL(pageUrl, {
         crossOrigin: 'anonymous',
+        scaleX: canvasWidth / img.width,
+        scaleY: canvasWidth / img.width,
       }).then((imgInstance) => {
         if (!imgInstance) return;
         
-        // Calculate and set the scale
-        const scale = canvasWidth / img.width;
-        imgInstance.scaleX = scale;
-        imgInstance.scaleY = scale;
-        
-        // Set the background image using the new API
-        canvas.backgroundImage = imgInstance;
+        // Set the background image
+        canvas.setBackgroundImage(imgInstance, canvas.renderAll.bind(canvas));
         canvas.renderAll();
       });
 
       setFabricCanvas(canvas);
     };
 
-    // Initialize canvas
     initCanvas();
 
     // Cleanup
@@ -126,7 +119,7 @@ export const PDFDrawingCanvas = ({
   return (
     <div 
       ref={containerRef} 
-      className="w-full"
+      className="w-full h-full"
     >
       <canvas 
         ref={canvasRef}
