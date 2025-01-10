@@ -1,7 +1,5 @@
-import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ZoomIn, ZoomOut, RotateCw } from "lucide-react";
+import { Wand } from "lucide-react";
 
 interface PDFViewerControlsProps {
   zoom: number;
@@ -13,7 +11,7 @@ interface PDFViewerControlsProps {
   onPageChange: (page: number) => void;
 }
 
-export const PDFViewerControls: React.FC<PDFViewerControlsProps> = ({
+export const PDFViewerControls = ({
   zoom,
   currentPage,
   totalPages,
@@ -21,69 +19,132 @@ export const PDFViewerControls: React.FC<PDFViewerControlsProps> = ({
   onZoomOut,
   onResetZoom,
   onPageChange,
-}) => {
+}: PDFViewerControlsProps) => {
   return (
-    <div className="flex items-center justify-between p-2 bg-background border-b z-50 relative shadow-md">
-      <div className="flex items-center gap-2">
-        <Button 
-          variant="outline" 
+    <div className="sticky top-0 z-50 flex items-center justify-between gap-2 bg-background/80 backdrop-blur-sm border-b p-2">
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
           size="icon"
+          className="h-8 w-8"
           onClick={onZoomOut}
-          className="h-8 w-8"
+          title="Zoom Out"
         >
-          <ZoomOut className="h-4 w-4" />
+          <span className="sr-only">Zoom Out</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            <line x1="8" y1="11" x2="14" y2="11" />
+          </svg>
         </Button>
-        <Button 
-          variant="outline" 
-          size="icon"
+
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 px-2 text-xs"
           onClick={onResetZoom}
-          className="h-8 w-8"
         >
-          <RotateCw className="h-4 w-4" />
+          {zoom}%
         </Button>
-        <Button 
-          variant="outline" 
+
+        <Button
+          variant="ghost"
           size="icon"
-          onClick={onZoomIn}
           className="h-8 w-8"
+          onClick={onZoomIn}
+          title="Zoom In"
         >
-          <ZoomIn className="h-4 w-4" />
+          <span className="sr-only">Zoom In</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            <line x1="11" y1="8" x2="11" y2="14" />
+            <line x1="8" y1="11" x2="14" y2="11" />
+          </svg>
         </Button>
-        <span className="text-sm font-medium">{zoom}%</span>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          title="Magic Wand"
+        >
+          <Wand className="h-4 w-4" />
+          <span className="sr-only">Magic Wand</span>
+        </Button>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(currentPage - 1)}
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
           disabled={currentPage <= 1}
-          className="h-8"
+          title="Previous Page"
         >
-          ‹
+          <span className="sr-only">Previous Page</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
         </Button>
-        <div className="flex items-center gap-1">
-          <Input
-            type="text"
-            value={currentPage}
-            onChange={(e) => {
-              const page = parseInt(e.target.value);
-              if (!isNaN(page) && page >= 1 && page <= totalPages) {
-                onPageChange(page);
-              }
-            }}
-            className="w-12 h-8 text-center p-1"
-          />
-          <span className="text-sm text-muted-foreground">/ {totalPages}</span>
-        </div>
+
+        <span className="text-sm">
+          {currentPage} / {totalPages}
+        </span>
+
         <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(currentPage + 1)}
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
           disabled={currentPage >= totalPages}
-          className="h-8"
+          title="Next Page"
         >
-          ›
+          <span className="sr-only">Next Page</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
         </Button>
       </div>
     </div>
