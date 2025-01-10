@@ -18,6 +18,7 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const canvasRefs = useRef<(HTMLCanvasElement | null)[]>([]);
   const contextRefs = useRef<(CanvasRenderingContext2D | null)[]>([]);
+  const lastPosRefs = useRef<{ x: number; y: number }[]>([]);
 
   useEffect(() => {
     const loadPdf = async () => {
@@ -67,46 +68,56 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   useEffect(() => {
     canvasRefs.current = new Array(pages.length).fill(null);
     contextRefs.current = new Array(pages.length).fill(null);
+    lastPosRefs.current = new Array(pages.length).fill({ x: 0, y: 0 });
   }, [pages]);
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>, index: number) => {
-    e.preventDefault(); // Prevent default drag behavior
+    e.preventDefault();
     const canvas = canvasRefs.current[index];
     if (!canvas) return;
 
-    const context = canvas.getContext('2d');
-    if (!context) return;
-
-    setIsDrawing(true);
-    contextRefs.current[index] = context;
-    
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
-    context.beginPath();
-    context.moveTo(x, y);
-    context.strokeStyle = 'red';
-    context.lineWidth = 2;
+
+    setIsDrawing(true);
+    lastPosRefs.current[index] = { x, y };
+
+    const context = canvas.getContext('2d');
+    if (context) {
+      contextRefs.current[index] = context;
+      context.beginPath();
+      context.moveTo(x, y);
+      context.strokeStyle = 'red';
+      context.lineWidth = 2;
+      context.lineCap = 'round';
+    }
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement>, index: number) => {
-    e.preventDefault(); // Prevent default drag behavior
+    e.preventDefault();
     if (!isDrawing) return;
-    
-    const context = contextRefs.current[index];
-    if (!context) return;
 
-    const rect = e.currentTarget.getBoundingClientRect();
+    const canvas = canvasRefs.current[index];
+    const context = contextRefs.current[index];
+    if (!canvas || !context) return;
+
+    const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+
+    const lastPos = lastPosRefs.current[index];
     
+    context.beginPath();
+    context.moveTo(lastPos.x, lastPos.y);
     context.lineTo(x, y);
     context.stroke();
+
+    lastPosRefs.current[index] = { x, y };
   };
 
   const stopDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    e.preventDefault(); // Prevent default drag behavior
+    e.preventDefault();
     setIsDrawing(false);
   };
 
@@ -150,7 +161,7 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
               onMouseMove={(e) => draw(e, index)}
               onMouseUp={stopDrawing}
               onMouseLeave={stopDrawing}
-              style={{ touchAction: 'none' }}
+              style={{ touchAction: 'none', pointerEvents: 'auto' }}
             />
           </div>
         ))}
