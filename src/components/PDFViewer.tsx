@@ -34,20 +34,18 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   }, []);
 
   const startDrawing = (e: React.MouseEvent) => {
-    if (e.buttons === 1) { // Only start drawing if left mouse button is pressed
-      const canvas = canvasRef.current;
-      if (!canvas) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
 
-      const context = canvas.getContext('2d');
-      if (context) {
-        setIsDrawing(true);
-        context.beginPath();
-        context.moveTo(x, y);
-      }
+    const context = canvas.getContext('2d');
+    if (context) {
+      setIsDrawing(true);
+      context.beginPath();
+      context.moveTo(x, y);
     }
   };
 
@@ -111,7 +109,7 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
           className="absolute top-0 left-0 w-full h-full cursor-crosshair"
           style={{ 
             height: 'calc(100vh - 7rem)',
-            pointerEvents: 'auto',
+            pointerEvents: isDrawing ? 'auto' : 'none',
             touchAction: 'none'
           }}
           onMouseDown={startDrawing}
