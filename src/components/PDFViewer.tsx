@@ -7,6 +7,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 
 interface PDFViewerProps {
   resourceId: string;
+  onSelectionComplete?: (selection: string) => void;
 }
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -14,7 +15,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url,
 ).toString();
 
-export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
+export const PDFViewer = ({ resourceId, onSelectionComplete }: PDFViewerProps) => {
   const [pages, setPages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [zoom, setZoom] = useState(100);
@@ -109,7 +110,8 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
               {isDrawingMode ? (
                 <PDFDrawingCanvas 
                   pageUrl={pageUrl} 
-                  isDrawingMode={isDrawingMode} 
+                  isDrawingMode={isDrawingMode}
+                  onSelectionComplete={onSelectionComplete}
                 />
               ) : (
                 <img 

@@ -1,15 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { Canvas as FabricCanvas, Image as FabricImage, PencilBrush } from "fabric";
+import { toast } from "sonner";
 
 interface PDFDrawingCanvasProps {
   pageUrl: string;
   isDrawingMode: boolean;
+  onSelectionComplete?: (selection: string) => void;
 }
 
-export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasProps) => {
+export const PDFDrawingCanvas = ({ 
+  pageUrl, 
+  isDrawingMode,
+  onSelectionComplete 
+}: PDFDrawingCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fabricCanvas, setFabricCanvas] = useState<FabricCanvas | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const lastPathRef = useRef<any>(null);
 
   useEffect(() => {
     const initCanvas = async () => {
@@ -44,6 +51,33 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
       canvas.freeDrawingBrush.color = '#FF0000';
       canvas.freeDrawingBrush.width = 2;
 
+      // Handle mouse up event
+      canvas.on('mouse:up', () => {
+        if (isDrawingMode && lastPathRef.current) {
+          // Get the path that was just drawn
+          const path = lastPathRef.current;
+          
+          // If there's a selection handler, call it
+          if (onSelectionComplete) {
+            onSelectionComplete("Selection from PDF");
+          }
+
+          // Remove the path after a short delay
+          setTimeout(() => {
+            canvas.remove(path);
+            canvas.renderAll();
+          }, 100);
+
+          // Clear the last path reference
+          lastPathRef.current = null;
+        }
+      });
+
+      // Track the last path that was drawn
+      canvas.on('path:created', (e: any) => {
+        lastPathRef.current = e.path;
+      });
+
       // Set background color
       canvas.backgroundColor = 'white';
       canvas.renderAll();
@@ -54,12 +88,12 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
       }).then((imgInstance) => {
         if (!imgInstance) return;
         
-        // Calculate and set the scale after loading
+        // Calculate and set the scale
         const scale = canvasWidth / img.width;
-        imgInstance.scale(scale);
+        imgInstance.scaleX = scale;
+        imgInstance.scaleY = scale;
         
-        canvas.backgroundImage = imgInstance;
-        canvas.renderAll();
+        canvas.setBackgroundImage(imgInstance, canvas.renderAll.bind(canvas));
       });
 
       setFabricCanvas(canvas);

@@ -14,11 +14,13 @@ export const PDFContent = ({ currentView, resourceId }: PDFContentProps) => {
   const [messages, setMessages] = useState<{ text: string; sender: 'user' | 'ai' }[]>([]);
   const [message, setMessage] = useState('');
 
-  const handleSendMessage = () => {
-    if (!message.trim()) return;
+  const handleSendMessage = (text?: string) => {
+    if (!text?.trim() && !message.trim()) return;
+
+    const messageText = text || message;
 
     const userMessage = {
-      text: message,
+      text: messageText,
       sender: 'user' as const
     };
 
@@ -28,11 +30,15 @@ export const PDFContent = ({ currentView, resourceId }: PDFContentProps) => {
     // Simulate AI response
     setTimeout(() => {
       const aiMessage = {
-        text: "I'm here to help you understand the PDF content. What would you like to know?",
+        text: "I've received your selection. How can I help you understand this part better?",
         sender: 'ai' as const
       };
       setMessages(prev => [...prev, aiMessage]);
     }, 1000);
+  };
+
+  const handleSelectionComplete = (selection: string) => {
+    handleSendMessage(`Selected text from PDF: ${selection}`);
   };
 
   switch (currentView) {
@@ -51,7 +57,10 @@ export const PDFContent = ({ currentView, resourceId }: PDFContentProps) => {
                 className="h-full"
               >
                 <div className="h-full overflow-hidden">
-                  <PDFViewer resourceId={resourceId} />
+                  <PDFViewer 
+                    resourceId={resourceId} 
+                    onSelectionComplete={handleSelectionComplete}
+                  />
                 </div>
               </ResizablePanel>
               <ResizableHandle withHandle />
