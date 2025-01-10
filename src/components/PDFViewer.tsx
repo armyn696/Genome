@@ -92,7 +92,7 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
         const textContent = await page.getTextContent();
         
         const textLayer = new TextLayerBuilder({
-          textContent: textContent,
+          textContentSource: textContent,
           container: textLayerDiv,
           viewport: viewport,
           pageIndex: page.pageNumber - 1,
@@ -100,7 +100,6 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
           enhanceTextSelection: true
         });
         
-        textLayer.setTextContent(textContent);
         textLayer.render();
       }
     };
