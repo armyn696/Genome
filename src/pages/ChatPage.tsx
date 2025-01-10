@@ -1,24 +1,12 @@
 import { StudyHubSidebar } from "@/components/studyhub/StudyHubSidebar";
 import Background from "@/components/Background";
 import { EnhancedChatInterface } from "@/components/EnhancedChatInterface";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-interface Resource {
-  id: string;
-  name: string;
-  type: string;
-  size: string;
-  uploadDate: string;
-}
+import { useResources } from "@/hooks/useResources";
 
 const ChatPage = () => {
-  const [resources, setResources] = useState<Resource[]>([]);
+  const { resources, addResource } = useResources();
   const navigate = useNavigate();
-
-  const handleResourceAdd = (newResource: Resource) => {
-    setResources(prev => [...prev, newResource]);
-  };
 
   const handleResourceSelect = (resource: Resource) => {
     // Handle resource selection
@@ -30,16 +18,16 @@ const ChatPage = () => {
         navigate('/studyhub');
         break;
       case 'quiz':
-        navigate('/studyhub', { state: { view: 'quiz' } });
+        navigate('/studyhub/quiz');
         break;
       case 'flashcards':
-        navigate('/studyhub', { state: { view: 'flashcards' } });
+        navigate('/studyhub/flashcards');
         break;
       case 'mindmap':
-        navigate('/studyhub', { state: { view: 'mindmap' } });
+        navigate('/studyhub/mindmap');
         break;
       case 'matchgame':
-        navigate('/studyhub', { state: { view: 'matchgame' } });
+        navigate('/studyhub/matchgame');
         break;
       default:
         // For other views, stay on the current page
@@ -54,7 +42,7 @@ const ChatPage = () => {
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
           <StudyHubSidebar
             resources={resources}
-            onResourceAdd={handleResourceAdd}
+            onResourceAdd={addResource}
             onResourceSelect={handleResourceSelect}
             onViewChange={handleViewChange}
           />

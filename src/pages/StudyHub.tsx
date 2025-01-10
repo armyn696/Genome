@@ -12,6 +12,7 @@ import ResourceProgress from "@/components/studyhub/ResourceProgress";
 import FeaturesSection from "@/components/studyhub/FeaturesSection";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useResources } from "@/hooks/useResources";
 
 interface Resource {
   id: string;
@@ -24,7 +25,7 @@ interface Resource {
 type ViewType = 'home' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame';
 
 const StudyHub = () => {
-  const [resources, setResources] = useState<Resource[]>([]);
+  const { resources, addResource, deleteResource } = useResources();
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [currentView, setCurrentView] = useState<ViewType>('home');
   const navigate = useNavigate();
@@ -38,18 +39,6 @@ const StudyHub = () => {
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
-
-  const handleResourceAdd = (newResource: Resource) => {
-    setResources(prev => [...prev, newResource]);
-  };
-
-  const handleResourceDelete = (resourceId: string) => {
-    setResources(prev => prev.filter(resource => resource.id !== resourceId));
-    if (selectedResource?.id === resourceId) {
-      setSelectedResource(null);
-      setCurrentView('home');
-    }
-  };
 
   const handleResourceSelect = (resource: Resource) => {
     setSelectedResource(resource);
@@ -85,8 +74,8 @@ const StudyHub = () => {
           <FeaturesSection />
           <ResourceProgress 
             resources={resources} 
-            onResourceAdd={handleResourceAdd} 
-            onResourceDelete={handleResourceDelete}
+            onResourceAdd={addResource} 
+            onResourceDelete={deleteResource}
             onResourceSelect={handleResourceSelect}
           />
         </div>
@@ -141,7 +130,7 @@ const StudyHub = () => {
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
           <StudyHubSidebar
             resources={resources}
-            onResourceAdd={handleResourceAdd}
+            onResourceAdd={addResource}
             onResourceSelect={handleResourceSelect}
             onViewChange={handleViewChange}
           />

@@ -1,24 +1,12 @@
 import Background from "@/components/Background";
 import QuizHub from "@/components/quiz/QuizHub";
 import { StudyHubSidebar } from "@/components/studyhub/StudyHubSidebar";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-interface Resource {
-  id: string;
-  name: string;
-  type: string;
-  size: string;
-  uploadDate: string;
-}
+import { useResources } from "@/hooks/useResources";
 
 const QuizPage = () => {
-  const [resources, setResources] = useState<Resource[]>([]);
+  const { resources, addResource } = useResources();
   const navigate = useNavigate();
-
-  const handleResourceAdd = (newResource: Resource) => {
-    setResources(prev => [...prev, newResource]);
-  };
 
   const handleResourceSelect = (resource: Resource) => {
     // Handle resource selection if needed
@@ -54,7 +42,7 @@ const QuizPage = () => {
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
           <StudyHubSidebar
             resources={resources}
-            onResourceAdd={handleResourceAdd}
+            onResourceAdd={addResource}
             onResourceSelect={handleResourceSelect}
             onViewChange={handleViewChange}
           />
