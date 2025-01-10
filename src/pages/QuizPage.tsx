@@ -58,10 +58,7 @@ const QuizPage = () => {
             onResourceSelect={handleResourceSelect}
             onViewChange={handleViewChange}
           />
-          <div 
-            className="flex items-center gap-2 cursor-pointer" 
-            onClick={() => navigate('/studyhub')}
-          >
+          <div className="flex items-center gap-2">
             <img 
               src="/lovable-uploads/91f667b0-83b5-4bfe-9318-d58898e35220.png" 
               alt="Logo" 
