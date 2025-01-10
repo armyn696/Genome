@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Resource } from "@/types"; // Adjust the import based on your project structure
+import { useState } from 'react';
+import { Resource } from '@/types';
 
 interface ChatPageProps {
   resources: Resource[];
@@ -11,7 +11,6 @@ const ChatPage = ({ resources, onResourceAdd, onResourceDelete }: ChatPageProps)
   const [message, setMessage] = useState("");
 
   const handleSendMessage = () => {
-    // Logic to send a message
     console.log(message);
     setMessage("");
   };

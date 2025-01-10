@@ -1,10 +1,6 @@
-interface Resource {
-  id: string;
-  name: string;
-  type: string;
-  size: string;
-  uploadDate: string;
-}
+import { useState } from 'react';
+import { StudyHubSidebar } from "@/components/studyhub/StudyHubSidebar";
+import { Resource } from '@/types';
 
 interface StudyHubProps {
   resources: Resource[];

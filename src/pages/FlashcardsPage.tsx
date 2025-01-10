@@ -1,10 +1,5 @@
-interface Resource {
-  id: string;
-  name: string;
-  type: string;
-  size: string;
-  uploadDate: string;
-}
+import { Resource } from '@/types';
+import { FlashcardsHub } from '@/components/flashcards/FlashcardsHub';
 
 interface FlashcardsPageProps {
   resources: Resource[];

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Resource } from "@/types"; // Adjust the import path as necessary
+import { Resource } from '@/types';
 
 interface MatchGamePageProps {
   resources: Resource[];
@@ -8,7 +8,7 @@ interface MatchGamePageProps {
 }
 
 const MatchGamePage = ({ resources, onResourceAdd, onResourceDelete }: MatchGamePageProps) => {
-  const [gameData, setGameData] = useState([]);
+  const [gameData, setGameData] = useState<any[]>([]);
 
   const handleGameStart = () => {
     // Logic to start the match game
