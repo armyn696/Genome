@@ -27,7 +27,17 @@ export const DrawingCanvas = ({
         isDrawingMode: true,
         width,
         height,
+        selection: false,
       });
+
+      // Enable drawing mode by default
+      canvas.isDrawingMode = true;
+      
+      // Initialize brush
+      const brush = new fabric.PencilBrush(canvas);
+      canvas.freeDrawingBrush = brush;
+      brush.color = currentColor;
+      brush.width = currentSize;
 
       fabricCanvasRef.current = canvas;
       onCanvasReady(canvas);
@@ -42,14 +52,17 @@ export const DrawingCanvas = ({
     const canvas = fabricCanvasRef.current;
     if (!canvas) return;
 
-    const brush = new fabric.PencilBrush(canvas);
-    canvas.freeDrawingBrush = brush;
+    // Make sure drawing mode is always enabled
+    canvas.isDrawingMode = true;
+
+    const brush = canvas.freeDrawingBrush;
+    if (!brush) return;
 
     if (currentTool === 'brush') {
       brush.color = currentColor;
       brush.width = currentSize;
     } else {
-      // For eraser, we'll use white color (or your background color)
+      // For eraser, we'll use white color
       brush.color = '#FFFFFF';
       brush.width = currentSize * 2;
     }
