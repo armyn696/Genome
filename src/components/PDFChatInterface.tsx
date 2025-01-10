@@ -80,6 +80,24 @@ export const PDFChatInterface = ({ resourceId }: PDFChatInterfaceProps) => {
     setMessages(prev => [...prev, userMessage]);
   };
 
+  const handleAnnotation = (imageData: string) => {
+    const userMessage: Message = {
+      text: "I've highlighted this part of the PDF:",
+      sender: 'user',
+      image: imageData
+    };
+    setMessages(prev => [...prev, userMessage]);
+
+    // Simulate AI response
+    setTimeout(() => {
+      const aiMessage: Message = {
+        text: "I see the highlighted section. What would you like to know about it?",
+        sender: 'ai'
+      };
+      setMessages(prev => [...prev, aiMessage]);
+    }, 1000);
+  };
+
   return (
     <div className="flex flex-col h-full">
       <ScrollArea className="flex-1 p-4 space-y-4">
