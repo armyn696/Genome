@@ -56,9 +56,10 @@ export const PDFDrawingCanvas = ({
           // Get the path that was just drawn
           const path = lastPathRef.current;
           
-          // If there's a selection handler, call it
+          // If there's a selection handler, call it with the selected content
           if (onSelectionComplete) {
-            onSelectionComplete("Selection from PDF");
+            // Here we're sending a message indicating the selection
+            onSelectionComplete("Selected content from PDF page");
           }
 
           // Remove the path after a short delay
