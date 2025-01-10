@@ -11,7 +11,6 @@ import QuizPage from "./pages/QuizPage";
 import FlashcardsPage from "./pages/FlashcardsPage";
 import MindmapPage from "./pages/MindmapPage";
 import MatchGamePage from "./pages/MatchGamePage";
-import ResourcesPage from "./pages/ResourcesPage";
 
 const queryClient = new QueryClient();
 
@@ -30,7 +29,6 @@ const App = () => (
           <Route path="/studyhub/flashcards" element={<FlashcardsPage />} />
           <Route path="/studyhub/mindmap" element={<MindmapPage />} />
           <Route path="/studyhub/matchgame" element={<MatchGamePage />} />
-          <Route path="/studyhub/resources" element={<ResourcesPage />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
