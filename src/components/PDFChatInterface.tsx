@@ -84,11 +84,11 @@ export const PDFChatInterface = ({ resourceId }: PDFChatInterfaceProps) => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="fixed top-0 right-0 p-4 z-50">
+      <div className="absolute top-4 right-4">
         <img 
           src="/lovable-uploads/91f667b0-83b5-4bfe-9318-d58898e35220.png" 
           alt="Logo" 
-          className="h-12 w-auto cursor-pointer hover:opacity-80"
+          className="h-12 w-auto cursor-pointer hover:opacity-80 transition-opacity"
           onClick={() => navigate('/studyhub')}
         />
       </div>
