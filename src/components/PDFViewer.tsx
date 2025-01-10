@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { retrievePdf } from '@/utils/pdfStorage';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { WandSparkles } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { Canvas, PencilBrush } from 'fabric';
 import { toast } from "sonner";
 
@@ -51,9 +51,9 @@ export const PDFViewer = ({ resourceId, onSendAnnotation }: PDFViewerProps) => {
 
     // Initialize the drawing brush
     const brush = new PencilBrush(canvas);
+    brush.color = 'red';
+    brush.width = 2;
     canvas.freeDrawingBrush = brush;
-    canvas.freeDrawingBrush.color = 'red';
-    canvas.freeDrawingBrush.width = 2;
 
     canvasRef.current = canvas;
 
@@ -110,7 +110,7 @@ export const PDFViewer = ({ resourceId, onSendAnnotation }: PDFViewerProps) => {
           onClick={toggleDrawingMode}
           className="bg-background/80 backdrop-blur-sm"
         >
-          <WandSparkles className={`h-5 w-5 ${isDrawingMode ? 'text-primary' : ''}`} />
+          <Pencil className={`h-5 w-5 ${isDrawingMode ? 'text-primary' : ''}`} />
         </Button>
       </div>
       <ScrollArea className="h-full">
