@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Canvas as FabricCanvas, Image } from "fabric";
+import { Canvas as FabricCanvas } from "fabric";
 
 interface PDFDrawingCanvasProps {
   pageUrl: string;
@@ -12,14 +12,6 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const loadImage = async () => {
-      return new Promise<HTMLImageElement>((resolve) => {
-        const img = new Image();
-        img.src = pageUrl;
-        img.onload = () => resolve(img);
-      });
-    };
-
     const initCanvas = async () => {
       if (!canvasRef.current || !containerRef.current) return;
 
@@ -27,15 +19,20 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
       const container = containerRef.current;
       const containerWidth = container.clientWidth;
 
-      // Load and measure the PDF page image
-      const img = await loadImage();
-      const aspectRatio = img.height / img.width;
+      // Create a temporary image to get dimensions
+      const img = new Image();
+      img.src = pageUrl;
       
-      // Set canvas dimensions to match the container width and maintain aspect ratio
+      await new Promise((resolve) => {
+        img.onload = resolve;
+      });
+
+      // Calculate canvas dimensions
+      const aspectRatio = img.height / img.width;
       const canvasWidth = containerWidth;
       const canvasHeight = containerWidth * aspectRatio;
 
-      // Create or update Fabric canvas
+      // Create new canvas instance
       const canvas = new FabricCanvas(canvasRef.current, {
         width: canvasWidth,
         height: canvasHeight,
@@ -49,16 +46,25 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
       }
 
       // Set background image
-      canvas.setBackgroundImage(pageUrl, canvas.renderAll.bind(canvas), {
-        scaleX: canvasWidth / img.width,
-        scaleY: canvasHeight / img.height,
+      canvas.setBackgroundColor('white', canvas.renderAll.bind(canvas));
+      
+      // Load and set background image
+      fabric.Image.fromURL(pageUrl, (imgInstance) => {
+        if (!imgInstance) return;
+        
+        canvas.backgroundImage = imgInstance;
+        imgInstance.scaleX = canvasWidth / (imgInstance.width ?? 1);
+        imgInstance.scaleY = canvasHeight / (imgInstance.height ?? 1);
+        canvas.renderAll();
       });
 
       setFabricCanvas(canvas);
     };
 
+    // Initialize canvas
     initCanvas();
 
+    // Cleanup
     return () => {
       if (fabricCanvas) {
         fabricCanvas.dispose();
@@ -68,10 +74,14 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
 
   // Update drawing mode when isDrawingMode changes
   useEffect(() => {
-    if (fabricCanvas) {
-      fabricCanvas.isDrawingMode = isDrawingMode;
-      fabricCanvas.renderAll();
+    if (!fabricCanvas) return;
+    
+    fabricCanvas.isDrawingMode = isDrawingMode;
+    if (fabricCanvas.freeDrawingBrush) {
+      fabricCanvas.freeDrawingBrush.color = '#FF0000';
+      fabricCanvas.freeDrawingBrush.width = 2;
     }
+    fabricCanvas.renderAll();
   }, [isDrawingMode, fabricCanvas]);
 
   return (
