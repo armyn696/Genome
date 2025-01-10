@@ -14,12 +14,12 @@ export const ChatWelcome = ({ onSuggestionClick }: ChatWelcomeProps) => {
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full p-2 space-y-4 text-center">
-      <h1 className="text-2xl font-bold">AI Study Assistant</h1>
-      <p className="text-sm text-muted-foreground max-w-full mb-2">
+    <div className="flex flex-col items-center justify-center h-full w-full p-2 space-y-2 text-center">
+      <h1 className="text-xl font-bold">AI Study Assistant</h1>
+      <p className="text-xs text-muted-foreground max-w-full mb-1">
         I'm your personal study assistant. Ask me anything about your study materials!
       </p>
-      <div className="grid grid-cols-1 gap-2 w-full max-w-md">
+      <div className="grid grid-cols-1 gap-2 w-full max-w-md mt-2">
         {suggestions.map((suggestion) => (
           <Button
             key={suggestion}
