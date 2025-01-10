@@ -22,8 +22,7 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       external: [
-        'pdfjs-dist/build/pdf.worker.entry',
-        'fabric'
+        'pdfjs-dist/build/pdf.worker.entry'
       ]
     }
   }

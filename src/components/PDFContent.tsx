@@ -3,7 +3,6 @@ import { PDFChatInterface } from "@/components/PDFChatInterface";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { PDFChatHeader } from "@/components/pdf/PDFChatHeader";
 import { PDFChatPanel } from "@/components/pdf/PDFChatPanel";
-import { PDFDrawingCanvas } from "@/components/pdf/PDFDrawingCanvas";
 import { useState } from "react";
 
 interface PDFContentProps {
@@ -14,7 +13,6 @@ interface PDFContentProps {
 export const PDFContent = ({ currentView, resourceId }: PDFContentProps) => {
   const [messages, setMessages] = useState<{ text: string; sender: 'user' | 'ai' }[]>([]);
   const [message, setMessage] = useState('');
-  const [isDrawingMode, setIsDrawingMode] = useState(false);
 
   const handleSendMessage = () => {
     if (!message.trim()) return;
@@ -37,10 +35,6 @@ export const PDFContent = ({ currentView, resourceId }: PDFContentProps) => {
     }, 1000);
   };
 
-  const toggleDrawingMode = () => {
-    setIsDrawingMode(prev => !prev);
-  };
-
   switch (currentView) {
     case 'chat':
       return (
@@ -57,11 +51,7 @@ export const PDFContent = ({ currentView, resourceId }: PDFContentProps) => {
                 className="h-full"
               >
                 <div className="h-full overflow-hidden">
-                  <PDFViewer 
-                    resourceId={resourceId} 
-                    isDrawingMode={isDrawingMode}
-                    onToggleDrawing={toggleDrawingMode}
-                  />
+                  <PDFViewer resourceId={resourceId} />
                 </div>
               </ResizablePanel>
               <ResizableHandle withHandle />
