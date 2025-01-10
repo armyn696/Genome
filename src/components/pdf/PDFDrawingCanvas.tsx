@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Canvas as FabricCanvas, Image as FabricImage, PencilBrush } from "fabric";
+import { Canvas as FabricCanvas, Image as FabricImage } from "fabric";
 
 interface PDFDrawingCanvasProps {
   pageUrl: string;
@@ -15,7 +15,6 @@ export const PDFDrawingCanvas = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fabricCanvas, setFabricCanvas] = useState<FabricCanvas | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const lastPathRef = useRef<any>(null);
 
   useEffect(() => {
     const initCanvas = async () => {
@@ -47,38 +46,17 @@ export const PDFDrawingCanvas = ({
       });
 
       // Set up drawing brush
-      canvas.freeDrawingBrush = new PencilBrush(canvas);
       canvas.freeDrawingBrush.color = '#FF0000';
       canvas.freeDrawingBrush.width = 2;
 
       // Handle mouse up event
       canvas.on('mouse:up', () => {
-        if (isDrawingMode && lastPathRef.current) {
-          // Get the path that was just drawn
-          const path = lastPathRef.current;
-          
-          // If there's a selection handler, call it
-          if (onSelectionComplete) {
-            onSelectionComplete("Selection from PDF");
-          }
-
-          // Remove the path after a short delay
-          setTimeout(() => {
-            canvas.remove(path);
-            canvas.renderAll();
-          }, 100);
-
-          // Clear the last path reference
-          lastPathRef.current = null;
+        if (isDrawingMode && onSelectionComplete) {
+          onSelectionComplete("Selection from PDF");
         }
       });
 
-      // Track the last path that was drawn
-      canvas.on('path:created', (e: any) => {
-        lastPathRef.current = e.path;
-      });
-
-      // Load and set background image
+      // Set the background image directly from the pageUrl
       FabricImage.fromURL(pageUrl, {
         crossOrigin: 'anonymous'
       }).then((imgInstance) => {
