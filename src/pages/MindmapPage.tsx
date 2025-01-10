@@ -1,3 +1,9 @@
+import Background from "@/components/Background";
+import MindmapHub from "@/components/mindmap/MindmapHub";
+import { StudyHubSidebar } from "@/components/studyhub/StudyHubSidebar";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 interface Resource {
   id: string;
   name: string;
@@ -6,34 +12,65 @@ interface Resource {
   uploadDate: string;
 }
 
-interface MindmapPageProps {
-  resources: Resource[];
-  onResourceAdd: (newResource: Resource) => void;
-  onResourceDelete: (resourceId: string) => void;
-}
+const MindmapPage = () => {
+  const [resources, setResources] = useState<Resource[]>([]);
+  const navigate = useNavigate();
 
-const MindmapPage = ({ resources, onResourceAdd, onResourceDelete }: MindmapPageProps) => {
+  const handleResourceAdd = (newResource: Resource) => {
+    setResources(prev => [...prev, newResource]);
+  };
+
+  const handleResourceSelect = (resource: Resource) => {
+    // Handle resource selection if needed
+  };
+
+  const handleViewChange = (view: 'home' | 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame') => {
+    switch (view) {
+      case 'home':
+        navigate('/studyhub');
+        break;
+      case 'chat':
+        navigate('/studyhub/chat');
+        break;
+      case 'quiz':
+        navigate('/studyhub/quiz');
+        break;
+      case 'flashcards':
+        navigate('/studyhub/flashcards');
+        break;
+      case 'matchgame':
+        navigate('/studyhub/matchgame');
+        break;
+      default:
+        // For other views, stay on the current page
+        break;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col gap-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">Mind Maps</h1>
-              <p className="text-muted-foreground">
-                Create and manage your mind maps
-              </p>
-            </div>
-          </div>
-          
-          <div className="grid gap-6">
-            {/* Mind Map Content */}
-            <div className="rounded-lg border bg-card">
-              {/* Render your mind map component here */}
-            </div>
+      <Background />
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border h-16">
+        <div className="container mx-auto px-4 h-full flex items-center justify-between">
+          <StudyHubSidebar
+            resources={resources}
+            onResourceAdd={handleResourceAdd}
+            onResourceSelect={handleResourceSelect}
+            onViewChange={handleViewChange}
+          />
+          <div className="flex items-center gap-2">
+            <img 
+              src="/lovable-uploads/91f667b0-83b5-4bfe-9318-d58898e35220.png" 
+              alt="Logo" 
+              className="h-12 w-auto cursor-pointer"
+              onClick={() => navigate('/studyhub')}
+            />
           </div>
         </div>
-      </div>
+      </header>
+      <main className="h-screen pt-16">
+        <MindmapHub />
+      </main>
     </div>
   );
 };

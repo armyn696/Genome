@@ -1,3 +1,9 @@
+import Background from "@/components/Background";
+import QuizHub from "@/components/quiz/QuizHub";
+import { StudyHubSidebar } from "@/components/studyhub/StudyHubSidebar";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 interface Resource {
   id: string;
   name: string;
@@ -6,32 +12,65 @@ interface Resource {
   uploadDate: string;
 }
 
-interface QuizPageProps {
-  resources: Resource[];
-  onResourceAdd: (newResource: Resource) => void;
-  onResourceDelete: (resourceId: string) => void;
-}
+const QuizPage = () => {
+  const [resources, setResources] = useState<Resource[]>([]);
+  const navigate = useNavigate();
 
-const QuizPage = ({ resources, onResourceAdd, onResourceDelete }: QuizPageProps) => {
+  const handleResourceAdd = (newResource: Resource) => {
+    setResources(prev => [...prev, newResource]);
+  };
+
+  const handleResourceSelect = (resource: Resource) => {
+    // Handle resource selection if needed
+  };
+
+  const handleViewChange = (view: 'home' | 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame') => {
+    switch (view) {
+      case 'home':
+        navigate('/studyhub');
+        break;
+      case 'chat':
+        navigate('/studyhub/chat');
+        break;
+      case 'flashcards':
+        navigate('/studyhub/flashcards');
+        break;
+      case 'mindmap':
+        navigate('/studyhub/mindmap');
+        break;
+      case 'matchgame':
+        navigate('/studyhub/matchgame');
+        break;
+      default:
+        // For other views, stay on the current page
+        break;
+    }
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Quiz</h1>
-          <p className="text-muted-foreground">
-            Test your knowledge with interactive quizzes
-          </p>
+    <div className="min-h-screen bg-background">
+      <Background />
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border h-16">
+        <div className="container mx-auto px-4 h-full flex items-center justify-between">
+          <StudyHubSidebar
+            resources={resources}
+            onResourceAdd={handleResourceAdd}
+            onResourceSelect={handleResourceSelect}
+            onViewChange={handleViewChange}
+          />
+          <div className="flex items-center gap-2">
+            <img 
+              src="/lovable-uploads/91f667b0-83b5-4bfe-9318-d58898e35220.png" 
+              alt="Logo" 
+              className="h-12 w-auto cursor-pointer"
+              onClick={() => navigate('/studyhub')}
+            />
+          </div>
         </div>
-      </div>
-
-      <div className="grid gap-6">
-        <div className="rounded-lg border bg-card p-8 text-center">
-          <h3 className="text-xl font-semibold mb-2">Coming Soon</h3>
-          <p className="text-muted-foreground mb-4">
-            Quiz feature is under development
-          </p>
-        </div>
-      </div>
+      </header>
+      <main className="h-screen pt-16">
+        <QuizHub />
+      </main>
     </div>
   );
 };
