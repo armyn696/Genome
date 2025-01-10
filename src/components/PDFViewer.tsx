@@ -3,7 +3,6 @@ import { retrievePdf } from '@/utils/pdfStorage';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PDFViewerControls } from './pdf/PDFViewerControls';
 import * as pdfjsLib from 'pdfjs-dist';
-import { TextLayerBuilder } from 'pdfjs-dist/web/pdf_viewer.mjs';
 
 interface PDFViewerProps {
   resourceId: string;
@@ -89,13 +88,13 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
 
         // Get text content and render text layer
         const textContent = await page.getTextContent();
-        const textLayer = new TextLayerBuilder({
-          textLayerDiv: textLayerDiv,
-          pageIndex: page.pageNumber - 1,
+        const textLayer = new pdfjsLib.TextLayerBuilder({
+          textContentSource: textContent,
+          container: textLayerDiv,
           viewport: viewport,
+          textDivs: []
         });
         
-        textLayer.setTextContent(textContent);
         textLayer.render();
       }
     };
