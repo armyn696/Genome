@@ -3,7 +3,7 @@ import { retrievePdf } from '@/utils/pdfStorage';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PDFViewerControls } from './pdf/PDFViewerControls';
 import * as pdfjsLib from 'pdfjs-dist';
-import { TextLayerBuilder } from 'pdfjs-dist/web/pdf_viewer';
+import { TextLayerBuilder } from 'pdfjs-dist/web/pdf_viewer.mjs';
 
 interface PDFViewerProps {
   resourceId: string;
