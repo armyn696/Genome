@@ -16,7 +16,6 @@ export const PDFDrawingCanvas = ({
   const [fabricCanvas, setFabricCanvas] = useState<FabricCanvas | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastPathRef = useRef<any>(null);
-  const currentPageRef = useRef<string>(pageUrl);
 
   useEffect(() => {
     if (!canvasRef.current || !containerRef.current) return;
@@ -53,23 +52,22 @@ export const PDFDrawingCanvas = ({
 
       // Handle mouse up event
       const handleMouseUp = () => {
-        if (isDrawingMode && lastPathRef.current) {
-          // Get the path that was just drawn
-          const path = lastPathRef.current;
+        if (isDrawingMode && lastPathRef.current && onSelectionComplete) {
+          // Capture the entire canvas with both the PDF and drawing
+          const dataUrl = canvas.toDataURL({
+            format: 'png',
+            quality: 1
+          });
           
-          // If there's a selection handler, call it with both the drawn area and current page info
-          if (onSelectionComplete) {
-            const pageNumber = currentPageRef.current;
-            onSelectionComplete(`User selected an area on page ${pageNumber} using the magic wand tool. Please analyze this section and provide relevant information.`);
-          }
-
+          // Send both the image and drawing to the AI
+          onSelectionComplete(dataUrl);
+          
           // Remove the path after a short delay
           setTimeout(() => {
-            canvas.remove(path);
+            canvas.remove(lastPathRef.current);
             canvas.renderAll();
           }, 100);
 
-          // Clear the last path reference
           lastPathRef.current = null;
         }
       };
@@ -115,14 +113,11 @@ export const PDFDrawingCanvas = ({
     // Initialize canvas and store cleanup function
     const cleanup = initCanvas();
 
-    // Update current page reference
-    currentPageRef.current = pageUrl;
-
     // Cleanup function for useEffect
     return () => {
       cleanup.then(cleanupFn => cleanupFn?.());
     };
-  }, [pageUrl]); // Only reinitialize when pageUrl changes
+  }, [pageUrl, isDrawingMode]); // Reinitialize when pageUrl or isDrawingMode changes
 
   // Update drawing mode when isDrawingMode changes
   useEffect(() => {
