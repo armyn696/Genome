@@ -52,8 +52,7 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
       // Load and set background image
       FabricImage.fromURL(pageUrl, {
         crossOrigin: 'anonymous',
-        scaleX: canvasWidth / img.width,
-        scaleY: canvasHeight / img.height,
+        scale: canvasWidth / img.width,
       }).then((imgInstance) => {
         if (!imgInstance) return;
         canvas.backgroundImage = imgInstance;
