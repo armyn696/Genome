@@ -57,18 +57,16 @@ export const PDFDrawingCanvas = ({
           const dataUrl = canvas.toDataURL({
             format: 'png',
             quality: 1,
-            multiplier: 1
+            multiplier: 1,
+            enableRetinaScaling: false
           });
           
           // Send both the image and drawing to the AI
           onSelectionComplete(dataUrl);
           
-          // Remove the path after a short delay
-          setTimeout(() => {
-            canvas.remove(lastPathRef.current);
-            canvas.renderAll();
-          }, 100);
-
+          // Remove the path immediately after capturing
+          canvas.remove(lastPathRef.current);
+          canvas.renderAll();
           lastPathRef.current = null;
         }
       };
