@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { FileText, MessageSquare, BookOpen, LayoutPanelLeft, Wand2 } from "lucide-react";
+import { FileText, MessageSquare, BookOpen, LayoutPanelLeft } from "lucide-react";
 
 interface PDFViewerNavProps {
   currentView: 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame';
@@ -44,14 +44,6 @@ export const PDFViewerNav = ({ currentView, onViewChange }: PDFViewerNavProps) =
       >
         <LayoutPanelLeft className="h-4 w-4" />
         Dual View
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="gap-2"
-      >
-        <Wand2 className="h-4 w-4" />
-        Magic
       </Button>
     </div>
   );
