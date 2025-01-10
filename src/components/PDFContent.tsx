@@ -30,7 +30,7 @@ export const PDFContent = ({ currentView, resourceId }: PDFContentProps) => {
     // Simulate AI response
     setTimeout(() => {
       const aiMessage = {
-        text: "I've received your message. How can I help you understand this part better?",
+        text: "I've received your selection. How can I help you understand this part better?",
         sender: 'ai' as const
       };
       setMessages(prev => [...prev, aiMessage]);

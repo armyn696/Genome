@@ -5,14 +5,12 @@ interface PDFDrawingCanvasProps {
   pageUrl: string;
   isDrawingMode: boolean;
   onSelectionComplete?: (selection: string) => void;
-  setMessage?: (message: string) => void;
 }
 
 export const PDFDrawingCanvas = ({ 
   pageUrl, 
   isDrawingMode,
-  onSelectionComplete,
-  setMessage 
+  onSelectionComplete 
 }: PDFDrawingCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fabricCanvas, setFabricCanvas] = useState<FabricCanvas | null>(null);
@@ -20,17 +18,17 @@ export const PDFDrawingCanvas = ({
   const lastPathRef = useRef<any>(null);
 
   useEffect(() => {
-    if (!canvasRef.current || !containerRef.current) return;
-
-    // Get container dimensions
-    const container = containerRef.current;
-    const containerWidth = container.clientWidth;
-
-    // Create a temporary image to get dimensions
-    const img = new Image();
-    img.src = pageUrl;
-    
     const initCanvas = async () => {
+      if (!canvasRef.current || !containerRef.current) return;
+
+      // Get container dimensions
+      const container = containerRef.current;
+      const containerWidth = container.clientWidth;
+
+      // Create a temporary image to get dimensions
+      const img = new Image();
+      img.src = pageUrl;
+      
       await new Promise((resolve) => {
         img.onload = resolve;
       });
@@ -53,75 +51,65 @@ export const PDFDrawingCanvas = ({
       canvas.freeDrawingBrush.width = 2;
 
       // Handle mouse up event
-      const handleMouseUp = () => {
-        if (isDrawingMode && lastPathRef.current && setMessage) {
-          // Capture the entire canvas with both the PDF and drawing
-          const dataUrl = canvas.toDataURL({
-            format: 'png',
-            quality: 1,
-            multiplier: 1,
-            enableRetinaScaling: false
-          });
+      canvas.on('mouse:up', () => {
+        if (isDrawingMode && lastPathRef.current) {
+          // Get the path that was just drawn
+          const path = lastPathRef.current;
           
-          // Add the image to the draft message
-          if (setMessage) {
-            const newMessage = `[Drawn Image: ${dataUrl}]`;
-            setMessage(newMessage);
+          // If there's a selection handler, call it
+          if (onSelectionComplete) {
+            onSelectionComplete("Selection from PDF");
           }
-          
-          // Remove the path immediately after capturing
-          canvas.remove(lastPathRef.current);
-          canvas.renderAll();
+
+          // Remove the path after a short delay
+          setTimeout(() => {
+            canvas.remove(path);
+            canvas.renderAll();
+          }, 100);
+
+          // Clear the last path reference
           lastPathRef.current = null;
         }
-      };
+      });
 
       // Track the last path that was drawn
-      const handlePathCreated = (e: any) => {
+      canvas.on('path:created', (e: any) => {
         lastPathRef.current = e.path;
-      };
-
-      canvas.on('mouse:up', handleMouseUp);
-      canvas.on('path:created', handlePathCreated);
+      });
 
       // Set background color
       canvas.backgroundColor = 'white';
       canvas.renderAll();
       
-      // Load and set background image
+      // Load and set background image using Fabric.js v6 API
       FabricImage.fromURL(pageUrl, {
         crossOrigin: 'anonymous',
       }).then((imgInstance) => {
-        if (!imgInstance || !canvas) return;
+        if (!imgInstance) return;
         
         // Calculate and set the scale
         const scale = canvasWidth / img.width;
         imgInstance.scaleX = scale;
         imgInstance.scaleY = scale;
         
+        // Set the background image using the new API
         canvas.backgroundImage = imgInstance;
         canvas.renderAll();
       });
 
       setFabricCanvas(canvas);
-
-      // Return cleanup function
-      return () => {
-        canvas.off('mouse:up', handleMouseUp);
-        canvas.off('path:created', handlePathCreated);
-        canvas.dispose();
-        setFabricCanvas(null);
-      };
     };
 
-    // Initialize canvas and store cleanup function
-    const cleanup = initCanvas();
+    // Initialize canvas
+    initCanvas();
 
-    // Cleanup function for useEffect
+    // Cleanup
     return () => {
-      cleanup.then(cleanupFn => cleanupFn?.());
+      if (fabricCanvas) {
+        fabricCanvas.dispose();
+      }
     };
-  }, [pageUrl, isDrawingMode, setMessage]); 
+  }, [pageUrl]);
 
   // Update drawing mode when isDrawingMode changes
   useEffect(() => {
