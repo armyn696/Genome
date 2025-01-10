@@ -35,8 +35,16 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
         const scale = parentWidth / img.width!;
         img.scale(scale);
         
-        // Center the image
-        img.center();
+        // Manually center the image
+        const canvasCenter = {
+          x: fabricRef.current.width! / 2,
+          y: fabricRef.current.height! / 2
+        };
+        
+        img.set({
+          left: canvasCenter.x - (img.width! * scale) / 2,
+          top: canvasCenter.y - (img.height! * scale) / 2
+        });
         
         fabricRef.current.backgroundImage = img;
         fabricRef.current.renderAll();
