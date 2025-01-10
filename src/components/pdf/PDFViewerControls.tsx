@@ -9,6 +9,8 @@ interface PDFViewerControlsProps {
   onZoomOut: () => void;
   onResetZoom: () => void;
   onPageChange: (page: number) => void;
+  isDrawingMode: boolean;
+  onToggleDrawing: () => void;
 }
 
 export const PDFViewerControls = ({
@@ -19,6 +21,8 @@ export const PDFViewerControls = ({
   onZoomOut,
   onResetZoom,
   onPageChange,
+  isDrawingMode,
+  onToggleDrawing,
 }: PDFViewerControlsProps) => {
   return (
     <div className="sticky top-0 z-50 flex items-center justify-between gap-2 bg-background/80 backdrop-blur-sm border-b p-2">
@@ -84,13 +88,14 @@ export const PDFViewerControls = ({
         </Button>
 
         <Button
-          variant="ghost"
+          variant={isDrawingMode ? "default" : "ghost"}
           size="icon"
           className="h-8 w-8"
-          title="Magic Wand"
+          onClick={onToggleDrawing}
+          title="Drawing Mode"
         >
           <Wand className="h-4 w-4" />
-          <span className="sr-only">Magic Wand</span>
+          <span className="sr-only">Drawing Mode</span>
         </Button>
       </div>
 
