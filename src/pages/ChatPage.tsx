@@ -3,6 +3,7 @@ import Background from "@/components/Background";
 import { EnhancedChatInterface } from "@/components/EnhancedChatInterface";
 import { useNavigate } from "react-router-dom";
 import { useResources } from "@/hooks/useResources";
+import { Resource } from "@/types";
 
 const ChatPage = () => {
   const { resources, addResource } = useResources();

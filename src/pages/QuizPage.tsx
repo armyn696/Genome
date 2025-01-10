@@ -3,6 +3,7 @@ import QuizHub from "@/components/quiz/QuizHub";
 import { StudyHubSidebar } from "@/components/studyhub/StudyHubSidebar";
 import { useNavigate } from "react-router-dom";
 import { useResources } from "@/hooks/useResources";
+import { Resource } from "@/types";
 
 const QuizPage = () => {
   const { resources, addResource } = useResources();
