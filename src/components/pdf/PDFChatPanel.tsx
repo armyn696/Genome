@@ -38,7 +38,11 @@ export const PDFChatPanel = ({
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4 flex flex-col">
           {messages.map((msg, index) => (
-            <ChatMessage key={index} message={msg} />
+            <ChatMessage 
+              key={index} 
+              text={msg.text}
+              sender={msg.sender}
+            />
           ))}
           <div ref={messagesEndRef} />
         </div>
@@ -47,9 +51,7 @@ export const PDFChatPanel = ({
 
       <div className="border-t p-2">
         <ChatInput
-          message={message}
-          setMessage={setMessage}
-          handleSendMessage={handleSendMessage}
+          onSendMessage={handleSendMessage}
         />
       </div>
     </div>
