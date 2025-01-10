@@ -61,7 +61,8 @@ export const PDFViewer = ({ resourceId, onSendAnnotation }: PDFViewerProps) => {
       
       const dataUrl = canvas.toDataURL({
         format: 'png',
-        quality: 1
+        quality: 1,
+        multiplier: 1 // Added the required multiplier property
       });
 
       if (onSendAnnotation) {
