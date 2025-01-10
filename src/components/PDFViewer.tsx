@@ -14,7 +14,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
-  const [pdfPages, setPdfPages] = useState<HTMLCanvasElement[]>([]);
+  const [pages, setPages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
         }
 
         const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
-        const pages: HTMLCanvasElement[] = [];
+        const pagesArray: string[] = [];
 
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
@@ -48,10 +48,10 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
             viewport: viewport
           }).promise;
           
-          pages.push(canvas);
+          pagesArray.push(canvas.toDataURL());
         }
 
-        setPdfPages(pages);
+        setPages(pagesArray);
         setLoading(false);
       } catch (error) {
         console.error('Error loading PDF:', error);
@@ -73,14 +73,18 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   return (
     <ScrollArea className="h-full bg-black">
       <div className="flex flex-col items-center gap-4 p-4">
-        {pdfPages.map((canvas, index) => (
+        {pages.map((pageUrl, index) => (
           <div 
             key={index}
             className="w-full flex justify-center"
-            dangerouslySetInnerHTML={{ 
-              __html: canvas.outerHTML 
-            }}
-          />
+          >
+            <img 
+              src={pageUrl} 
+              alt={`Page ${index + 1}`}
+              className="max-w-full h-auto"
+              loading="lazy"
+            />
+          </div>
         ))}
       </div>
     </ScrollArea>
