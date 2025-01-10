@@ -56,7 +56,8 @@ export const PDFDrawingCanvas = ({
           // Capture the entire canvas with both the PDF and drawing
           const dataUrl = canvas.toDataURL({
             format: 'png',
-            quality: 1
+            quality: 1,
+            multiplier: 1
           });
           
           // Send both the image and drawing to the AI
