@@ -79,7 +79,7 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col h-full">
       <PDFViewerControls
         zoom={zoom}
         currentPage={currentPage}
@@ -89,8 +89,8 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
         onResetZoom={handleResetZoom}
         onPageChange={handlePageChange}
       />
-      <ScrollArea className="flex-1">
-        <div className="flex flex-col items-center gap-4 p-4">
+      <ScrollArea className="flex-1 relative">
+        <div className="flex flex-col items-center gap-4 p-4 min-h-full">
           {pages.map((pageUrl, index) => (
             <div 
               key={index}
@@ -98,13 +98,20 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
               style={{
                 transform: `scale(${zoom / 100})`,
                 transformOrigin: 'top center',
-                transition: 'transform 0.2s ease-in-out'
+                transition: 'transform 0.2s ease-in-out',
+                width: '100%',
+                height: 'auto'
               }}
             >
               <img 
                 src={pageUrl} 
                 alt={`Page ${index + 1}`}
                 className="max-w-full h-auto shadow-lg rounded-lg"
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  objectFit: 'contain'
+                }}
                 loading="lazy"
               />
             </div>

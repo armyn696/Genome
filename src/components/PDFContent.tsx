@@ -40,19 +40,34 @@ export const PDFContent = ({ currentView, resourceId }: PDFContentProps) => {
       return (
         <div className="h-[calc(100vh-7rem)] flex flex-col">
           <PDFChatHeader />
-          <div className="flex-1">
-            <ResizablePanelGroup direction="horizontal">
-              <ResizablePanel defaultSize={50}>
-                <PDFViewer resourceId={resourceId} />
+          <div className="flex-1 overflow-hidden">
+            <ResizablePanelGroup 
+              direction="horizontal" 
+              className="h-full rounded-lg"
+            >
+              <ResizablePanel 
+                defaultSize={50} 
+                minSize={30}
+                className="h-full"
+              >
+                <div className="h-full overflow-hidden">
+                  <PDFViewer resourceId={resourceId} />
+                </div>
               </ResizablePanel>
               <ResizableHandle withHandle />
-              <ResizablePanel defaultSize={50}>
-                <PDFChatPanel
-                  messages={messages}
-                  message={message}
-                  setMessage={setMessage}
-                  handleSendMessage={handleSendMessage}
-                />
+              <ResizablePanel 
+                defaultSize={50} 
+                minSize={30}
+                className="h-full"
+              >
+                <div className="h-full overflow-hidden">
+                  <PDFChatPanel
+                    messages={messages}
+                    message={message}
+                    setMessage={setMessage}
+                    handleSendMessage={handleSendMessage}
+                  />
+                </div>
               </ResizablePanel>
             </ResizablePanelGroup>
           </div>
