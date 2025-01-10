@@ -14,13 +14,11 @@ export const PDFContent = ({ currentView, resourceId }: PDFContentProps) => {
   const [messages, setMessages] = useState<{ text: string; sender: 'user' | 'ai' }[]>([]);
   const [message, setMessage] = useState('');
 
-  const handleSendMessage = (text?: string) => {
-    if (!text?.trim() && !message.trim()) return;
-
-    const messageText = text || message;
+  const handleSendMessage = () => {
+    if (!message.trim()) return;
 
     const userMessage = {
-      text: messageText,
+      text: message,
       sender: 'user' as const
     };
 
@@ -30,15 +28,11 @@ export const PDFContent = ({ currentView, resourceId }: PDFContentProps) => {
     // Simulate AI response
     setTimeout(() => {
       const aiMessage = {
-        text: "I've received your selection. How can I help you understand this part better?",
+        text: "I'm here to help you understand the PDF content. What would you like to know?",
         sender: 'ai' as const
       };
       setMessages(prev => [...prev, aiMessage]);
     }, 1000);
-  };
-
-  const handleSelectionComplete = (selection: string) => {
-    handleSendMessage(`Selected text from PDF: ${selection}`);
   };
 
   switch (currentView) {
@@ -56,11 +50,8 @@ export const PDFContent = ({ currentView, resourceId }: PDFContentProps) => {
                 minSize={30}
                 className="h-full"
               >
-                <div className="h-full w-full">
-                  <PDFViewer 
-                    resourceId={resourceId} 
-                    onSelectionComplete={handleSelectionComplete}
-                  />
+                <div className="h-full overflow-hidden">
+                  <PDFViewer resourceId={resourceId} />
                 </div>
               </ResizablePanel>
               <ResizableHandle withHandle />
@@ -69,7 +60,7 @@ export const PDFContent = ({ currentView, resourceId }: PDFContentProps) => {
                 minSize={30}
                 className="h-full"
               >
-                <div className="h-full w-full">
+                <div className="h-full overflow-hidden">
                   <PDFChatPanel
                     messages={messages}
                     message={message}
