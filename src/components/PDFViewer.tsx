@@ -9,6 +9,7 @@ interface PDFViewerProps {
 export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
+  const [isMouseOverPDF, setIsMouseOverPDF] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -40,6 +41,8 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   }, []);
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isMouseOverPDF) return;
+    
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -54,7 +57,7 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || !contextRef.current) return;
+    if (!isDrawing || !contextRef.current || !isMouseOverPDF) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -75,6 +78,15 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
     setIsDrawing(false);
   };
 
+  const handleMouseEnterPDF = () => {
+    setIsMouseOverPDF(true);
+  };
+
+  const handleMouseLeavePDF = () => {
+    setIsMouseOverPDF(false);
+    stopDrawing();
+  };
+
   if (!pdfUrl) {
     return (
       <div className="flex items-center justify-center h-full bg-black">
@@ -85,7 +97,11 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
 
   return (
     <ScrollArea className="h-full bg-black">
-      <div className="relative">
+      <div 
+        className="relative"
+        onMouseEnter={handleMouseEnterPDF}
+        onMouseLeave={handleMouseLeavePDF}
+      >
         <iframe
           src={pdfUrl}
           className="w-full h-full"
@@ -94,12 +110,12 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
         />
         <canvas
           ref={canvasRef}
-          className="absolute inset-0 cursor-crosshair"
+          className={`absolute inset-0 ${isMouseOverPDF ? 'cursor-crosshair' : ''}`}
           onMouseDown={startDrawing}
           onMouseMove={draw}
           onMouseUp={stopDrawing}
           onMouseLeave={stopDrawing}
-          style={{ width: '100%', height: '100%' }}
+          style={{ width: '100%', height: '100%', pointerEvents: isMouseOverPDF ? 'auto' : 'none' }}
         />
       </div>
     </ScrollArea>
