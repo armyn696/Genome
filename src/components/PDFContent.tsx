@@ -54,9 +54,9 @@ export const PDFContent = ({ currentView, resourceId }: PDFContentProps) => {
               <ResizablePanel 
                 defaultSize={50} 
                 minSize={30}
-                className="h-full relative"
+                className="h-full"
               >
-                <div className="absolute inset-0 overflow-hidden">
+                <div className="h-full w-full relative">
                   <PDFViewer 
                     resourceId={resourceId} 
                     onSelectionComplete={handleSelectionComplete}
@@ -69,7 +69,7 @@ export const PDFContent = ({ currentView, resourceId }: PDFContentProps) => {
                 minSize={30}
                 className="h-full"
               >
-                <div className="h-full overflow-hidden">
+                <div className="h-full w-full">
                   <PDFChatPanel
                     messages={messages}
                     message={message}
