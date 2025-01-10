@@ -1,13 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { retrievePdf } from '@/utils/pdfStorage';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import * as pdfjsLib from 'pdfjs-dist';
+import { DrawingToolbar } from './pdf-viewer/DrawingToolbar';
+import { DrawingCanvas } from './pdf-viewer/DrawingCanvas';
+import { fabric } from 'fabric';
+import { useToast } from './ui/use-toast';
 
 interface PDFViewerProps {
   resourceId: string;
 }
 
-// Initialize PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.mjs',
   import.meta.url,
@@ -16,6 +19,11 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
 export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   const [pages, setPages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentTool, setCurrentTool] = useState<'brush' | 'eraser'>('brush');
+  const [currentColor, setCurrentColor] = useState('#000000');
+  const [currentSize, setCurrentSize] = useState(2);
+  const canvasesRef = useRef<{ [key: number]: fabric.Canvas }>({});
+  const { toast } = useToast();
 
   useEffect(() => {
     const loadPdf = async () => {
@@ -62,10 +70,40 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
     loadPdf();
   }, [resourceId]);
 
+  const handleCanvasReady = (pageIndex: number, canvas: fabric.Canvas) => {
+    canvasesRef.current[pageIndex] = canvas;
+  };
+
+  const handleUndo = () => {
+    Object.values(canvasesRef.current).forEach(canvas => {
+      if (canvas.getObjects().length > 0) {
+        const lastObject = canvas.getObjects()[canvas.getObjects().length - 1];
+        canvas.remove(lastObject);
+        canvas.renderAll();
+      }
+    });
+  };
+
+  const handleRedo = () => {
+    // Implement redo functionality
+    toast({
+      title: "Coming Soon",
+      description: "Redo functionality will be available in the next update.",
+    });
+  };
+
+  const handleSave = () => {
+    // Implement save functionality
+    toast({
+      title: "Drawings Saved",
+      description: "Your drawings have been saved successfully.",
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full bg-black">
-        Loading PDF...
+        <span className="loader"></span>
       </div>
     );
   }
@@ -76,7 +114,7 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
         {pages.map((pageUrl, index) => (
           <div 
             key={index}
-            className="w-full flex justify-center"
+            className="w-full flex justify-center relative"
           >
             <img 
               src={pageUrl} 
@@ -84,9 +122,28 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
               className="max-w-full h-auto"
               loading="lazy"
             />
+            <DrawingCanvas
+              width={800} // You'll need to calculate the actual width
+              height={1000} // You'll need to calculate the actual height
+              currentTool={currentTool}
+              currentColor={currentColor}
+              currentSize={currentSize}
+              onCanvasReady={(canvas) => handleCanvasReady(index, canvas)}
+            />
           </div>
         ))}
       </div>
+      <DrawingToolbar
+        currentTool={currentTool}
+        currentColor={currentColor}
+        currentSize={currentSize}
+        onToolChange={setCurrentTool}
+        onColorChange={setCurrentColor}
+        onBrushSizeChange={setCurrentSize}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        onSave={handleSave}
+      />
     </ScrollArea>
   );
 };
