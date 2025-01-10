@@ -13,7 +13,16 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    const canvas = new Canvas(canvasRef.current);
+    // Get the parent container width
+    const parentWidth = canvasRef.current.parentElement?.clientWidth || 800;
+    
+    // Create canvas with parent width
+    const canvas = new Canvas(canvasRef.current, {
+      width: parentWidth,
+      height: parentWidth * 1.414, // Approximate A4 ratio
+      backgroundColor: '#ffffff'
+    });
+    
     canvas.isDrawingMode = isDrawingMode;
     fabricRef.current = canvas;
 
@@ -22,7 +31,13 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
       crossOrigin: 'anonymous'
     }).then((img) => {
       if (fabricRef.current) {
-        img.scaleToWidth(canvas.width || 800);
+        // Calculate scale to fit width while maintaining aspect ratio
+        const scale = parentWidth / img.width!;
+        img.scale(scale);
+        
+        // Center the image
+        img.center();
+        
         fabricRef.current.backgroundImage = img;
         fabricRef.current.renderAll();
       }
@@ -44,7 +59,6 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
     <canvas 
       ref={canvasRef} 
       className="w-full h-auto"
-      style={{ maxWidth: '100%' }}
     />
   );
 };
