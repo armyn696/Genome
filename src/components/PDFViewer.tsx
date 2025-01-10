@@ -70,6 +70,7 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   }, [pages]);
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>, index: number) => {
+    e.preventDefault(); // Prevent default drag behavior
     const canvas = canvasRefs.current[index];
     if (!canvas) return;
 
@@ -90,6 +91,7 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement>, index: number) => {
+    e.preventDefault(); // Prevent default drag behavior
     if (!isDrawing) return;
     
     const context = contextRefs.current[index];
@@ -103,7 +105,8 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
     context.stroke();
   };
 
-  const stopDrawing = () => {
+  const stopDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    e.preventDefault(); // Prevent default drag behavior
     setIsDrawing(false);
   };
 
@@ -128,6 +131,7 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
               alt={`Page ${index + 1}`}
               className="max-w-full h-auto absolute"
               loading="lazy"
+              draggable="false"
             />
             <canvas
               ref={el => {
@@ -146,6 +150,7 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
               onMouseMove={(e) => draw(e, index)}
               onMouseUp={stopDrawing}
               onMouseLeave={stopDrawing}
+              style={{ touchAction: 'none' }}
             />
           </div>
         ))}
