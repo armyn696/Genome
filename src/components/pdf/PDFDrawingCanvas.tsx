@@ -80,14 +80,17 @@ export const PDFDrawingCanvas = ({
 
       // Load and set background image
       FabricImage.fromURL(pageUrl, {
-        crossOrigin: 'anonymous',
-        scaleX: canvasWidth / img.width,
-        scaleY: canvasWidth / img.width,
+        crossOrigin: 'anonymous'
       }).then((imgInstance) => {
         if (!imgInstance) return;
         
-        // Set the background image
-        canvas.setBackgroundImage(imgInstance, canvas.renderAll.bind(canvas));
+        // Calculate and set the scale
+        const scale = canvasWidth / img.width;
+        imgInstance.scaleX = scale;
+        imgInstance.scaleY = scale;
+        
+        // Set the background image using the new API
+        canvas.backgroundImage = imgInstance;
         canvas.renderAll();
       });
 
