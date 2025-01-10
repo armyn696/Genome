@@ -1,6 +1,5 @@
-import { StudyHubSidebar } from "@/components/studyhub/StudyHubSidebar";
 import Background from "@/components/Background";
-import { EnhancedChatInterface } from "@/components/EnhancedChatInterface";
+import { StudyHubSidebar } from "@/components/studyhub/StudyHubSidebar";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -12,16 +11,17 @@ interface Resource {
   uploadDate: string;
 }
 
-const ChatPage = () => {
-  const [resources, setResources] = useState<Resource[]>([]);
+interface ChatPageProps {
+  resources: Resource[];
+  onResourceAdd: (resource: Resource) => void;
+  onResourceDelete: (resourceId: string) => void;
+}
+
+const ChatPage = ({ resources, onResourceAdd, onResourceDelete }: ChatPageProps) => {
   const navigate = useNavigate();
 
-  const handleResourceAdd = (newResource: Resource) => {
-    setResources(prev => [...prev, newResource]);
-  };
-
   const handleResourceSelect = (resource: Resource) => {
-    // Handle resource selection
+    // Handle resource selection if needed
   };
 
   const handleViewChange = (view: 'home' | 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame') => {
@@ -30,16 +30,16 @@ const ChatPage = () => {
         navigate('/studyhub');
         break;
       case 'quiz':
-        navigate('/studyhub', { state: { view: 'quiz' } });
+        navigate('/studyhub/quiz');
         break;
       case 'flashcards':
-        navigate('/studyhub', { state: { view: 'flashcards' } });
+        navigate('/studyhub/flashcards');
         break;
       case 'mindmap':
-        navigate('/studyhub', { state: { view: 'mindmap' } });
+        navigate('/studyhub/mindmap');
         break;
       case 'matchgame':
-        navigate('/studyhub', { state: { view: 'matchgame' } });
+        navigate('/studyhub/matchgame');
         break;
       default:
         // For other views, stay on the current page
@@ -54,7 +54,7 @@ const ChatPage = () => {
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
           <StudyHubSidebar
             resources={resources}
-            onResourceAdd={handleResourceAdd}
+            onResourceAdd={onResourceAdd}
             onResourceSelect={handleResourceSelect}
             onViewChange={handleViewChange}
           />
@@ -69,9 +69,7 @@ const ChatPage = () => {
         </div>
       </header>
       <main className="h-screen pt-16">
-        <div className="container mx-auto h-full">
-          <EnhancedChatInterface resources={resources} />
-        </div>
+        {/* Add your chat interface components here */}
       </main>
     </div>
   );
