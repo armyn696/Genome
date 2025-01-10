@@ -19,12 +19,4 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  build: {
-    rollupOptions: {
-      external: [
-        'pdfjs-dist/build/pdf.worker.entry',
-        'pdfjs-dist/lib/web/text_layer_builder'
-      ]
-    }
-  }
 }));
