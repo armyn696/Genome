@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Canvas as FabricCanvas } from "fabric";
+import { Canvas as FabricCanvas, Image as FabricImage } from "fabric";
 
 interface PDFDrawingCanvasProps {
   pageUrl: string;
@@ -45,11 +45,12 @@ export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasPro
         canvas.freeDrawingBrush.width = 2;
       }
 
-      // Set background image
-      canvas.setBackgroundColor('white', canvas.renderAll.bind(canvas));
+      // Set background color
+      canvas.backgroundColor = 'white';
+      canvas.renderAll();
       
       // Load and set background image
-      fabric.Image.fromURL(pageUrl, (imgInstance) => {
+      FabricImage.fromURL(pageUrl, (imgInstance) => {
         if (!imgInstance) return;
         
         canvas.backgroundImage = imgInstance;
