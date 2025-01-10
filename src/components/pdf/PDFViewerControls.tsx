@@ -23,7 +23,7 @@ export const PDFViewerControls: React.FC<PDFViewerControlsProps> = ({
   onPageChange,
 }) => {
   return (
-    <div className="flex items-center justify-between p-2 bg-background border-b">
+    <div className="flex items-center justify-between p-2 bg-background border-b z-50 relative shadow-md">
       <div className="flex items-center gap-2">
         <Button 
           variant="outline" 

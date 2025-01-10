@@ -8,7 +8,6 @@ interface PDFViewerProps {
   resourceId: string;
 }
 
-// Initialize PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.mjs',
   import.meta.url,
@@ -36,7 +35,8 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
 
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale: 1.5 });
+          const scale = 1.5;  // Base scale for initial render
+          const viewport = page.getViewport({ scale });
           
           const canvas = document.createElement('canvas');
           const context = canvas.getContext('2d');
@@ -96,8 +96,9 @@ export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
               key={index}
               className="w-full flex justify-center"
               style={{
-                maxWidth: `${zoom}%`,
-                transition: 'max-width 0.2s ease-in-out'
+                transform: `scale(${zoom / 100})`,
+                transformOrigin: 'top center',
+                transition: 'transform 0.2s ease-in-out'
               }}
             >
               <img 
