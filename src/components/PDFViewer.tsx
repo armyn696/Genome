@@ -50,7 +50,8 @@ export const PDFViewer = ({ resourceId, onSendAnnotation }: PDFViewerProps) => {
     });
 
     // Initialize the drawing brush
-    canvas.freeDrawingBrush = new PencilBrush(canvas);
+    const brush = new PencilBrush(canvas);
+    canvas.freeDrawingBrush = brush;
     canvas.freeDrawingBrush.color = 'red';
     canvas.freeDrawingBrush.width = 2;
 
@@ -63,7 +64,7 @@ export const PDFViewer = ({ resourceId, onSendAnnotation }: PDFViewerProps) => {
       const dataUrl = canvas.toDataURL({
         format: 'png',
         quality: 1,
-        multiplier: 1 // Added the required multiplier property
+        multiplier: 1
       });
 
       if (onSendAnnotation) {
