@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { fabric } from "fabric";
+import { Canvas as FabricCanvas, Image } from "fabric";
 
 interface PDFDrawingCanvasProps {
   pageUrl: string;
@@ -8,21 +8,22 @@ interface PDFDrawingCanvasProps {
 
 export const PDFDrawingCanvas = ({ pageUrl, isDrawingMode }: PDFDrawingCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [fabricCanvas, setFabricCanvas] = useState<fabric.Canvas | null>(null);
+  const [fabricCanvas, setFabricCanvas] = useState<FabricCanvas | null>(null);
 
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    const canvas = new fabric.Canvas(canvasRef.current, {
+    const canvas = new FabricCanvas(canvasRef.current, {
       isDrawingMode: isDrawingMode,
       width: 800,
       height: 600,
     });
 
-    fabric.Image.fromURL(pageUrl, (img) => {
+    Image.fromURL(pageUrl, (img) => {
+      if (!img) return;
       canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-        scaleX: canvas.width! / img.width!,
-        scaleY: canvas.height! / img.height!,
+        scaleX: canvas.getWidth() / img.width!,
+        scaleY: canvas.getHeight() / img.height!,
       });
     });
 
