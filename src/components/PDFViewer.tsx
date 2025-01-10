@@ -2,10 +2,14 @@ import { useEffect, useState } from 'react';
 import { retrievePdf } from '@/utils/pdfStorage';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import * as pdfjsLib from 'pdfjs-dist';
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
 
 interface PDFViewerProps {
   resourceId: string;
 }
+
+// Initialize PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 export const PDFViewer = ({ resourceId }: PDFViewerProps) => {
   const [pdfPages, setPdfPages] = useState<HTMLCanvasElement[]>([]);
