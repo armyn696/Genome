@@ -1,0 +1,19 @@
+/* اسکرول‌بار سفارشی */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(113, 113, 122);
+  border-radius: 20px;
+}
+
+/* غیرفعال کردن resize */
+* {
+  resize: none !important;
+}

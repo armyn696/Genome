@@ -2,14 +2,8 @@ import { useState } from "react";
 import { Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { storePdf } from "@/utils/pdfStorage";
-
-interface Resource {
-  id: string;
-  name: string;
-  type: string;
-  size: string;
-  uploadDate: string;
-}
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Resource } from "@/types";
 
 interface ResourceUploaderProps {
   onResourceAdd: (resource: Resource) => void;
@@ -20,6 +14,7 @@ const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB limit
 const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
   const { toast } = useToast();
   const [isDragging, setIsDragging] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
 
   const handleFileUpload = async (file: File) => {
     console.log("Handling file upload:", file.name);
@@ -29,8 +24,8 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
     if (file.type !== 'application/pdf') {
       toast({
         variant: "destructive",
-        title: "Invalid file type",
-        description: "Please upload a PDF file"
+        title: "نوع فایل نامعتبر",
+        description: "لطفا یک فایل PDF آپلود کنید"
       });
       return;
     }
@@ -38,51 +33,43 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
     if (file.size > MAX_FILE_SIZE) {
       toast({
         variant: "destructive",
-        title: "File too large",
-        description: "Please upload a PDF file smaller than 50MB"
+        title: "حجم فایل زیاد است",
+        description: "لطفا یک فایل PDF کمتر از 50 مگابایت آپلود کنید"
       });
       return;
     }
 
-    const size = file.size < 1024 * 1024 
-      ? `${(file.size / 1024).toFixed(2)} KB`
-      : `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
-
-    const id = Date.now().toString();
-    
     try {
-      // Create a data URL from the file
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target?.result as string);
-        reader.onerror = (e) => reject(e);
-        reader.readAsDataURL(file);
-      });
-
-      await storePdf(id, dataUrl);
-
-      const newResource: Resource = {
-        id,
+      setShowDialog(true);
+      const { id: resourceId, url } = await storePdf(file);
+      
+      const resource: Resource = {
+        id: resourceId,
         name: file.name,
-        type: 'PDF',
-        size,
-        uploadDate: new Date().toLocaleDateString()
+        type: 'pdf',
+        size: file.size < 1024 * 1024 
+          ? `${(file.size / 1024).toFixed(2)} KB`
+          : `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+        uploadDate: new Date().toLocaleDateString(),
+        url,
+        storageName: file.name
       };
 
-      onResourceAdd(newResource);
-      console.log("Resource added:", newResource);
+      onResourceAdd(resource);
       
       toast({
-        title: "File uploaded successfully",
-        description: `${file.name} has been added to your resources`
+        title: "موفقیت",
+        description: "فایل با موفقیت آپلود شد"
       });
     } catch (error) {
-      console.error("File reading error:", error);
+      console.error('Error uploading file:', error);
       toast({
         variant: "destructive",
-        title: "Upload failed",
-        description: "There was an error uploading your file. Please try again."
+        title: "خطا",
+        description: "خطا در آپلود فایل. لطفا دوباره تلاش کنید."
       });
+    } finally {
+      setShowDialog(false);
     }
   };
 
@@ -91,54 +78,68 @@ const ResourceUploader = ({ onResourceAdd }: ResourceUploaderProps) => {
     setIsDragging(true);
   };
 
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
+  const handleDragLeave = () => {
     setIsDragging(false);
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
+    
     const file = e.dataTransfer.files[0];
-    handleFileUpload(file);
+    if (file) {
+      await handleFileUpload(file);
+    }
+  };
+
+  const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await handleFileUpload(file);
+    }
   };
 
   return (
-    <div className="space-y-6">
-      <input
-        type="file"
-        id="pdf-upload"
-        accept=".pdf"
-        className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) {
-            handleFileUpload(file);
-          }
-        }}
-      />
-
+    <>
       <div
+        className={`relative border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors
+          ${isDragging ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className="w-full"
+        onClick={() => document.getElementById('fileInput')?.click()}
       >
-        <label 
-          htmlFor="pdf-upload"
-          className="block w-full cursor-pointer"
-        >
-          <div
-            className={`w-full h-32 flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-lg
-              ${isDragging ? 'border-primary bg-primary/5' : 'hover:border-primary hover:bg-primary/5'}`}
-          >
-            <Upload className="h-8 w-8 text-primary" />
-            <span className="font-medium">Upload PDF</span>
-            <span className="text-sm text-muted-foreground">Drag and drop or click to upload (max 50MB)</span>
-          </div>
-        </label>
+        <input
+          id="fileInput"
+          type="file"
+          accept=".pdf"
+          className="hidden"
+          onChange={handleFileInputChange}
+        />
+        <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
+        <h3 className="mt-2 text-sm font-semibold">Upload a PDF</h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Drag and drop or click to upload
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Maximum file size: 50MB
+        </p>
       </div>
-    </div>
+
+      <Dialog open={showDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogTitle>Uploading PDF</DialogTitle>
+          <div className="flex flex-col gap-4">
+            <p className="text-sm text-muted-foreground">
+              Please wait while we upload your PDF file. This may take a moment...
+            </p>
+            <div className="flex items-center justify-center p-4">
+              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

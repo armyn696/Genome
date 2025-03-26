@@ -1,30 +1,21 @@
 import Background from "@/components/Background";
 import MatchGameHub from "@/components/matchgame/MatchGameHub";
-import { StudyHubSidebar } from "@/components/studyhub/StudyHubSidebar";
+import { StudyHubHeader } from "@/components/studyhub/StudyHubHeader";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-interface Resource {
-  id: string;
-  name: string;
-  type: string;
-  size: string;
-  uploadDate: string;
-}
+import { useResources } from "@/hooks/useResources";
+import { Resource } from "@/types";
 
 const MatchGamePage = () => {
-  const [resources, setResources] = useState<Resource[]>([]);
   const navigate = useNavigate();
-
-  const handleResourceAdd = (newResource: Resource) => {
-    setResources(prev => [...prev, newResource]);
-  };
+  const { resources, addResource } = useResources();
+  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
 
   const handleResourceSelect = (resource: Resource) => {
-    // Handle resource selection if needed
+    navigate(`/studyhub/resources/pdf/${resource.id}`);
   };
 
-  const handleViewChange = (view: 'home' | 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame') => {
+  const handleViewChange = (view: 'home' | 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame' | 'teach') => {
     switch (view) {
       case 'home':
         navigate('/studyhub');
@@ -35,11 +26,17 @@ const MatchGamePage = () => {
       case 'quiz':
         navigate('/studyhub/quiz');
         break;
+      case 'mindmap':
+        navigate('/studyhub/mindmap');
+        break;
+      case 'matchgame':
+        navigate('/studyhub/matchgame');
+        break;
       case 'flashcards':
         navigate('/studyhub/flashcards');
         break;
-      case 'mindmap':
-        navigate('/studyhub/mindmap');
+      case 'teach':
+        navigate('/studyhub/teach');
         break;
       default:
         // For other views, stay on the current page
@@ -48,26 +45,14 @@ const MatchGamePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen">
       <Background />
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border h-16">
-        <div className="container mx-auto px-4 h-full flex items-center justify-between">
-          <StudyHubSidebar
-            resources={resources}
-            onResourceAdd={handleResourceAdd}
-            onResourceSelect={handleResourceSelect}
-            onViewChange={handleViewChange}
-          />
-          <div className="flex items-center gap-2">
-            <img 
-              src="/lovable-uploads/91f667b0-83b5-4bfe-9318-d58898e35220.png" 
-              alt="Logo" 
-              className="h-12 w-auto cursor-pointer"
-              onClick={() => navigate('/studyhub')}
-            />
-          </div>
-        </div>
-      </header>
+      <StudyHubHeader
+        resources={resources}
+        onResourceAdd={addResource}
+        onResourceSelect={handleResourceSelect}
+        onViewChange={handleViewChange}
+      />
       <main className="h-screen pt-16">
         <MatchGameHub />
       </main>

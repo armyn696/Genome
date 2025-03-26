@@ -4,4 +4,6 @@ export interface Resource {
   type: string;
   size: string;
   uploadDate: string;
+  url?: string;
+  storageName?: string;
 }

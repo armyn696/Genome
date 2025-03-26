@@ -1,4 +1,4 @@
-import { MessageSquare, ScrollText, TestTube, Network, Gamepad } from "lucide-react";
+import { MessageCircle, Layers, CheckSquare, Network, Gamepad2, GraduationCap } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -8,34 +8,40 @@ const FeaturesSection = () => {
 
   const features = [
     {
-      icon: <MessageSquare className="w-12 h-12 text-primary" />,
-      title: "Chat with Spark.E",
-      description: "Chat with Spark.E and learn about your documents in real time!",
+      name: "Chat",
+      description: "Chat with your AI tutor",
+      icon: <MessageCircle className="w-12 h-12 text-primary" />,
       route: "/studyhub/chat"
     },
     {
-      icon: <ScrollText className="w-12 h-12 text-primary" />,
-      title: "Flashcards",
-      description: "Generate flashcards from your materials to practice memorizing concepts.",
+      name: "Flashcards",
+      description: "Learn with flashcards",
+      icon: <Layers className="w-12 h-12 text-primary" />,
       route: "/studyhub/flashcards"
     },
     {
-      icon: <TestTube className="w-12 h-12 text-primary" />,
-      title: "Quiz",
-      description: "Generate quizzes from your materials learn as you answer questions.",
+      name: "Quiz",
+      description: "Test your knowledge",
+      icon: <CheckSquare className="w-12 h-12 text-primary" />,
       route: "/studyhub/quiz"
     },
     {
+      name: "Mind Map",
+      description: "Visualize your learning",
       icon: <Network className="w-12 h-12 text-primary" />,
-      title: "Mind Maps",
-      description: "Create visual mind maps to better understand and connect concepts.",
       route: "/studyhub/mindmap"
     },
     {
-      icon: <Gamepad className="w-12 h-12 text-primary" />,
-      title: "Match Game",
-      description: "Practice learning terms by matching them with their definitions.",
+      name: "Match Game",
+      description: "Learn by matching",
+      icon: <Gamepad2 className="w-12 h-12 text-primary" />,
       route: "/studyhub/matchgame"
+    },
+    {
+      name: "Teach Me",
+      description: "Get personalized lessons",
+      icon: <GraduationCap className="w-12 h-12 text-primary" />,
+      route: "/studyhub/teach"
     }
   ];
 
@@ -55,7 +61,7 @@ const FeaturesSection = () => {
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
         {features.map((feature, index) => (
           <motion.div
             key={index}
@@ -77,7 +83,7 @@ const FeaturesSection = () => {
                   {feature.icon}
                 </motion.div>
                 <h3 className="text-2xl font-semibold text-foreground mb-3 tracking-tight group-hover:text-accent transition-colors">
-                  {feature.title}
+                  {feature.name}
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
                   {feature.description}

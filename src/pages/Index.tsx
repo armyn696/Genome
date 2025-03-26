@@ -6,6 +6,12 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SplineSceneBasic } from "@/components/ui/splite.demo";
+import { useAuthContext } from "@/components/auth/AuthProvider";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+import { AuthForm } from "@/components/auth/AuthForm";
 
 const features = [
   {
@@ -39,14 +45,9 @@ const features = [
 ];
 
 const Index = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
-  console.log("Login state:", isLoggedIn);
-
-  const handleAuthClick = () => {
-    setIsLoggedIn(!isLoggedIn);
-    console.log("Auth state toggled:", !isLoggedIn);
-  };
+  const { user } = useAuthContext();
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -61,30 +62,32 @@ const Index = () => {
             />
           </div>
           <div className="flex items-center gap-4">
-            {!isLoggedIn ? (
-              <Button 
-                variant="ghost" 
-                className="text-white hover:text-purple-400 transition-colors"
-                onClick={handleAuthClick}
-              >
-                Sign in
-              </Button>
-            ) : (
+            {user ? (
               <Button 
                 variant="outline" 
                 className="border-purple-500 text-purple-400 hover:bg-purple-500/10"
-                onClick={handleAuthClick}
+                onClick={() => navigate('/studyhub')}
               >
-                Log out
+                Your Study Hub
               </Button>
+            ) : (
+              <>
+                <Button 
+                  variant="ghost" 
+                  className="text-white hover:text-purple-400 transition-colors"
+                  onClick={() => setShowAuthDialog(true)}
+                >
+                  Sign in
+                </Button>
+                <Button 
+                  variant="ghost"
+                  className="bg-gradient-to-r from-purple-500/20 to-indigo-500/20 hover:from-purple-500/30 hover:to-indigo-500/30 text-purple-400 hover:text-purple-300 border border-purple-500/50 hover:border-purple-400 transition-all duration-300 backdrop-blur-sm shadow-lg hover:shadow-purple-500/20"
+                  onClick={() => navigate('/studyhub')}
+                >
+                  Your Study Hub
+                </Button>
+              </>
             )}
-            <Button 
-              variant="ghost"
-              className="bg-gradient-to-r from-purple-500/20 to-indigo-500/20 hover:from-purple-500/30 hover:to-indigo-500/30 text-purple-400 hover:text-purple-300 border border-purple-500/50 hover:border-purple-400 transition-all duration-300 backdrop-blur-sm shadow-lg hover:shadow-purple-500/20"
-              onClick={() => navigate('/studyhub')}
-            >
-              Your Study Hub
-            </Button>
           </div>
         </div>
       </div>
@@ -156,6 +159,12 @@ const Index = () => {
           </div>
         </main>
       </div>
+
+      <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+        <DialogContent className="sm:max-w-[425px] p-0">
+          <AuthForm onSuccess={() => setShowAuthDialog(false)} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

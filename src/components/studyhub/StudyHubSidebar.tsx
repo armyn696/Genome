@@ -1,25 +1,18 @@
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Menu, Home, MessageSquare, BookOpen, Plus, Bookmark, Trees, Gamepad } from "lucide-react";
+import { Menu, Home, MessageSquare, BookOpen, Plus, Bookmark, Trees, Gamepad, GraduationCap } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 import ResourceUploader from "../ResourceUploader";
 import { FileText } from "lucide-react";
-
-interface Resource {
-  id: string;
-  name: string;
-  type: string;
-  size: string;
-  uploadDate: string;
-}
+import { Resource } from "@/types";
 
 interface StudyHubSidebarProps {
   resources: Resource[];
   onResourceAdd: (resource: Resource) => void;
   onResourceSelect: (resource: Resource) => void;
-  onViewChange: (view: 'home' | 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame') => void;
+  onViewChange: (view: 'home' | 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame' | 'teach') => void;
 }
 
 export const StudyHubSidebar = ({ resources, onResourceAdd, onResourceSelect, onViewChange }: StudyHubSidebarProps) => {
@@ -30,6 +23,7 @@ export const StudyHubSidebar = ({ resources, onResourceAdd, onResourceSelect, on
     { icon: Bookmark, label: "Flashcards", view: 'flashcards' as const },
     { icon: Trees, label: "Mind Maps", view: 'mindmap' as const },
     { icon: Gamepad, label: "Match Game", view: 'matchgame' as const },
+    { icon: GraduationCap, label: "Teach Me", view: 'teach' as const },
   ];
 
   return (

@@ -1,152 +1,103 @@
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
-import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+import React, { useState } from 'react';
+import { Node, Edge } from 'reactflow';
+import MindMap from './MindMap';
+import ModernHeader from './ModernHeader';
+import { generateMermaidCode, mermaidToReactflow, extractTextFromImage } from '../../services/geminiService';
+import './MindMapPage.css';
 
-const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  creationType: z.enum(["scratch", "material"])
-});
+const MindmapHub: React.FC = () => {
+  const [showMindMap, setShowMindMap] = useState<boolean>(false);
+  const [inputText, setInputText] = useState<string>('');
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
+  const [error, setError] = useState<string>('');
+  const [isInputExpanded, setIsInputExpanded] = useState<boolean>(false);
 
-const MindmapHub = () => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      creationType: "scratch"
+  const handleGenerate = async (): Promise<void> => {
+    try {
+      const mermaidCode = await generateMermaidCode(inputText);
+      const { nodes: newNodes, edges: newEdges } = mermaidToReactflow(mermaidCode);
+      
+      setNodes(newNodes);
+      setEdges(newEdges);
+      setError('');
+      setIsInputExpanded(false);
+    } catch (error) {
+      console.error('Error:', error);
+      setError(error instanceof Error ? error.message : 'An unknown error occurred');
     }
-  });
-
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
-    // Handle form submission
-    setIsDialogOpen(false);
   };
 
-  return (
-    <div className="relative z-10 container mx-auto px-4">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Mind Maps</h1>
-          <p className="text-muted-foreground">
-            Create and organize your thoughts visually with mind maps.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2">
-                <Plus className="h-5 w-5" />
-                Create Mind Map
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
-              <DialogHeader>
-                <DialogTitle className="text-2xl">Create a Mind Map</DialogTitle>
-              </DialogHeader>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Name Your Mind Map</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter mind map name..." {...field} />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <div className="space-y-4">
-                    <h3 className="font-semibold">Choose an Option</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="creationType"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <RadioGroup
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                                className="grid grid-cols-2 gap-4"
-                              >
-                                <Label
-                                  htmlFor="scratch"
-                                  className="flex flex-col items-center gap-4 p-4 rounded-lg border-2 cursor-pointer hover:bg-accent"
-                                >
-                                  <RadioGroupItem value="scratch" id="scratch" className="sr-only" />
-                                  <span className="text-6xl" role="img" aria-label="Create from scratch">
-                                    🌳
-                                  </span>
-                                  <div className="text-center">
-                                    <h4 className="font-semibold">Start From Scratch</h4>
-                                    <p className="text-sm text-muted-foreground">
-                                      Create a mind map from scratch.
-                                    </p>
-                                  </div>
-                                </Label>
-                                
-                                <Label
-                                  htmlFor="material"
-                                  className="flex flex-col items-center gap-4 p-4 rounded-lg border-2 cursor-pointer hover:bg-accent"
-                                >
-                                  <RadioGroupItem value="material" id="material" className="sr-only" />
-                                  <span className="text-6xl" role="img" aria-label="Create from material">
-                                    📚
-                                  </span>
-                                  <div className="text-center">
-                                    <h4 className="font-semibold">Create From Material</h4>
-                                    <p className="text-sm text-muted-foreground">
-                                      Generate a mind map from your current studyset material
-                                    </p>
-                                  </div>
-                                </Label>
-                              </RadioGroup>
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const extractedText = await extractTextFromImage(file);
+        setInputText(extractedText);
+      } catch (error) {
+        console.error('Error:', error);
+        setError(error instanceof Error ? error.message : 'An unknown error occurred');
+      }
+    }
+  };
 
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button type="submit">Continue</Button>
-                  </div>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
+  if (!showMindMap) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">نمودار ذهنی</h1>
+          <p className="text-lg text-gray-600 mb-8">ایده‌ها و افکار خود را به صورت بصری سازماندهی کنید.</p>
+          <button
+            onClick={() => setShowMindMap(true)}
+            className="bg-indigo-600 text-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-indigo-700 transition-colors"
+          >
+            ساخت نمودار ذهنی
+          </button>
         </div>
       </div>
+    );
+  }
 
-      {/* Empty State */}
-      <Card className="w-full aspect-[2/1] flex flex-col items-center justify-center text-center p-6">
-        <h2 className="text-xl font-semibold mb-2">No Mind Maps Found</h2>
-        <p className="text-muted-foreground mb-4">
-          Create your first mind map to get started.
-        </p>
-        <Button className="gap-2" onClick={() => setIsDialogOpen(true)}>
-          <Plus className="h-5 w-5" />
-          Create Mind Map
-        </Button>
-      </Card>
+  return (
+    <div className="mindmap-page">
+      <ModernHeader />
+      <div className="mindmap-container">
+        <div className={`input-section ${isInputExpanded ? 'expanded' : ''}`}>
+          <button 
+            className="toggle-button"
+            onClick={() => setIsInputExpanded(!isInputExpanded)}
+          >
+            {isInputExpanded ? '▼ پنهان کردن' : '▲ نمایش ورودی'}
+          </button>
+          <div className="content">
+            <div className="file-upload-container">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+                id="image-upload"
+              />
+              <label 
+                htmlFor="image-upload"
+                className="paperclip-button"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                </svg>
+              </label>
+            </div>
+            <textarea
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              placeholder="متن خود را اینجا وارد کنید..."
+            />
+            <button onClick={handleGenerate}>تولید نمودار</button>
+            {error && <div className="error">{error}</div>}
+          </div>
+        </div>
+        <MindMap nodes={nodes} edges={edges} />
+      </div>
     </div>
   );
 };

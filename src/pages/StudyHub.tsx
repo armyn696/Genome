@@ -7,25 +7,19 @@ import QuizHub from "@/components/quiz/QuizHub";
 import FlashcardsHub from "@/components/flashcards/FlashcardsHub";
 import MindmapHub from "@/components/mindmap/MindmapHub";
 import MatchGameHub from "@/components/matchgame/MatchGameHub";
+import { StudyHubHeader } from "@/components/studyhub/StudyHubHeader";
 import { StudyHubSidebar } from "@/components/studyhub/StudyHubSidebar";
 import ResourceProgress from "@/components/studyhub/ResourceProgress";
 import FeaturesSection from "@/components/studyhub/FeaturesSection";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useResources } from "@/hooks/useResources";
+import { Resource } from "@/types";
 
-interface Resource {
-  id: string;
-  name: string;
-  type: string;
-  size: string;
-  uploadDate: string;
-}
-
-type ViewType = 'home' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame';
+type ViewType = 'home' | 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame' | 'teach';
 
 const StudyHub = () => {
-  const { resources, addResource, deleteResource } = useResources();
+  const { resources, addResource, deleteResource, renameResource } = useResources();
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [currentView, setCurrentView] = useState<ViewType>('home');
   const navigate = useNavigate();
@@ -42,10 +36,10 @@ const StudyHub = () => {
 
   const handleResourceSelect = (resource: Resource) => {
     setSelectedResource(resource);
-    setCurrentView('pdf');
+    navigate(`/studyhub/resources/pdf/${resource.id}`);
   };
 
-  const handleViewChange = (view: ViewType | 'chat') => {
+  const handleViewChange = (view: ViewType | 'chat' | 'teach') => {
     switch (view) {
       case 'chat':
         navigate('/studyhub/chat');
@@ -62,29 +56,50 @@ const StudyHub = () => {
       case 'matchgame':
         navigate('/studyhub/matchgame');
         break;
+      case 'teach':
+        navigate('/studyhub/teach');
+        break;
+      case 'pdf':
+        if (selectedResource) {
+          navigate(`/studyhub/resources/pdf/${selectedResource.id}`);
+        }
+        break;
       default:
         setCurrentView(view as ViewType);
     }
   };
 
+  const handleAddResource = (resource: Resource) => {
+    if (resource instanceof File) {
+      addResource(resource);
+    }
+  };
+
+  const handleRenameResource = (resourceId: string, newName: string) => {
+    renameResource({ resourceId, newName });
+  };
+
   const renderContent = () => {
-    if (currentView === 'home') {
+    if (currentView === 'home' || !currentView) {
       return (
         <div className="container mx-auto px-4 py-8">
           <FeaturesSection />
           <ResourceProgress 
             resources={resources} 
-            onResourceAdd={addResource} 
+            onResourceAdd={handleAddResource} 
             onResourceDelete={deleteResource}
             onResourceSelect={handleResourceSelect}
+            onResourceRename={handleRenameResource}
           />
         </div>
       );
     }
 
-    // Special views that don't use the split panel layout
-    if (['quiz', 'flashcards', 'mindmap', 'matchgame'].includes(currentView)) {
+    if (selectedResource) {
       switch (currentView) {
+        case 'chat':
+          navigate('/studyhub/chat');
+          return null;
         case 'quiz':
           return <QuizHub />;
         case 'flashcards':
@@ -93,58 +108,64 @@ const StudyHub = () => {
           return <MindmapHub />;
         case 'matchgame':
           return <MatchGameHub />;
+        case 'teach':
+          navigate('/studyhub/teach');
+          return null;
+        default:
+          navigate(`/studyhub/resources/pdf/${selectedResource.id}`);
+          return null;
+      }
+    } else {
+      switch (currentView) {
+        case 'chat':
+          navigate('/studyhub/chat');
+          return null;
+        case 'quiz':
+          navigate('/studyhub/quiz');
+          return null;
+        case 'flashcards':
+          navigate('/studyhub/flashcards');
+          return null;
+        case 'mindmap':
+          navigate('/studyhub/mindmap');
+          return null;
+        case 'matchgame':
+          navigate('/studyhub/matchgame');
+          return null;
+        case 'teach':
+          navigate('/studyhub/teach');
+          return null;
         default:
           return null;
       }
     }
-
-    // If a resource is selected, show the split panel layout
-    if (selectedResource) {
-      return (
-        <div className="h-full bg-black">
-          <div className="h-full">
-            <PDFViewerNav currentView={currentView} onViewChange={handleViewChange} />
-            <div className="h-[calc(100vh-7rem)]">
-              <ResizablePanelGroup direction="horizontal" className="h-full">
-                <ResizablePanel defaultSize={60} minSize={30}>
-                  <PDFContent currentView={currentView} resourceId={selectedResource.id} />
-                </ResizablePanel>
-                <ResizableHandle withHandle />
-                <ResizablePanel defaultSize={40} minSize={30}>
-                  <PDFChatInterface resourceId={selectedResource.id} />
-                </ResizablePanel>
-              </ResizablePanelGroup>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    return null;
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen">
       <Background />
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border h-16">
-        <div className="container mx-auto px-4 h-full flex items-center justify-between">
-          <StudyHubSidebar
-            resources={resources}
-            onResourceAdd={addResource}
-            onResourceSelect={handleResourceSelect}
-            onViewChange={handleViewChange}
-          />
-          <div className="flex items-center gap-2">
-            <img 
-              src="/lovable-uploads/91f667b0-83b5-4bfe-9318-d58898e35220.png" 
-              alt="Logo" 
-              className="h-12 w-auto"
+      <StudyHubHeader
+        resources={resources}
+        onResourceAdd={handleAddResource}
+        onResourceSelect={handleResourceSelect}
+        onViewChange={handleViewChange}
+        onResourceRename={handleRenameResource}
+      />
+      <main className="h-screen pt-16">
+        {currentView === 'home' || !currentView ? (
+          <div className="container mx-auto px-4 py-8">
+            <FeaturesSection />
+            <ResourceProgress 
+              resources={resources} 
+              onResourceAdd={handleAddResource} 
+              onResourceDelete={deleteResource}
+              onResourceSelect={handleResourceSelect}
+              onResourceRename={handleRenameResource}
             />
           </div>
-        </div>
-      </header>
-      <main className="h-screen pt-16">
-        {renderContent()}
+        ) : (
+          renderContent()
+        )}
       </main>
     </div>
   );

@@ -1,12 +1,5 @@
 import { FileText } from "lucide-react";
-
-interface Resource {
-  id: string;
-  name: string;
-  type: string;
-  size: string;
-  uploadDate: string;
-}
+import { Resource } from "@/types";
 
 interface ResourceListProps {
   resources: Resource[];

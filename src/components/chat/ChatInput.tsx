@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, Image, Mic, FileText, Globe, GraduationCap } from "lucide-react";
@@ -15,6 +15,8 @@ interface ChatInputProps {
   resources?: any[];
   onResourceSelect?: (resource: any) => void;
   selectedResources?: any[];
+  value?: string;
+  onChange?: (text: string) => void;
 }
 
 export const ChatInput = ({ 
@@ -24,9 +26,10 @@ export const ChatInput = ({
   isLoading,
   resources = [],
   onResourceSelect,
-  selectedResources = []
+  selectedResources = [],
+  value = '',
+  onChange
 }: ChatInputProps) => {
-  const [message, setMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -34,10 +37,16 @@ export const ChatInput = ({
   const [webBrowsingEnabled, setWebBrowsingEnabled] = useState(false);
   const [academicSearchEnabled, setAcademicSearchEnabled] = useState(false);
 
+  useEffect(() => {
+    if (onChange) {
+      onChange(value);
+    }
+  }, [value, onChange]);
+
   const handleSendMessage = () => {
-    if (!message.trim() || isLoading) return;
-    onSendMessage(message);
-    setMessage('');
+    if (!value?.trim() || isLoading) return;
+    onSendMessage(value);
+    onChange?.('');
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -91,7 +100,7 @@ export const ChatInput = ({
   };
 
   return (
-    <div className="border-t p-4 bg-background/95 backdrop-blur-sm space-y-4 w-full max-w-[70vw] mx-auto rounded-t-2xl">
+    <div className="p-4 bg-[#181818] backdrop-blur-sm w-full rounded-t-xl">
       <div className="flex justify-center items-center gap-4 mb-4">
         <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1">
           <Globe className="h-4 w-4" />
@@ -134,7 +143,7 @@ export const ChatInput = ({
         )}
       </div>
 
-      <div className="max-w-[70vw] w-full mx-auto flex items-center gap-2 bg-muted rounded-lg p-2">
+      <div className="flex items-center gap-2 bg-muted rounded-lg p-2">
         <div className="flex justify-center items-center gap-2 w-full">
           <Button
             variant="ghost"
@@ -164,8 +173,8 @@ export const ChatInput = ({
           />
           <Textarea
             placeholder="Ask your AI tutor anything..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            value={value}
+            onChange={(e) => onChange?.(e.target.value)}
             onKeyDown={handleKeyDown}
             className="min-h-[44px] resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-2"
             rows={1}
@@ -175,9 +184,9 @@ export const ChatInput = ({
             size="icon"
             className={cn(
               "shrink-0",
-              !message.trim() && "opacity-50 cursor-not-allowed"
+              !value.trim() && "opacity-50 cursor-not-allowed"
             )}
-            disabled={!message.trim() || isLoading}
+            disabled={!value.trim() || isLoading}
           >
             <Send className="h-5 w-5" />
           </Button>
