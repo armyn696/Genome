@@ -43,6 +43,34 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 252 87% 74%;
   }
+
+  /* تغییر رنگ هایلایت متن انتخاب شده (به جز در بخش PDF) */
+  ::selection {
+    background-color: hsl(var(--primary) / 0.8);
+    color: hsl(var(--primary-foreground));
+  }
+
+  ::-moz-selection {
+    background-color: hsl(var(--primary) / 0.8);
+    color: hsl(var(--primary-foreground));
+  }
+
+  /* استثنا کردن بخش PDF از تغییر رنگ هایلایت */
+  .react-pdf__Document ::selection,
+  .react-pdf__Page ::selection,
+  .pdf-page-container ::selection,
+  .canvas-layer ::selection {
+    background-color: rgba(0, 0, 255, 0.3) !important; /* رنگ آبی پیش‌فرض */
+    color: inherit !important;
+  }
+
+  .react-pdf__Document ::-moz-selection,
+  .react-pdf__Page ::-moz-selection,
+  .pdf-page-container ::-moz-selection,
+  .canvas-layer ::-moz-selection {
+    background-color: rgba(0, 0, 255, 0.3) !important;
+    color: inherit !important;
+  }
 }
 
 @layer base {

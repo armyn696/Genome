@@ -17,13 +17,18 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-    },
+    }
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      define: {
+        global: 'globalThis'
+      }
+    }
   },
   build: {
-    rollupOptions: {
-      external: [
-        'pdfjs-dist/build/pdf.worker.entry'
-      ]
+    commonjsOptions: {
+      include: [/node_modules/]
     }
   }
 }));
