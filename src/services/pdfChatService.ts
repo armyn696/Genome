@@ -46,10 +46,11 @@ export const extractTextFromPdf = async (pdfUrl: string): Promise<string> => {
 
 /**
  * ارسال پرسش درباره محتوای PDF به Gemini و دریافت پاسخ
+ * اگر عکسی نیز داده شده باشد، از قابلیت چندرسانه‌ای Gemini استفاده می‌کند
  */
-export const generatePdfResponse = async (pdfText: string, userQuestion: string): Promise<string> => {
+export const generatePdfResponse = async (pdfText: string, userQuestion: string, imageData?: string): Promise<string> => {
   try {
-    console.log('Generating PDF response with Gemini');
+    console.log('Generating PDF response with Gemini', imageData ? 'with image' : 'without image');
     
     const generationConfig: GenerationConfig = {
       temperature: 0.7,
@@ -60,34 +61,81 @@ export const generatePdfResponse = async (pdfText: string, userQuestion: string)
     
     // ایجاد مدل Gemini
     const model: GenerativeModel = genAI.getGenerativeModel({
-      model: "gemini-2.0-pro-exp-02-05",
+      model: "gemini-2.0-flash",
       generationConfig,
     });
+
+    let result;
     
-    // پرامپت برای Gemini (ترکیب متن PDF و سوال کاربر)
-    const prompt: string = `
-      متن PDF زیر را در نظر بگیر و به پرسش کاربر پاسخ بده:
+    // اگر تصویر داریم، از قابلیت چندرسانه‌ای استفاده می‌کنیم
+    if (imageData) {
+      console.log('Processing request with image');
       
-      ===== متن PDF =====
-      ${pdfText.substring(0, 15000)} 
-      ${pdfText.length > 15000 ? '...(متن ادامه دارد)' : ''}
-      ===================
+      // تبدیل data URL به یک شیء محتوایی چندرسانه‌ای
+      const imageUrl = imageData; // به شکل data:image/png;base64,...
       
-      پرسش: ${userQuestion}
+      // پرامپت برای Gemini (ترکیب متن PDF و سوال کاربر)
+      const prompt = `
+        متن PDF زیر را در نظر بگیر، تصویر ارسال شده را بررسی کن و به پرسش کاربر پاسخ بده:
+        
+        ===== متن PDF =====
+        ${pdfText.substring(0, 15000)} 
+        ${pdfText.length > 15000 ? '...(متن ادامه دارد)' : ''}
+        ===================
+        
+        پرسش: ${userQuestion}
+        
+        دستورالعمل‌ها:
+        1. به تصویر ارسال شده نگاه کن و اگر مرتبط با سوال است، آن را در پاسخ خود در نظر بگیر.
+        2. پاسخی جامع، دقیق و کامل با توجه به محتوای PDF و تصویر ارائه بده.
+        3. پاسخ را با فرمت مناسب و پاراگراف‌بندی درست ارائه کن.
+        4. از کاراکترهای ویژه مانند نقطه، ویرگول، نقطه ویرگول و علامت سوال به درستی استفاده کن.
+      `;
       
-      دستورالعمل‌ها:
-      1. پاسخی جامع، دقیق و کامل با توجه به محتوای PDF ارائه بده.
-      2. پاسخ را با فرمت مناسب و پاراگراف‌بندی درست ارائه کن.
-      3. از کاراکترهای ویژه مانند نقطه، ویرگول، نقطه ویرگول و علامت سوال به درستی استفاده کن.
-      4. اطلاعات را به صورت ساختاریافته با عناوین، نقاط گلوله‌ای، و شماره‌گذاری در صورت نیاز ارائه بده.
-      5. اگر اطلاعات مهمی در متن PDF وجود دارد، آن را در قالب بخش‌های مشخص با عناوین مناسب ارائه کن.
-      6. اگر پاسخ سوال در متن PDF نیست، صادقانه بگو که نمی‌توانی با توجه به متن موجود به این سوال پاسخ دهی.
-      7. از به هم ریختگی متن و ارائه پاسخ به صورت یک بلوک متنی بزرگ خودداری کن.
-      8. اگر نقل قول مستقیم از متن PDF می‌کنی، آن را در فرمت مناسب و با علامت نقل قول نشان بده.
-    `;
+      try {
+        // تبدیل data URL به Blob
+        const fetchResponse = await fetch(imageUrl);
+        const blob = await fetchResponse.blob();
+        
+        // استخراج بخش base64 از data URL
+        const base64Data = imageUrl.split(',')[1];
+        
+        // ایجاد درخواست با متن و تصویر
+        result = await model.generateContent([
+          { text: prompt },
+          {
+            inlineData: {
+              mimeType: blob.type,
+              data: base64Data
+            }
+          }
+        ]);
+      } catch (error) {
+        console.error('Error processing image for Gemini:', error);
+        throw new Error(`خطا در پردازش تصویر: ${error instanceof Error ? error.message : 'خطای ناشناخته'}`);
+      }
+    } else {
+      // حالت متنی معمولی (بدون تصویر)
+      // پرامپت برای Gemini (ترکیب متن PDF و سوال کاربر)
+      const prompt: string = `
+        متن PDF زیر را در نظر بگیر و به پرسش کاربر پاسخ بده:
+        
+        ===== متن PDF =====
+        ${pdfText.substring(0, 15000)} 
+        ${pdfText.length > 15000 ? '...(متن ادامه دارد)' : ''}
+        ===================
+        
+        پرسش: ${userQuestion}
+        
+        دستورالعمل‌ها:
+        1. پاسخی جامع، دقیق و کامل با توجه به محتوای PDF ارائه بده.
+        2. پاسخ را با فرمت مناسب و پاراگراف‌بندی درست ارائه کن.
+        3. از کاراکترهای ویژه مانند نقطه، ویرگول، نقطه ویرگول و علامت سوال به درستی استفاده کن.
+      `;
+      
+      result = await model.generateContent(prompt);
+    }
     
-    // دریافت پاسخ از Gemini
-    const result = await model.generateContent(prompt);
     const response = result.response;
     
     if (response && response.text()) {

@@ -124,6 +124,36 @@ export const PDFChatInterface = ({ resourceId, drawingImage, screenshotImage }: 
       }
       
       setMessages(prev => [...prev, ...newMessages]);
+      setIsLoading(true);
+      
+      try {
+        if (!pdfText) {
+          throw new Error('محتوای PDF در دسترس نیست');
+        }
+        
+        // ارسال متن و اولین تصویر به هوش مصنوعی
+        const response = await generatePdfResponse(pdfText, text, draftImages[0]);
+        
+        const aiMessage: Message = {
+          text: response,
+          sender: 'ai'
+        };
+        
+        setMessages(prev => [...prev, aiMessage]);
+      } catch (error) {
+        console.error('Error generating response with image:', error);
+        
+        const errorMessage: Message = {
+          text: `خطا در پردازش درخواست: ${error instanceof Error ? error.message : 'خطای ناشناخته'}`,
+          sender: 'ai'
+        };
+        
+        setMessages(prev => [...prev, errorMessage]);
+        toast.error('خطا در دریافت پاسخ از هوش مصنوعی');
+      } finally {
+        setIsLoading(false);
+      }
+      
       // پاک کردن پیش‌نویس بعد از ارسال
       setDraftImages([]);
       setShowDraft(false);

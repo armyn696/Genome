@@ -100,7 +100,7 @@ export const generateMermaidCode = async (inputText: string): Promise<string> =>
         };
 
         const model: GenerativeModel = genAI.getGenerativeModel({
-            model: "gemini-2.0-pro-exp-02-05",
+            model: "gemini-2.0-flash",
             generationConfig,
         });
         

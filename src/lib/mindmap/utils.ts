@@ -42,7 +42,7 @@ export function cleanMermaidCode(responseText: string): string {
 export async function generateMermaidCode(inputText: string): Promise<string | null> {
     try {
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.0-pro-exp-02-05",
+            model: "gemini-2.0-flash",
             generationConfig: {
                 temperature: 0.9,
                 topP: 0.95,
@@ -77,8 +77,14 @@ export async function generateMermaidCode(inputText: string): Promise<string | n
         const response = await result.response;
         const text = response.text();
         
+        // برای دیباگ، پاسخ خام را چاپ کنیم
+        console.log("Raw AI response:", text);
+        console.log("Response length:", text.length);
+        
         if (text) {
-            return cleanMermaidCode(text);
+            const cleaned = cleanMermaidCode(text);
+            console.log("Cleaned response:", cleaned);
+            return cleaned;
         }
         throw new Error("پاسخی از API دریافت نشد.");
 

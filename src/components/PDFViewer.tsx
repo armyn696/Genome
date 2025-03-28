@@ -78,7 +78,7 @@ interface Highlight {
   color?: string; // رنگ هایلایت (اختیاری)
 }
 
-export const PDFViewer: React.FC<PDFViewerProps> = ({
+const PDFViewer: React.FC<PDFViewerProps> = ({
   resourceId,
   displayName,
   fileName,
@@ -1770,3 +1770,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
     </div>
   );
 };
+
+// صادر کردن کامپوننت به صورت default و named
+export { PDFViewer };
+export default PDFViewer;
