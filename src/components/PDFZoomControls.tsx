@@ -1,7 +1,15 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ZoomIn, ZoomOut, RotateCw, Wand2, Camera, TextSelect, Eraser } from "lucide-react";
+import { ZoomIn, ZoomOut, RotateCw, Wand2, Camera, TextSelect, Eraser, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 interface PDFZoomControlsProps {
   zoom: number;
@@ -23,6 +31,9 @@ interface PDFZoomControlsProps {
   eraseMode?: boolean;
   onToggleErase?: () => void;
   debugMode?: boolean;
+  onHighlightColorSelect?: (color: string) => void;
+  selectedHighlightColor?: string;
+  highlightColors?: { color: string; name: string; borderColor: string; }[];
 }
 
 export const PDFZoomControls: React.FC<PDFZoomControlsProps> = ({
@@ -45,6 +56,9 @@ export const PDFZoomControls: React.FC<PDFZoomControlsProps> = ({
   eraseMode,
   onToggleErase,
   debugMode,
+  onHighlightColorSelect,
+  selectedHighlightColor,
+  highlightColors = [],
 }) => {
   // اضافه کردن state برای مدیریت input دستی صفحه
   const [manualPage, setManualPage] = React.useState<string>('');
@@ -124,16 +138,53 @@ export const PDFZoomControls: React.FC<PDFZoomControlsProps> = ({
           <Camera className="h-4 w-4" />
         </Button>
         
-        {/* دکمه هایلایت */}
-        {onToggleHighlight && (
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={onToggleHighlight}
-            className={highlightMode ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}
-          >
-            <TextSelect className="h-4 w-4" />
-          </Button>
+        {/* دکمه هایلایت با منوی رنگ */}
+        {onToggleHighlight && onHighlightColorSelect && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className={highlightMode ? 'bg-primary text-primary-foreground hover:bg-primary/90 flex items-center gap-1' : 'flex items-center gap-1'}
+              >
+                <TextSelect className="h-4 w-4" />
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuLabel>رنگ هایلایت</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {highlightColors.map((colorObj, index) => (
+                <DropdownMenuItem 
+                  key={index}
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => {
+                    if (!highlightMode && onToggleHighlight) {
+                      onToggleHighlight();
+                    }
+                    console.log(`Selected color in dropdown: ${colorObj.color}`);
+                    onHighlightColorSelect(colorObj.color);
+                  }}
+                >
+                  <div 
+                    className="w-4 h-4 rounded-full" 
+                    style={{ 
+                      backgroundColor: colorObj.color,
+                      border: selectedHighlightColor === colorObj.color ? `2px solid ${colorObj.borderColor}` : '1px solid gray'
+                    }}
+                  />
+                  <span>{colorObj.name}</span>
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={onToggleHighlight}
+                className="flex items-center justify-between"
+              >
+                <span>{highlightMode ? 'غیرفعال کردن هایلایت' : 'فعال کردن هایلایت'}</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
         
         {/* دکمه پاک کن */}

@@ -6,7 +6,7 @@ import { retrievePdf, storePdf } from '@/utils/pdfStorage';
 import { useToast } from '@/components/ui/use-toast';
 import { PDFZoomControls } from './PDFZoomControls';
 import { Button } from '@/components/ui/button';
-import { Upload, Highlighter as HighlighterIcon, Wand as WandIcon, Image as ImageIcon } from 'lucide-react';
+import { Upload, Highlighter as HighlighterIcon, Wand as WandIcon, Image as ImageIcon, Circle } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { configurePdfJs, setPdfOptions } from '@/utils/pdfConfig';
 import { v4 as uuidv4 } from 'uuid'; // برای ID منحصر به فرد هایلایت‌ها
@@ -15,7 +15,7 @@ import { v4 as uuidv4 } from 'uuid'; // برای ID منحصر به فرد ها�
 const getStorageKey = (resourceId: string) => `pdf-highlights-${resourceId}`;
 
 // تابع برای ذخیره هایلایت‌ها در localStorage
-const saveHighlightsToStorage = (resourceId: string, highlights: Highlight[]) => {
+const saveHighlightsToStorage = (resourceId: string, highlights: any[]) => {
   try {
     const key = getStorageKey(resourceId);
     localStorage.setItem(key, JSON.stringify(highlights));
@@ -27,13 +27,13 @@ const saveHighlightsToStorage = (resourceId: string, highlights: Highlight[]) =>
 };
 
 // تابع برای بارگذاری هایلایت‌ها از localStorage
-const loadHighlightsFromStorage = (resourceId: string): Highlight[] => {
+const loadHighlightsFromStorage = (resourceId: string): any[] => {
   try {
     const key = getStorageKey(resourceId);
     const savedHighlights = localStorage.getItem(key);
     if (savedHighlights) {
       console.log(`Highlights loaded for resource ${resourceId}`);
-      return JSON.parse(savedHighlights) as Highlight[];
+      return JSON.parse(savedHighlights) as any[];
     }
   } catch (error) {
     console.error("Failed to load highlights from localStorage:", error);
@@ -104,6 +104,17 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
   const [screenshotEnd, setScreenshotEnd] = useState<{ x: number; y: number; pageIndex: number } | null>(null);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [eraseMode, setEraseMode] = useState<boolean>(false);
+  // افزودن state برای رنگ هایلایت انتخاب شده
+  const [selectedHighlightColor, setSelectedHighlightColor] = useState<string>('rgba(255, 255, 0, 0.3)'); // زرد به عنوان رنگ پیش‌فرض
+
+  // آرایه رنگ‌های قابل انتخاب برای هایلایت
+  const highlightColors = [
+    { color: 'rgba(255, 255, 0, 0.3)', name: 'زرد', borderColor: '#e9e264' }, // زرد
+    { color: 'rgba(0, 255, 128, 0.3)', name: 'سبز', borderColor: '#4ade80' }, // سبز
+    { color: 'rgba(0, 204, 255, 0.3)', name: 'آبی روشن', borderColor: '#67e8f9' }, // آبی روشن
+    { color: 'rgba(255, 153, 204, 0.3)', name: 'صورتی', borderColor: '#f9a8d4' }, // صورتی
+    { color: 'rgba(255, 51, 51, 0.3)', name: 'قرمز', borderColor: '#f87171' }  // قرمز
+  ];
 
   const containerRef = useRef<HTMLDivElement>(null);
   const outerContainerRef = useRef<HTMLDivElement>(null);
@@ -1089,6 +1100,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
   // اثر جانبی برای فعال/غیرفعال کردن انتخاب متن
   useEffect(() => {
     console.log(`Highlight mode is now: ${highlightMode ? 'ON' : 'OFF'}`);
+    console.log(`Current highlight color: ${selectedHighlightColor}`);
 
     if (!highlightMode) return;
 
@@ -1103,6 +1115,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
         if (!selectedText) return;
 
         console.log(`Text selected: "${selectedText}"`);
+        console.log(`Using highlight color: ${selectedHighlightColor}`);
 
         try {
           // روش جدید برای پیدا کردن صفحه با استفاده از DOM مستقیم
@@ -1253,13 +1266,17 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
 
           console.log(`Original rects: ${highlightRects.length}, Merged rects: ${mergedRects.length}`);
 
+          // دریافت رنگ کنونی برای اطمینان از به روز بودن
+          let currentColorRaw = document.documentElement.getAttribute('data-highlight-color') || selectedHighlightColor;
+          console.log(`Creating highlight with color from attribute: ${currentColorRaw}`);
+
           // ایجاد یک هایلایت جدید با مستطیل‌های ادغام شده
           const newHighlight: Highlight = {
             id: uuidv4(),
             pageIndex,
             rects: mergedRects, // استفاده از مستطیل‌های ادغام شده
             text: selectedText,
-            color: 'rgba(255, 255, 0, 0.3)' // رنگ هایلایت با شفافیت ثابت
+            color: currentColorRaw // استفاده از رنگ انتخاب شده
           };
 
           console.log('Adding new highlight:', newHighlight);
@@ -1490,12 +1507,16 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
       return;
     }
     
+    // دریافت رنگ کنونی برای اطمینان از به روز بودن
+    const currentColor = selectedHighlightColor;
+    console.log(`Creating highlight with color: ${currentColor}`);
+    
     const newHighlight: Highlight = {
       id: `highlight-${Date.now()}`,
       pageIndex,
       rects: rects, // استفاده مستقیم از rects بدون ادغام
       text: selectedText,
-      color: 'rgba(255, 255, 150, 0.4)'
+      color: currentColor // استفاده از رنگ انتخاب شده فعلی
     };
     
     setHighlights(prev => [...prev, newHighlight]);
@@ -1539,12 +1560,13 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
         {highlight.rects.map((rect, rectIndex) => (
           <div
             key={`${highlight.id}-${rectIndex}`}
-            className="absolute bg-yellow-200/40"
+            className="absolute"
             style={{
               left: `${rect.x * 100}%`,
               top: `${rect.y * 100}%`,
               width: `${rect.width * 100}%`,
               height: `${rect.height * 100}%`,
+              backgroundColor: highlight.color || 'rgba(255, 255, 0, 0.3)', // استفاده از رنگ خاص هایلایت یا رنگ پیش‌فرض
               transform: `scale(${scale})`,
               transformOrigin: '0 0',
               mixBlendMode: 'multiply'
@@ -1554,6 +1576,36 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
       </div>
     ));
   };
+
+  // تابع برای رنگ هایلایت
+  const handleHighlightColorSelect = (color: string) => {
+    console.log(`Highlight color selected: ${color}`);
+    // ذخیره رنگ در localStorage برای استفاده‌های بعدی
+    localStorage.setItem('last-highlight-color', color);
+    setSelectedHighlightColor(color);
+  };
+
+  useEffect(() => {
+    // ذخیره رنگ فعلی در یک صفت DOM برای دسترسی مستقیم
+    document.documentElement.setAttribute('data-highlight-color', selectedHighlightColor);
+    console.log(`Updated highlight color attribute: ${selectedHighlightColor}`);
+  }, [selectedHighlightColor]);
+
+  useEffect(() => {
+    // بارگذاری هایلایت‌های ذخیره شده
+    const savedHighlights = loadHighlightsFromStorage(resourceId);
+    if (savedHighlights && savedHighlights.length > 0) {
+      setHighlights(savedHighlights);
+      console.log(`Loaded ${savedHighlights.length} highlights from storage`);
+    }
+
+    // بارگذاری رنگ هایلایت ذخیره شده قبلی
+    const savedColor = localStorage.getItem('last-highlight-color');
+    if (savedColor) {
+      console.log(`Loaded saved highlight color: ${savedColor}`);
+      setSelectedHighlightColor(savedColor);
+    }
+  }, [resourceId]);
 
   return (
     <div className="flex flex-col h-full" ref={outerContainerRef}>
@@ -1636,6 +1688,9 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
                 eraseMode={eraseMode}
                 onToggleErase={toggleEraseMode}
                 debugMode={false}
+                onHighlightColorSelect={handleHighlightColorSelect}
+                selectedHighlightColor={selectedHighlightColor}
+                highlightColors={highlightColors}
               />
             </div>
 

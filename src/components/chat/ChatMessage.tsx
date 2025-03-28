@@ -244,9 +244,9 @@ const persianStyle = {
   direction: 'rtl' as const,
   textAlign: 'right' as const,
   fontFamily: 'Tahoma, Arial, sans-serif',
-  lineHeight: '1.5',
+  lineHeight: '1.6',
   wordSpacing: '0.05rem',
-  margin: '0.3rem 0',
+  margin: '0.2rem 0',
   overflowWrap: 'break-word' as const,
   wordBreak: 'break-word' as const,
   whiteSpace: 'pre-wrap' as const,
@@ -258,7 +258,30 @@ const persianListStyle = {
   listStylePosition: 'inside' as const,
   paddingRight: '0.5rem', 
   marginRight: '0.5rem',
-  lineHeight: '1.7',
+  lineHeight: '1.5',
+};
+
+// استایل‌های بهبود یافته برای عناوین
+const headingStyles = {
+  h1: {
+    fontWeight: 'bold' as const,
+    marginTop: '1.2rem',
+    marginBottom: '0rem',
+    color: '#b794f6',
+    borderBottom: '1px solid rgba(183, 148, 246, 0.3)',
+    paddingBottom: '0.05rem',
+  },
+  h2: {
+    fontWeight: 'bold' as const,
+    marginTop: '1rem',
+    marginBottom: '0rem',
+    color: '#b794f6',
+  },
+  h3: {
+    fontWeight: 'bold' as const,
+    marginTop: '0.8rem',
+    marginBottom: '0rem',
+  },
 };
 
 interface ChatMessageProps {
@@ -305,31 +328,55 @@ export const ChatMessage = ({ text, sender, image, audio, fontSize = 0.85 }: Cha
           <div className="ai-message w-full" style={{ ...persianStyleWithFontSize, maxWidth: '100%' }} dir="rtl">
             <ReactMarkdown
               components={{
-                p: ({ children }) => <p style={{ ...persianStyleWithFontSize, margin: '0.2rem 0' }} dir="rtl">{children}</p>,
-                h1: ({ children }) => <h1 style={{ ...persianStyleWithFontSize, fontSize: `${fontSize + 0.4}rem`, fontWeight: 'bold', margin: '0.5rem 0 0.2rem 0' }} dir="rtl">{children}</h1>,
-                h2: ({ children }) => <h2 style={{ ...persianStyleWithFontSize, fontSize: `${fontSize + 0.3}rem`, fontWeight: 'bold', margin: '0.5rem 0 0.2rem 0' }} dir="rtl">{children}</h2>,
-                h3: ({ children }) => <h3 style={{ ...persianStyleWithFontSize, fontSize: `${fontSize + 0.2}rem`, fontWeight: 'bold', margin: '0.5rem 0 0.2rem 0' }} dir="rtl">{children}</h3>,
-                h4: ({ children }) => <h4 style={{ ...persianStyleWithFontSize, fontSize: `${fontSize + 0.1}rem`, fontWeight: 'bold', margin: '0.5rem 0 0.2rem 0' }} dir="rtl">{children}</h4>,
-                h5: ({ children }) => <h5 style={{ ...persianStyleWithFontSize, fontWeight: 'bold', margin: '0.5rem 0 0.2rem 0' }} dir="rtl">{children}</h5>,
-                h6: ({ children }) => <h6 style={{ ...persianStyleWithFontSize, fontWeight: 'bold', margin: '0.5rem 0 0.2rem 0' }} dir="rtl">{children}</h6>,
-                ul: ({ children }) => <ul style={{ ...persianStyleWithFontSize, ...persianListStyle, listStyleType: 'disc', margin: '0.2rem 0' }} dir="rtl">{children}</ul>,
-                ol: ({ children }) => <ol style={{ ...persianStyleWithFontSize, ...persianListStyle, listStyleType: 'decimal', margin: '0.2rem 0' }} dir="rtl">{children}</ol>,
-                li: ({ children }) => <li style={{ ...persianStyleWithFontSize, display: 'list-item', margin: '0.1rem 0' }} dir="rtl">{children}</li>,
-                blockquote: ({ children }) => <blockquote style={{ ...persianStyleWithFontSize, borderRight: '4px solid #ccc', paddingRight: '1rem', fontStyle: 'italic', margin: '0.3rem 0' }} dir="rtl">{children}</blockquote>,
+                p: ({ children }) => <p style={{ ...persianStyleWithFontSize, margin: '0.1rem 0 0.15rem 0' }} dir="rtl">{children}</p>,
+                h1: ({ children }) => (
+                  <h1 style={{ 
+                    ...persianStyleWithFontSize, 
+                    fontSize: `${fontSize + 0.4}rem`, 
+                    ...headingStyles.h1 
+                  }} dir="rtl">{children}</h1>
+                ),
+                h2: ({ children }) => (
+                  <h2 style={{ 
+                    ...persianStyleWithFontSize, 
+                    fontSize: `${fontSize + 0.3}rem`, 
+                    ...headingStyles.h2 
+                  }} dir="rtl">{children}</h2>
+                ),
+                h3: ({ children }) => (
+                  <h3 style={{ 
+                    ...persianStyleWithFontSize, 
+                    fontSize: `${fontSize + 0.2}rem`, 
+                    ...headingStyles.h3
+                  }} dir="rtl">{children}</h3>
+                ),
+                h4: ({ children }) => <h4 style={{ ...persianStyleWithFontSize, fontSize: `${fontSize + 0.1}rem`, fontWeight: 'bold', margin: '0.8rem 0 0rem 0' }} dir="rtl">{children}</h4>,
+                h5: ({ children }) => <h5 style={{ ...persianStyleWithFontSize, fontWeight: 'bold', margin: '0.7rem 0 0rem 0' }} dir="rtl">{children}</h5>,
+                h6: ({ children }) => <h6 style={{ ...persianStyleWithFontSize, fontWeight: 'bold', margin: '0.6rem 0 0rem 0' }} dir="rtl">{children}</h6>,
+                ul: ({ children }) => <ul style={{ ...persianStyleWithFontSize, ...persianListStyle, listStyleType: 'disc', margin: '0.1rem 0 0.4rem 0' }} dir="rtl">{children}</ul>,
+                ol: ({ children }) => <ol style={{ ...persianStyleWithFontSize, ...persianListStyle, listStyleType: 'decimal', margin: '0.1rem 0 0.4rem 0' }} dir="rtl">{children}</ol>,
+                li: ({ children }) => <li style={{ ...persianStyleWithFontSize, display: 'list-item', margin: '0.05rem 0 0.1rem 0', paddingRight: '0.2rem' }} dir="rtl">{children}</li>,
+                blockquote: ({ children }) => <blockquote style={{ ...persianStyleWithFontSize, borderRight: '4px solid #b794f6', paddingRight: '0.75rem', fontStyle: 'italic', margin: '0.2rem 0 0.4rem 0', backgroundColor: 'rgba(183, 148, 246, 0.05)' }} dir="rtl">{children}</blockquote>,
                 code: ({ className, children }) => {
                   const match = /language-(\w+)/.exec(className || '');
                   return match ? (
-                    <pre style={{ direction: 'ltr', textAlign: 'left', overflow: 'auto', maxWidth: '100%' }}>
+                    <pre style={{ direction: 'ltr', textAlign: 'left', overflow: 'auto', maxWidth: '100%', backgroundColor: '#1a1a1a', padding: '0.5rem', borderRadius: '0.25rem', margin: '0.2rem 0' }}>
                       <code className={className}>
                         {children}
                       </code>
                     </pre>
                   ) : (
-                    <code className={className} style={{ direction: 'ltr', textAlign: 'left' }}>
+                    <code className={className} style={{ direction: 'ltr', textAlign: 'left', backgroundColor: 'rgba(0,0,0,0.1)', padding: '0.1rem 0.3rem', borderRadius: '0.25rem' }}>
                       {children}
                     </code>
                   );
                 },
+                // اضافه کردن استایل برای تگ strong (متن پررنگ)
+                strong: ({ children }) => <strong style={{ fontWeight: 'bold', color: '#b794f6' }}>{children}</strong>,
+                // اضافه کردن استایل برای تگ em (متن مورب)
+                em: ({ children }) => <em style={{ fontStyle: 'italic' }}>{children}</em>,
+                // کاهش مارجین برای فاصله کمتر بین پاراگراف‌ها
+                br: () => <br style={{ display: 'block', margin: '0.1rem 0' }} />,
               }}
             >
               {text}
