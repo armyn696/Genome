@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ZoomIn, ZoomOut, RotateCw, Wand2, Camera, TextSelect } from "lucide-react";
+import { ZoomIn, ZoomOut, RotateCw, Wand2, Camera, TextSelect, Eraser } from "lucide-react";
 
 interface PDFZoomControlsProps {
   zoom: number;
@@ -20,6 +20,8 @@ interface PDFZoomControlsProps {
   onScreenshot: () => void;
   highlightMode?: boolean;
   onToggleHighlight?: () => void;
+  eraseMode?: boolean;
+  onToggleErase?: () => void;
   debugMode?: boolean;
 }
 
@@ -40,6 +42,8 @@ export const PDFZoomControls: React.FC<PDFZoomControlsProps> = ({
   onScreenshot,
   highlightMode,
   onToggleHighlight,
+  eraseMode,
+  onToggleErase,
   debugMode,
 }) => {
   // اضافه کردن state برای مدیریت input دستی صفحه
@@ -129,6 +133,18 @@ export const PDFZoomControls: React.FC<PDFZoomControlsProps> = ({
             className={highlightMode ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}
           >
             <TextSelect className="h-4 w-4" />
+          </Button>
+        )}
+        
+        {/* دکمه پاک کن */}
+        {onToggleErase && (
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={onToggleErase}
+            className={eraseMode ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}
+          >
+            <Eraser className="h-4 w-4" />
           </Button>
         )}
       </div>

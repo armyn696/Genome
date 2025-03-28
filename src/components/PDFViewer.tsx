@@ -11,6 +11,38 @@ import { Label } from '@/components/ui/label';
 import { configurePdfJs, setPdfOptions } from '@/utils/pdfConfig';
 import { v4 as uuidv4 } from 'uuid'; // برای ID منحصر به فرد هایلایت‌ها
 
+// کلید localStorage بر اساس resourceId
+const getStorageKey = (resourceId: string) => `pdf-highlights-${resourceId}`;
+
+// تابع برای ذخیره هایلایت‌ها در localStorage
+const saveHighlightsToStorage = (resourceId: string, highlights: Highlight[]) => {
+  try {
+    const key = getStorageKey(resourceId);
+    localStorage.setItem(key, JSON.stringify(highlights));
+    console.log(`Highlights saved for resource ${resourceId}`);
+  } catch (error) {
+    console.error("Failed to save highlights to localStorage:", error);
+    // شاید یک toast برای اطلاع کاربر نمایش دهیم
+  }
+};
+
+// تابع برای بارگذاری هایلایت‌ها از localStorage
+const loadHighlightsFromStorage = (resourceId: string): Highlight[] => {
+  try {
+    const key = getStorageKey(resourceId);
+    const savedHighlights = localStorage.getItem(key);
+    if (savedHighlights) {
+      console.log(`Highlights loaded for resource ${resourceId}`);
+      return JSON.parse(savedHighlights) as Highlight[];
+    }
+  } catch (error) {
+    console.error("Failed to load highlights from localStorage:", error);
+    // پاک کردن داده‌های خراب احتمالی
+    localStorage.removeItem(getStorageKey(resourceId));
+  }
+  return []; // اگر چیزی ذخیره نشده یا خطایی رخ داده، آرایه خالی برگردان
+};
+
 // تنظیم کانفیگ pdfjs
 configurePdfJs();
 
@@ -71,13 +103,37 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
   const [screenshotStart, setScreenshotStart] = useState<{ x: number; y: number; pageIndex: number } | null>(null);
   const [screenshotEnd, setScreenshotEnd] = useState<{ x: number; y: number; pageIndex: number } | null>(null);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
-  
+  const [eraseMode, setEraseMode] = useState<boolean>(false);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const outerContainerRef = useRef<HTMLDivElement>(null);
   const canvasRefs = useRef<(HTMLCanvasElement | null)[]>([]);
   const linesRef = useRef<Line[][]>([]);
   const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
+
+  // --- شروع منطق ذخیره/بازیابی هایلایت ---
+
+  // بارگذاری هایلایت‌های ذخیره شده هنگام mount شدن کامپوننت یا تغییر resourceId
+  useEffect(() => {
+    if (resourceId) {
+      const loadedHighlights = loadHighlightsFromStorage(resourceId);
+      setHighlights(loadedHighlights);
+    }
+    // فقط یک بار در mount یا با تغییر resourceId اجرا شود
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resourceId]);
+
+  // ذخیره هایلایت‌ها هر زمان که state تغییر می‌کند
+  useEffect(() => {
+    // فقط اگر resourceId وجود داشته باشد و هایلایت‌ها تغییر کرده باشند ذخیره کن
+    // از یک debounce یا throttle می‌توان برای بهینه‌سازی استفاده کرد اگر تغییرات زیاد باشند
+    if (resourceId) {
+      saveHighlightsToStorage(resourceId, highlights);
+    }
+  }, [highlights, resourceId]);
+
+  // --- پایان منطق ذخیره/بازیابی هایلایت ---
 
   // تابع برای فعال کردن انتخاب متن
   const enableTextSelection = () => {
@@ -105,6 +161,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
       // غیرفعال کردن دیگر حالت‌ها
       setHighlightMode(false);
       setScreenshotMode(false);
+      setEraseMode(false);
       
       // آماده‌سازی کانواس‌ها برای رسم
       setTimeout(() => {
@@ -126,6 +183,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
       // غیرفعال کردن دیگر حالت‌ها
       setDrawingMode(false);
       setScreenshotMode(false);
+      setEraseMode(false);
       
       // فعال کردن انتخاب متن
       enableTextSelection();
@@ -135,6 +193,23 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
     console.log(`Highlight mode is now: ${newMode}`);
   };
   
+  // تابع برای toggle کردن حالت پاک کن
+  const toggleEraseMode = () => {
+    console.log('Toggle erase mode requested');
+    // منطق جدید: فقط یک حالت فعال است
+    const newMode = !eraseMode;
+    
+    if (newMode) {
+      // غیرفعال کردن دیگر حالت‌ها
+      setDrawingMode(false);
+      setHighlightMode(false);
+      setScreenshotMode(false);
+    }
+    
+    setEraseMode(newMode);
+    console.log(`Erase mode is now: ${newMode}`);
+  };
+
   // تابع برای toggle کردن حالت اسکرین‌شات
   const toggleScreenshotMode = () => {
     // اگر در حال خروج از حالت اسکرین‌شات هستیم، مطمئن شویم که هیچ ناحیه انتخاب شده‌ای باقی نمی‌ماند
@@ -149,6 +224,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
     if (!screenshotMode) {
       setDrawingMode(false);
       setHighlightMode(false);
+      setEraseMode(false);
     }
   };
 
@@ -848,7 +924,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
           scale: 4, // افزایش مقیاس برای کیفیت بهتر
           useCORS: true,
           allowTaint: true,
-          backgroundColor: '#ffffff',
+          backgroundColor: '#ffffff', // پس‌زمینه سفید برای وضوح بیشتر
           ignoreElements: (element) => {
             // حذف المان‌های اضافی مثل ابزار رسم و غیره که باید در اسکرین‌شات نباشند
             return element.classList.contains('drawing-tools') || 
@@ -1102,10 +1178,10 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
             const rect = rects[i];
 
             // تبدیل به مختصات نسبی
-            const relativeX = (rect.left - pageBounds.left) / scale;
-            const relativeY = (rect.top - pageBounds.top) / scale;
-            const width = rect.width / scale;
-            const height = rect.height / scale;
+            const relativeX = (rect.left - pageBounds.left) / pageBounds.width;
+            const relativeY = (rect.top - pageBounds.top) / pageBounds.height;
+            const width = rect.width / pageBounds.width;
+            const height = rect.height / pageBounds.height;
 
             // مطمئن شو که مختصات وارد صفحه هستند
             if (relativeX >= 0 && relativeY >= 0) {
@@ -1120,24 +1196,77 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
             }
           }
 
-          // ایجاد هایلایت جدید
-          if (highlightRects.length > 0) {
-            const newHighlight: Highlight = {
-              id: uuidv4(),
-              pageIndex,
-              rects: highlightRects,
-              text: selectedText,
-              color: 'rgba(255, 255, 0, 0.3)',
-            };
-
-            console.log('Adding new highlight:', newHighlight);
-            setHighlights((prev) => [...prev, newHighlight]);
-
-            // پاک کردن انتخاب
-            selection.removeAllRanges();
+          // ادغام مستطیل‌های همپوشان برای جلوگیری از رنگ غلیظ‌تر
+          const mergedRects: HighlightRect[] = [];
+          
+          // اگر کمتر از دو مستطیل داریم، نیازی به ادغام نیست
+          if (highlightRects.length <= 1) {
+            mergedRects.push(...highlightRects);
           } else {
-            console.warn('No valid highlight rectangles created');
+            // مرتب‌سازی مستطیل‌ها بر اساس موقعیت Y برای پردازش خط به خط
+            const sortedRects = [...highlightRects].sort((a, b) => {
+              // اول بر اساس y مرتب کن
+              const yDiff = a.y - b.y;
+              if (Math.abs(yDiff) < 0.01) { // اگر تقریباً در یک خط هستند
+                return a.x - b.x; // بر اساس x مرتب کن
+              }
+              return yDiff;
+            });
+            
+            // بررسی همپوشانی و ادغام مستطیل‌ها
+            let currentGroup: HighlightRect[] = [sortedRects[0]];
+            
+            for (let i = 1; i < sortedRects.length; i++) {
+              const nextRect = sortedRects[i];
+              const lastRect = currentGroup[currentGroup.length - 1];
+              
+              // بررسی اینکه آیا در همان خط هستند (با تلورانس کم)
+              const sameRow = Math.abs(nextRect.y - lastRect.y) < 0.01 && 
+                               Math.abs((nextRect.y + nextRect.height) - (lastRect.y + lastRect.height)) < 0.01;
+              
+              // آیا همپوشانی افقی دارند یا نزدیک به هم هستند
+              const closeHorizontally = nextRect.x - (lastRect.x + lastRect.width) < 0.01;
+              
+              if (sameRow && closeHorizontally) {
+                // ادغام با مستطیل قبلی در همان گروه
+                currentGroup[currentGroup.length - 1] = {
+                  x: Math.min(lastRect.x, nextRect.x),
+                  y: Math.min(lastRect.y, nextRect.y),
+                  width: Math.max(lastRect.x + lastRect.width, nextRect.x + nextRect.width) - 
+                         Math.min(lastRect.x, nextRect.x),
+                  height: Math.max(lastRect.y + lastRect.height, nextRect.y + nextRect.height) - 
+                          Math.min(lastRect.y, nextRect.y)
+                };
+              } else if (sameRow) {
+                // در همان خط اما کاملاً جدا - اضافه به گروه فعلی
+                currentGroup.push(nextRect);
+              } else {
+                // خط جدید - اضافه کردن گروه قبلی به نتیجه نهایی و شروع گروه جدید
+                mergedRects.push(...currentGroup);
+                currentGroup = [nextRect];
+              }
+            }
+            
+            // اضافه کردن آخرین گروه
+            mergedRects.push(...currentGroup);
           }
+
+          console.log(`Original rects: ${highlightRects.length}, Merged rects: ${mergedRects.length}`);
+
+          // ایجاد یک هایلایت جدید با مستطیل‌های ادغام شده
+          const newHighlight: Highlight = {
+            id: uuidv4(),
+            pageIndex,
+            rects: mergedRects, // استفاده از مستطیل‌های ادغام شده
+            text: selectedText,
+            color: 'rgba(255, 255, 0, 0.3)' // رنگ هایلایت با شفافیت ثابت
+          };
+
+          console.log('Adding new highlight:', newHighlight);
+          setHighlights((prev) => [...prev, newHighlight]);
+
+          // پاک کردن انتخاب
+          selection.removeAllRanges();
         } catch (error) {
           console.error('Error creating highlight:', error);
         }
@@ -1165,6 +1294,214 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
     };
   }, [highlightMode, scale, currentPage]);
 
+  // تابع برای پاک کردن تمام هایلایت‌های صفحه فعلی
+  const clearHighlightsOnCurrentPage = () => {
+    if (currentPage < 1) return;
+    
+    console.log(`Clearing highlights on page ${currentPage}`);
+    
+    // فیلتر کردن هایلایت‌ها - حفظ هایلایت‌های صفحات دیگر
+    setHighlights(prev => prev.filter(highlight => highlight.pageIndex !== currentPage - 1));
+  };
+
+  // تابع برای پاک کردن هایلایت‌های انتخاب شده
+  const eraseHighlightAtPosition = (e: React.MouseEvent, pageIndex: number) => {
+    if (!eraseMode) return;
+    
+    console.log(`Attempting to erase highlight at position on page ${pageIndex + 1}`);
+    
+    // تبدیل موقعیت ماوس به مختصات نسبی صفحه
+    const pageElement = document.querySelector(`.pdf-page-container:nth-child(${pageIndex + 1})`) as HTMLElement;
+    if (!pageElement) {
+      console.error('Page element not found for erasing highlight');
+      return;
+    }
+    
+    const pageBounds = pageElement.getBoundingClientRect();
+    const relativeX = (e.clientX - pageBounds.left) / pageBounds.width;
+    const relativeY = (e.clientY - pageBounds.top) / pageBounds.height;
+    
+    console.log(`Click at relative position: x=${relativeX.toFixed(2)}, y=${relativeY.toFixed(2)}`);
+    
+    // پیدا کردن هایلایت در این موقعیت
+    const highlightsOnPage = highlights.filter(h => h.pageIndex === pageIndex);
+    let highlightToRemove: Highlight | null = null;
+    
+    // بررسی هر هایلایت برای پیدا کردن مورد مناسب برای حذف
+    for (const highlight of highlightsOnPage) {
+      // بررسی هر مستطیل هایلایت
+      for (const rect of highlight.rects) {
+        if (
+          relativeX >= rect.x && 
+          relativeX <= rect.x + rect.width && 
+          relativeY >= rect.y && 
+          relativeY <= rect.y + rect.height
+        ) {
+          highlightToRemove = highlight;
+          break;
+        }
+      }
+      
+      if (highlightToRemove) break;
+    }
+    
+    // حذف هایلایت پیدا شده
+    if (highlightToRemove) {
+      console.log(`Removing highlight:`, highlightToRemove);
+      setHighlights(prev => prev.filter(h => h.id !== highlightToRemove!.id));
+    } else {
+      console.log('No highlight found at this position');
+    }
+  };
+
+  // تابع برای ادغام مستطیل‌های همپوشان
+  const mergeOverlappingRects = (rects: HighlightRect[]): HighlightRect[] => {
+    if (rects.length <= 1) return rects;
+
+    // مرتب‌سازی مستطیل‌ها بر اساس موقعیت y
+    const sortedRects = [...rects].sort((a, b) => a.y - b.y);
+    const mergedRects: HighlightRect[] = [];
+    let currentRect = sortedRects[0];
+
+    for (let i = 1; i < sortedRects.length; i++) {
+      const nextRect = sortedRects[i];
+      
+      // بررسی همپوشانی عمودی
+      const verticalOverlap = 
+        currentRect.y <= nextRect.y + nextRect.height &&
+        nextRect.y <= currentRect.y + currentRect.height;
+      
+      // بررسی همپوشانی افقی
+      const horizontalOverlap =
+        currentRect.x <= nextRect.x + nextRect.width &&
+        nextRect.x <= currentRect.x + currentRect.width;
+
+      if (verticalOverlap && horizontalOverlap) {
+        // ادغام مستطیل‌های همپوشان
+        currentRect = {
+          x: Math.min(currentRect.x, nextRect.x),
+          y: Math.min(currentRect.y, nextRect.y),
+          width: Math.max(
+            currentRect.x + currentRect.width,
+            nextRect.x + nextRect.width
+          ) - Math.min(currentRect.x, nextRect.x),
+          height: Math.max(
+            currentRect.y + currentRect.height,
+            nextRect.y + nextRect.height
+          ) - Math.min(currentRect.y, nextRect.y)
+        };
+      } else {
+        mergedRects.push(currentRect);
+        currentRect = nextRect;
+      }
+    }
+
+    mergedRects.push(currentRect);
+    return mergedRects;
+  };
+
+  // تابع برای بررسی همپوشانی دو مستطیل با حاشیه اطمینان
+  const doRectsOverlap = (rect1: HighlightRect, rect2: HighlightRect): boolean => {
+    // اضافه کردن حاشیه اطمینان
+    const margin = 0.001; // 0.1% از عرض/ارتفاع صفحه
+    
+    const r1 = {
+      left: rect1.x - margin,
+      right: rect1.x + rect1.width + margin,
+      top: rect1.y - margin,
+      bottom: rect1.y + rect1.height + margin
+    };
+    
+    const r2 = {
+      left: rect2.x - margin,
+      right: rect2.x + rect2.width + margin,
+      top: rect2.y - margin,
+      bottom: rect2.y + rect2.height + margin
+    };
+    
+    // بررسی همپوشانی با حاشیه اطمینان
+    return !(
+      r1.right < r2.left ||
+      r2.right < r1.left ||
+      r1.bottom < r2.top ||
+      r2.bottom < r1.top
+    );
+  };
+
+  // تابع برای بررسی همپوشانی با هایلایت‌های موجود
+  const hasOverlappingHighlight = (newRects: HighlightRect[], pageIndex: number): boolean => {
+    // فیلتر کردن هایلایت‌های صفحه فعلی
+    const existingHighlights = highlights.filter(h => h.pageIndex === pageIndex);
+    
+    // بررسی همپوشانی با هر هایلایت موجود
+    for (const highlight of existingHighlights) {
+      for (const existingRect of highlight.rects) {
+        for (const newRect of newRects) {
+          // اگر حتی یک همپوشانی پیدا شد، true برمی‌گردانیم
+          if (doRectsOverlap(existingRect, newRect)) {
+            console.log('Overlap detected between:', { existingRect, newRect });
+            return true;
+          }
+        }
+      }
+    }
+    
+    return false;
+  };
+
+  // تابع برای ذخیره هایلایت جدید
+  const saveHighlight = (selection: Selection, pageIndex: number) => {
+    if (!selection || selection.isCollapsed) return;
+    
+    const range = selection.getRangeAt(0);
+    const pageElement = document.querySelector(`.pdf-page-container:nth-child(${pageIndex + 1})`) as HTMLElement;
+    if (!pageElement) return;
+    
+    const pageBounds = pageElement.getBoundingClientRect();
+    const rects: HighlightRect[] = [];
+    const selectedText = selection.toString();
+    
+    // تبدیل DOMRects به مختصات نسبی
+    const clientRects = Array.from(range.getClientRects());
+    for (const rect of clientRects) {
+      // حذف حاشیه اطمینان از محاسبه مختصات
+      const relativeRect = {
+        x: (rect.left - pageBounds.left) / pageBounds.width,
+        y: (rect.top - pageBounds.top) / pageBounds.height,
+        width: rect.width / pageBounds.width,
+        height: rect.height / pageBounds.height
+      };
+      // اطمینان از اینکه مختصات منفی نباشند
+      relativeRect.x = Math.max(0, relativeRect.x);
+      relativeRect.y = Math.max(0, relativeRect.y);
+      relativeRect.width = Math.max(0, relativeRect.width);
+      relativeRect.height = Math.max(0, relativeRect.height);
+      
+      rects.push(relativeRect);
+    }
+    
+    // عدم ادغام مستطیل‌های داخلی هایلایت
+    // const mergedRects = mergeOverlappingRects(rects);
+    
+    // بررسی همپوشانی با هایلایت‌های موجود با استفاده از مستطیل‌های اصلی
+    if (hasOverlappingHighlight(rects, pageIndex)) {
+      console.log('This area is already highlighted or overlaps with an existing highlight.');
+      selection.removeAllRanges();
+      return;
+    }
+    
+    const newHighlight: Highlight = {
+      id: `highlight-${Date.now()}`,
+      pageIndex,
+      rects: rects, // استفاده مستقیم از rects بدون ادغام
+      text: selectedText,
+      color: 'rgba(255, 255, 150, 0.4)'
+    };
+    
+    setHighlights(prev => [...prev, newHighlight]);
+    selection.removeAllRanges();
+  };
+
   // مدیریت بارگذاری فایل PDF
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -1191,6 +1528,31 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
     };
     
     fileReader.readAsArrayBuffer(file);
+  };
+
+  // رندر کردن هایلایت‌ها برای یک صفحه خاص
+  const renderHighlights = (pageIndex: number) => {
+    const pageHighlights = highlights.filter((h) => h.pageIndex === pageIndex);
+    
+    return pageHighlights.map((highlight) => (
+      <div key={highlight.id} className="absolute top-0 left-0 w-full h-full pointer-events-none">
+        {highlight.rects.map((rect, rectIndex) => (
+          <div
+            key={`${highlight.id}-${rectIndex}`}
+            className="absolute bg-yellow-200/40"
+            style={{
+              left: `${rect.x * 100}%`,
+              top: `${rect.y * 100}%`,
+              width: `${rect.width * 100}%`,
+              height: `${rect.height * 100}%`,
+              transform: `scale(${scale})`,
+              transformOrigin: '0 0',
+              mixBlendMode: 'multiply'
+            }}
+          />
+        ))}
+      </div>
+    ));
   };
 
   return (
@@ -1267,19 +1629,13 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
                 drawingMode={drawingMode}
                 onToggleDrawing={toggleDrawingMode}
                 screenshotMode={screenshotMode}
-                onToggleScreenshot={() => {
-                  const newMode = !screenshotMode;
-                  console.log('Screenshot mode toggled:', newMode);
-                  setScreenshotMode(newMode);
-                  if (newMode) {
-                    setDrawingMode(false);
-                    setHighlightMode(false);
-                  }
-                }}
+                onToggleScreenshot={handleScreenshot}
                 onScreenshot={handleScreenshot}
                 highlightMode={highlightMode}
                 onToggleHighlight={toggleHighlightMode}
-                debugMode={true} // فعال کردن حالت debug برای مشاهده جزئیات بیشتر
+                eraseMode={eraseMode}
+                onToggleErase={toggleEraseMode}
+                debugMode={false}
               />
             </div>
 
@@ -1341,21 +1697,26 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
                           left: 0,
                           width: '100%',
                           height: '100%',
-                          pointerEvents: drawingMode || screenshotMode ? 'auto' : 'none',
+                          pointerEvents: drawingMode || screenshotMode || eraseMode ? 'auto' : 'none',
                           cursor: drawingMode 
                             ? 'crosshair' 
                             : screenshotMode 
                               ? 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\'><path d=\'M11 2h2v20h-2V2z\' fill=\'white\'/><path d=\'M2 11h20v2H2v-2z\' fill=\'white\'/></svg>") 12 12, auto'
-                              : 'default',
+                              : eraseMode 
+                                ? 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\'><path d=\'M11 2h2v20h-2V2z\' fill=\'white\'/><path d=\'M2 11h20v2H2v-2z\' fill=\'white\'/></svg>") 12 12, auto'
+                                : 'default',
                           zIndex: 20,
                         }}
                         onMouseDown={(e) => {
-                          console.log('Canvas mousedown event:', { drawingMode, screenshotMode, highlightMode });
+                          console.log('Canvas mousedown event:', { drawingMode, screenshotMode, eraseMode, highlightMode });
                           if (drawingMode) {
                             handleDrawingStart(e, index);
                             e.stopPropagation(); // جلوگیری از انتشار رویداد به عناصر زیرین
                           } else if (screenshotMode) {
                             startScreenshot(e);
+                            e.stopPropagation(); // جلوگیری از انتشار رویداد به عناصر زیرین
+                          } else if (eraseMode) {
+                            eraseHighlightAtPosition(e, index);
                             e.stopPropagation(); // جلوگیری از انتشار رویداد به عناصر زیرین
                           } else if (highlightMode) {
                             // TODO: Add highlight functionality
@@ -1388,26 +1749,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
                           zIndex: 30,
                         }}
                       >
-                        {highlights
-                          .filter((h) => h.pageIndex === index)
-                          .map((highlight) =>
-                            highlight.rects.map((rect, rectIndex) => (
-                              <div
-                                key={`${highlight.id}-${rectIndex}`}
-                                style={{
-                                  position: 'absolute',
-                                  left: `${rect.x * scale}px`,
-                                  top: `${rect.y * scale}px`,
-                                  width: `${rect.width * scale}px`,
-                                  height: `${rect.height * scale}px`,
-                                  backgroundColor: highlight.color || 'rgba(255, 255, 0, 0.3)',
-                                  pointerEvents: 'none',
-                                  mixBlendMode: 'multiply',
-                                  borderRadius: '2px',
-                                }}
-                              />
-                            ))
-                          )}
+                        {renderHighlights(index)}
                       </div>
 
                       {/* لایه اسکرین‌شات - نمایش مستطیل انتخاب شده */}
