@@ -6,7 +6,7 @@ import { configurePdfJs, setPdfOptions } from '@/utils/pdfConfig';
 configurePdfJs();
 
 // تنظیم Gemini API
-const GEMINI_API_KEY: string = "AIzaSyD4_v-Qvhix5_6lmm74DL3jFrsPnimsIbc";
+const GEMINI_API_KEY: string = "AIzaSyAwzz-_Xf6XJYGbmC9Se_KxJD6h7LDIw2g";
 const genAI: GoogleGenerativeAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 /**
@@ -61,8 +61,13 @@ export const generatePdfResponse = async (pdfText: string, userQuestion: string,
     
     // ایجاد مدل Gemini
     const model: GenerativeModel = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-      generationConfig,
+      model: "gemini-1.5-pro",
+      generationConfig: {
+        maxOutputTokens: 4096,
+        temperature: 0.7,
+        topP: 0.95,
+        topK: 40,
+      },
     });
 
     let result;

@@ -51,7 +51,7 @@ interface PDFViewerProps {
   displayName: string;
   fileName?: string;
   onDrawingComplete?: (imageData: string) => void;
-  onScreenshot?: (screenshotData: string) => void;
+  onScreenshot?: (screenshotData: string, fileName?: string) => void;
 }
 
 interface Line {
@@ -146,20 +146,9 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
 
   // --- پایان منطق ذخیره/بازیابی هایلایت ---
 
-  // تابع برای فعال کردن انتخاب متن
+  // تابع برای فعال کردن انتخاب متن (دیگر مستقیماً در toggle فراخوانی نمی‌شود)
   const enableTextSelection = () => {
-    console.log('Enabling text selection on all pages');
-
-    const textLayers = document.querySelectorAll('.react-pdf__Page__textContent');
-    textLayers.forEach((textLayer, index) => {
-      if (textLayer) {
-        (textLayer as HTMLElement).style.userSelect = 'text';
-        (textLayer as HTMLElement).style.pointerEvents = 'auto';
-        (textLayer as HTMLElement).style.zIndex = '40';
-
-        console.log(`Enabled text selection for text layer ${index + 1} using DOM directly`);
-      }
-    });
+    // ... (Implementation remains, but usage changes)
   };
 
   // تابع برای toggle کردن حالت رسم
@@ -187,19 +176,13 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
   // تابع برای toggle کردن حالت هایلایت
   const toggleHighlightMode = () => {
     console.log('Toggle highlight mode requested');
-    // منطق جدید: فقط یک حالت فعال است
     const newMode = !highlightMode;
-    
     if (newMode) {
-      // غیرفعال کردن دیگر حالت‌ها
       setDrawingMode(false);
       setScreenshotMode(false);
       setEraseMode(false);
-      
-      // فعال کردن انتخاب متن
-      enableTextSelection();
+      // حذف فراخوانی enableTextSelection();
     }
-    
     setHighlightMode(newMode);
     console.log(`Highlight mode is now: ${newMode}`);
   };
@@ -727,7 +710,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
         const screenshotImage = croppedCanvas.toDataURL('image/png');
 
         if (onScreenshot) {
-          onScreenshot(screenshotImage);
+          onScreenshot(screenshotImage, fileName);
         }
 
         console.log('Screenshot taken successfully');
@@ -965,7 +948,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
           const imageData = canvas.toDataURL('image/png');
 
           if (onScreenshot) {
-            onScreenshot(imageData);
+            onScreenshot(imageData, fileName);
           } else if (onDrawingComplete) {
             console.log('Using onDrawingComplete callback...');
             // اگر onScreenshot تعریف نشده باشد، از onDrawingComplete استفاده کن
@@ -1290,22 +1273,22 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
       }, 100);
     };
 
-    // چک کردن و فعال کردن لایه‌های متنی هر 500ms تا زمانی که همه آنها پیدا شوند
-    const checkInterval = setInterval(enableTextSelection, 500);
-
     // اضافه کردن event listeners
     document.addEventListener('mouseup', handleDocumentMouseUp);
 
     return () => {
-      clearInterval(checkInterval);
       document.removeEventListener('mouseup', handleDocumentMouseUp);
 
-      // غیرفعال کردن انتخاب متن
+      // بازگرداندن قابلیت انتخاب متن به حالت پیش‌فرض
       const textLayers = document.querySelectorAll('.react-pdf__Page__textContent');
       textLayers.forEach((textLayer) => {
         if (textLayer) {
-          (textLayer as HTMLElement).style.userSelect = 'none';
-          (textLayer as HTMLElement).style.pointerEvents = 'none';
+          // به جای 'none'، به حالت قابل انتخاب برگردان
+          (textLayer as HTMLElement).style.userSelect = 'text';
+          (textLayer as HTMLElement).style.pointerEvents = 'auto';
+          // zIndex را هم می‌توانیم به حالت پیش‌فرض برگردانیم یا حذف کنیم، فعلا دست نمی‌زنیم
+          // (textLayer as HTMLElement).style.zIndex = ''; // یا مقدار پیش‌فرض دیگر
+          console.log(`Restored text selection for text layer`);
         }
       });
     };
@@ -1525,7 +1508,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
 
   // مدیریت بارگذاری فایل PDF
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+    const file = event.target.files?.[0]; // آبجکت File
     if (!file) return;
 
     console.log(`Selected file: ${file.name}`);
@@ -1538,7 +1521,8 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
       
       // ذخیره PDF در localStorage برای استفاده‌های بعدی
       try {
-        await storePdf(resourceId, arrayBuffer);
+        // ارسال آبجکت file به جای arrayBuffer
+        await storePdf(file); 
         console.log('PDF stored successfully');
       } catch (error) {
         console.error('Failed to store PDF:', error);
@@ -1606,6 +1590,46 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
       setSelectedHighlightColor(savedColor);
     }
   }, [resourceId]);
+
+  // *** useEffect جدید برای مدیریت مرکزی استایل‌های لایه متن ***
+  useEffect(() => {
+    const textLayers = document.querySelectorAll('.react-pdf__Page__textContent');
+    const isInteractiveCanvasModeActive = drawingMode || screenshotMode || eraseMode;
+
+    if (isInteractiveCanvasModeActive) {
+      // غیرفعال کردن انتخاب متن اگر Draw/Screenshot/Erase فعال است
+      console.log('Interactive canvas mode active, disabling text selection & pointer events for text layer.');
+      textLayers.forEach((textLayer) => {
+        if (textLayer) {
+          (textLayer as HTMLElement).style.userSelect = 'none';
+          (textLayer as HTMLElement).style.pointerEvents = 'none';
+          // zIndex را پایین‌تر می‌آوریم یا دست نمی‌زنیم تا canvas کلیک‌ها را بگیرد
+          // (textLayer as HTMLElement).style.zIndex = '10'; // Example
+        }
+      });
+    } else {
+      // فعال کردن انتخاب متن اگر فقط Highlight فعال است یا هیچ حالتی فعال نیست
+      console.log('Interactive canvas modes inactive, enabling text selection & pointer events for text layer.');
+      textLayers.forEach((textLayer, index) => {
+        if (textLayer) {
+          (textLayer as HTMLElement).style.userSelect = 'text';
+          (textLayer as HTMLElement).style.pointerEvents = 'auto';
+          (textLayer as HTMLElement).style.zIndex = '40'; // اطمینان از بالا بودن برای انتخاب
+          // console.log(`Enabled text selection for text layer ${index + 1} via central effect`); // Log less verbose
+        }
+      });
+    }
+    // پاکسازی: در زمان unmount کامپوننت، به حالت پیش‌فرض برگردان (اختیاری)
+    // return () => {
+    //   textLayers.forEach((textLayer) => {
+    //      if (textLayer) {
+    //        (textLayer as HTMLElement).style.userSelect = 'text';
+    //        (textLayer as HTMLElement).style.pointerEvents = 'auto';
+    //        (textLayer as HTMLElement).style.zIndex = '40';
+    //      }
+    //    });
+    // }
+  }, [drawingMode, highlightMode, screenshotMode, eraseMode]); // اجرای مجدد با تغییر هر حالت
 
   return (
     <div className="flex flex-col h-full" ref={outerContainerRef}>

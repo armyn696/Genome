@@ -5,22 +5,29 @@ import { StudyHubSidebar } from '@/components/studyhub/StudyHubSidebar';
 import { useResources } from '@/hooks/useResources';
 import { Link } from 'react-router-dom';
 import { Resource } from '@/types';
+import { useState } from 'react';
 
 export const PDFPage = () => {
   const { resourceId } = useParams();
   const navigate = useNavigate();
   const { resources, addResource, deleteResource } = useResources();
+  // اضافه کردن state برای مدیریت نمای فعلی
+  const [currentView, setCurrentView] = useState<'chat' | 'notes' | 'pdf' | 'transcript' | 'dual'>('pdf');
 
   const resource = resources.find(r => r.id === resourceId);
   const displayName = resource?.name || '';
 
-  const handleViewChange = (view: 'home' | 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame') => {
+  const handleViewChange = (view: 'home' | 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame' | 'teach') => {
+    // اگر view یکی از نماهای داخلی PDF است آن را تنظیم می‌کنیم
+    if (view === 'chat' || view === 'notes' || view === 'pdf' || view === 'transcript' || view === 'dual') {
+      setCurrentView(view);
+      return;
+    }
+    
+    // در غیر این صورت، به صفحات دیگر هدایت می‌کنیم
     switch (view) {
       case 'home':
         navigate('/studyhub');
-        break;
-      case 'chat':
-        navigate('/studyhub/resources/chat');
         break;
       case 'quiz':
         navigate('/studyhub/quiz');
@@ -33,6 +40,9 @@ export const PDFPage = () => {
         break;
       case 'matchgame':
         navigate('/studyhub/matchgame');
+        break;
+      case 'teach':
+        navigate('/studyhub/teach');
         break;
       default:
         break;
@@ -62,7 +72,12 @@ export const PDFPage = () => {
         </div>
       </header>
       <main className="pt-16">
-        <PDFContent currentView="pdf" resourceId={resourceId || ''} displayName={displayName} />
+        <PDFContent 
+          currentView={currentView} 
+          resourceId={resourceId || ''} 
+          displayName={displayName} 
+          onViewChange={handleViewChange}
+        />
       </main>
     </div>
   );

@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const GEMINI_API_KEY = "AIzaSyD4_v-Qvhix5_6lmm74DL3jFrsPnimsIbc";
+const GEMINI_API_KEY = "AIzaSyAwzz-_Xf6XJYGbmC9Se_KxJD6h7LDIw2g";
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 export function cleanMermaidCode(responseText: string): string {
@@ -42,12 +42,12 @@ export function cleanMermaidCode(responseText: string): string {
 export async function generateMermaidCode(inputText: string): Promise<string | null> {
     try {
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.0-flash",
+            model: "gemini-1.5-pro",
             generationConfig: {
                 temperature: 0.9,
                 topP: 0.95,
                 topK: 40,
-                maxOutputTokens: 8192,
+                maxOutputTokens: 4096,
             }
         });
 
