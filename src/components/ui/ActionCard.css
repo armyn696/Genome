@@ -1,0 +1,89 @@
+.action-card {
+  background-color: rgba(30, 41, 59, 0.8);
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.command-row {
+  padding: 0.75rem 1rem;
+  background-color: rgba(51, 65, 85, 0.5);
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #334155;
+}
+
+.prompt {
+  color: #94a3b8;
+  margin-right: 0.5rem;
+  font-family: monospace;
+}
+
+.command {
+  color: #e2e8f0;
+  font-family: monospace;
+  word-break: break-all;
+  text-align: right;
+  flex: 1;
+}
+
+.prompt-row {
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.prompt-text {
+  color: #e2e8f0;
+  font-size: 0.875rem;
+}
+
+.buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.accept-button, .reject-button {
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.accept-button {
+  background-color: #6366f1;
+  color: white;
+  border: none;
+}
+
+.accept-button:hover {
+  background-color: #4f46e5;
+}
+
+.reject-button {
+  background-color: transparent;
+  color: #e2e8f0;
+  border: 1px solid #475569;
+}
+
+.reject-button:hover {
+  background-color: rgba(71, 85, 105, 0.2);
+}
+
+.copy-button {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: 0.5rem;
+}
+
+.copy-button:hover {
+  color: #e2e8f0;
+} 
