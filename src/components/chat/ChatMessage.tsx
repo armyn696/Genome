@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import ReactMarkdown from 'react-markdown';
 import { User, Bot, Camera } from 'lucide-react';
 import { createPortal } from 'react-dom';
+import ActionCard from '@/components/ui/ActionCard';
 
 // مودال برای نمایش تصویر در اندازه بزرگ
 export const ImageModal: React.FC<{ isOpen: boolean; onClose: () => void; imageSrc: string }> = ({ 
@@ -290,9 +291,23 @@ interface ChatMessageProps {
   image?: string;
   audio?: string;
   fontSize?: number;
+  isActionCard?: boolean;
+  command?: string;
+  onAccept?: () => void;
+  onReject?: () => void;
 }
 
-export const ChatMessage = ({ text, sender, image, audio, fontSize = 0.85 }: ChatMessageProps) => {
+export const ChatMessage = ({ 
+  text, 
+  sender, 
+  image, 
+  audio, 
+  fontSize = 0.85, 
+  isActionCard = false,
+  command = '',
+  onAccept = () => {},
+  onReject = () => {}
+}: ChatMessageProps) => {
   // state برای مدیریت وضعیت مودال تصویر
   const [imageModalOpen, setImageModalOpen] = useState(false);
 
@@ -301,6 +316,28 @@ export const ChatMessage = ({ text, sender, image, audio, fontSize = 0.85 }: Cha
     ...persianStyle,
     fontSize: `${fontSize}rem`,
   };
+
+  // اگر یک ActionCard است و فرستنده AI است
+  if (isActionCard && sender === 'ai') {
+    return (
+      <div
+        className={cn(
+          "flex w-full items-start gap-2 my-2",
+          "justify-end"
+        )}
+      >
+        <ActionCard
+          command={command}
+          onAccept={onAccept}
+          onReject={onReject}
+        />
+        
+        <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
+          <Bot className="h-5 w-5 text-muted-foreground" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

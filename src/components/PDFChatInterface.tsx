@@ -272,25 +272,16 @@ export const PDFChatInterface = ({ resourceId, drawingImage, screenshotImage }: 
         ) : (
           <div className="space-y-2">
             {messages.map((msg, index) => (
-              msg.isActionCard ? (
-                <div key={index} className="flex items-center justify-end space-x-2 text-muted-foreground my-2">
-                  <div className="bg-muted rounded-lg max-w-[80%] flex items-center -mt-0.5">
-                    <ActionCard
-                      command={msg.command || ''}
-                      onAccept={() => handleAcceptCommand(msg.command || '')}
-                      onReject={handleRejectCommand}
-                    />
-                  </div>
-                  <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Bot className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                </div>
-              ) : (
-                <ChatMessage key={index} {...msg} fontSize={fontSize} />
-              )
+              <ChatMessage 
+                key={index} 
+                {...msg} 
+                fontSize={fontSize}
+                onAccept={msg.isActionCard ? () => handleAcceptCommand(msg.command || '') : undefined}
+                onReject={msg.isActionCard ? handleRejectCommand : undefined}
+              />
             ))}
             {isLoading && (
-              <div className="flex items-center justify-end space-x-2 text-muted-foreground">
+              <div className="flex items-center justify-end space-x-2 text-muted-foreground my-2">
                 <div className="bg-muted rounded-lg px-4 py-2 max-w-[80%] flex items-center -mt-0.5 rtl text-right">
                   <div className="flex items-center space-x-2 rtl:space-x-reverse">
                     <div className="animate-bounce">●</div>
