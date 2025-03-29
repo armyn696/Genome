@@ -11,12 +11,15 @@ import { ChatWelcome } from './chat/ChatWelcome';
 import { extractTextFromPdf, generatePdfResponse, getCachedPdfText, cachePdfText } from '@/services/pdfChatService';
 import { retrievePdf } from '@/utils/pdfStorage';
 import { toast } from "sonner";
+import ActionCard from './ui/ActionCard';
 
 interface Message {
   text: string;
   sender: 'user' | 'ai';
   image?: string;
   audio?: string;
+  isActionCard?: boolean;
+  command?: string;
 }
 
 interface PDFChatInterfaceProps {
@@ -100,51 +103,32 @@ export const PDFChatInterface = ({ resourceId, drawingImage, screenshotImage }: 
   }, [resourceId]);
 
   const handleSendMessage = async (text: string) => {
-    if ((!text.trim() && draftImages.length === 0) || isLoading) return;
-
-    // اگر پیش‌نویس تصویر داریم، آن را با متن ارسال می‌کنیم
+    if (text.trim() === '') return;
+    
+    // بررسی آیا پیام تصویری یا صوتی است
     if (draftImages.length > 0) {
-      // اگر چندین تصویر وجود دارد، هر کدام را در یک پیام جداگانه ارسال می‌کنیم
-      const newMessages: Message[] = [];
-
-      // ارسال اولین تصویر با متن
-      newMessages.push({
-        text: text,
+      const userMessage: Message = {
+        text,
         sender: 'user',
         image: draftImages[0]
-      });
-
-      // ارسال بقیه تصاویر بدون متن (اگر بیش از یک تصویر وجود داشته باشد)
-      for (let i = 1; i < draftImages.length; i++) {
-        newMessages.push({
-          text: "",
-          sender: 'user',
-          image: draftImages[i]
-        });
-      }
+      };
       
-      setMessages(prev => [...prev, ...newMessages]);
+      setMessages(prev => [...prev, userMessage]);
       setIsLoading(true);
-      
+
       try {
-        if (!pdfText) {
-          throw new Error('محتوای PDF در دسترس نیست');
-        }
-        
-        // ارسال متن و اولین تصویر به هوش مصنوعی
-        const response = await generatePdfResponse(pdfText, text, draftImages[0]);
-        
+        // در اینجا می‌توانید از یک API برای تحلیل تصویر استفاده کنید
         const aiMessage: Message = {
-          text: response,
+          text: 'سلام! تصویر شما دریافت شد. چه کمکی می‌توانم بکنم؟',
           sender: 'ai'
         };
         
         setMessages(prev => [...prev, aiMessage]);
       } catch (error) {
-        console.error('Error generating response with image:', error);
+        console.error('Error processing image:', error);
         
         const errorMessage: Message = {
-          text: `خطا در پردازش درخواست: ${error instanceof Error ? error.message : 'خطای ناشناخته'}`,
+          text: `خطا در پردازش تصویر: ${error instanceof Error ? error.message : 'خطای ناشناخته'}`,
           sender: 'ai'
         };
         
@@ -169,6 +153,23 @@ export const PDFChatInterface = ({ resourceId, drawingImage, screenshotImage }: 
     setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
     setMessage('');
+
+    // بررسی آیا "action card" درخواست شده است
+    if (text.toLowerCase().includes('action card')) {
+      // افزودن تاخیر کوتاه برای واقعی‌تر بودن تجربه کاربر
+      setTimeout(() => {
+        const aiMessage: Message = {
+          text: '',  // متن خالی برای ActionCard
+          sender: 'ai',
+          isActionCard: true,
+          command: 'npm run dev'  // دستور پیش‌فرض
+        };
+        
+        setMessages(prev => [...prev, aiMessage]);
+        setIsLoading(false);
+      }, 1000);
+      return;
+    }
 
     try {
       if (!pdfText) {
@@ -242,6 +243,18 @@ export const PDFChatInterface = ({ resourceId, drawingImage, screenshotImage }: 
     setMessages(prev => [...prev, userMessage]);
   };
 
+  // توابع مربوط به ActionCard
+  const handleAcceptCommand = (command: string) => {
+    console.log(`دستور پذیرفته شد: ${command}`);
+    toast.success(`دستور "${command}" پذیرفته شد`);
+    // اینجا می‌توانید دستور را اجرا کنید
+  };
+
+  const handleRejectCommand = () => {
+    console.log('دستور رد شد');
+    toast.info('دستور رد شد');
+  };
+
   return (
     <div className="flex flex-col h-full">
       {pdfLoading && (
@@ -259,7 +272,22 @@ export const PDFChatInterface = ({ resourceId, drawingImage, screenshotImage }: 
         ) : (
           <div className="space-y-2">
             {messages.map((msg, index) => (
-              <ChatMessage key={index} {...msg} fontSize={fontSize} />
+              msg.isActionCard ? (
+                <div key={index} className="flex items-center justify-end space-x-2 text-muted-foreground my-2">
+                  <div className="bg-muted rounded-lg max-w-[80%] flex items-center -mt-0.5">
+                    <ActionCard
+                      command={msg.command || ''}
+                      onAccept={() => handleAcceptCommand(msg.command || '')}
+                      onReject={handleRejectCommand}
+                    />
+                  </div>
+                  <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Bot className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                </div>
+              ) : (
+                <ChatMessage key={index} {...msg} fontSize={fontSize} />
+              )
             ))}
             {isLoading && (
               <div className="flex items-center justify-end space-x-2 text-muted-foreground">
