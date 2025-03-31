@@ -42,7 +42,7 @@ export function cleanMermaidCode(responseText: string): string {
 export async function generateMermaidCode(inputText: string): Promise<string | null> {
     try {
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-pro",
+            model: "gemini-2.0-flash",
             generationConfig: {
                 temperature: 0.9,
                 topP: 0.95,

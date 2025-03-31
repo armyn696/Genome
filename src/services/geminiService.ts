@@ -389,7 +389,17 @@ export const extractTextFromImage = async (imageFile: File): Promise<string> => 
 
                     const result = await model.generateContent([
                         {
-                            text: "لطفاً تمام متن را از این تصویر استخراج کن. فقط متن را برگردان، بدون هیچ توضیح اضافی."
+                            text: `لطفاً تمام متن را از این تصویر به صورت حرفه‌ای و کاملاً خوانا استخراج کن. به این نکات توجه کن:
+
+1. ساختار متن را دقیقاً حفظ کن (پاراگراف‌ها، فاصله بین خطوط، لیست‌ها)
+2. اگر جدول وجود دارد، آن را با ساختار مناسب بازسازی کن
+3. بخش‌های مختلف متن را با یک خط فاصله از هم جدا کن
+4. فرمول‌ها و نمادهای علمی را به درستی تشخیص بده
+5. متن بخش‌های پررنگ، خط‌دار یا مهم را دقیق نشان بده
+6. همه کاراکترها را به درستی تشخیص بده، حتی کاراکترهای خاص و غیر انگلیسی
+7. خطاهای تایپی و کلمات‌نامفهوم را با [؟] مشخص کن
+
+فقط متن را برگردان، بدون هیچ توضیح اضافی یا مقدمه. لطفاً بهترین متن OCR ممکن را ارائه بده.`
                         },
                         {
                             inlineData: {
@@ -443,7 +453,7 @@ export const extractTextFromPdfWithOCR = async (pdfUrl: string, onProgress?: (pr
         const BATCH_SIZE = 5; // تعداد صفحات در هر دسته
         const DELAY_BETWEEN_PAGES = 3000; // تاخیر بین هر صفحه (3 ثانیه)
         const DELAY_BETWEEN_BATCHES = 10000; // تاخیر بین هر دسته (10 ثانیه)
-        const MAX_RETRIES = 3; // حداکثر تعداد تلاش‌های مجدد
+        const MAX_RETRIES = 5; // افزایش تعداد تلاش‌های مجدد از 3 به 5
         
         // تعداد کل صفحات
         const totalPages = pdf.numPages;
@@ -470,7 +480,8 @@ export const extractTextFromPdfWithOCR = async (pdfUrl: string, onProgress?: (pr
                 while (!success && retryCount <= MAX_RETRIES) {
                     try {
                         const page = await pdf.getPage(i);
-                        const viewport = page.getViewport({ scale: 2.0 }); // مقیاس بالاتر برای وضوح بهتر OCR
+                        // افزایش مقیاس برای وضوح بهتر (از 2.0 به 2.5)
+                        const viewport = page.getViewport({ scale: 2.5 });
                         
                         // ایجاد canvas برای رندر صفحه
                         const canvas = document.createElement('canvas');
@@ -482,18 +493,19 @@ export const extractTextFromPdfWithOCR = async (pdfUrl: string, onProgress?: (pr
                             throw new Error('خطا در ایجاد context کانواس');
                         }
                         
-                        // رندر صفحه به canvas
+                        // رندر صفحه به canvas با کیفیت بالا
                         await page.render({
                             canvasContext: context,
-                            viewport: viewport
+                            viewport: viewport,
+                            intent: 'print' // برای کیفیت بالاتر 
                         }).promise;
                         
-                        // تبدیل canvas به blob
+                        // تبدیل canvas به blob با کیفیت بالا
                         const imageBlob = await new Promise<Blob>((resolve) => {
                             canvas.toBlob((blob) => {
                                 if (blob) resolve(blob);
                                 else throw new Error('خطا در تبدیل canvas به blob');
-                            }, 'image/png');
+                            }, 'image/png', 1.0); // کیفیت 100%
                         });
                         
                         // تبدیل blob به فایل
@@ -545,8 +557,17 @@ export const extractTextFromPdfWithOCR = async (pdfUrl: string, onProgress?: (pr
             onProgress(100);
         }
         
+        // پردازش نهایی متن برای بهبود کیفیت
+        const processedText = fullText
+            // حذف خطوط تکراری
+            .replace(/(.+)\n\1+/g, '$1\n')
+            // تصحیح فاصله‌های اضافی
+            .replace(/ {2,}/g, ' ')
+            // تصحیح خطوط خالی اضافی
+            .replace(/\n{3,}/g, '\n\n');
+        
         console.log('PDF OCR processing completed');
-        return fullText;
+        return processedText;
     } catch (error) {
         console.error('Error performing OCR on PDF:', error);
         throw new Error(`خطا در OCR سند PDF: ${error instanceof Error ? error.message : 'خطای ناشناخته'}`);

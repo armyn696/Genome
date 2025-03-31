@@ -12,6 +12,28 @@ import { extractTextFromPdf, generatePdfResponse, getCachedPdfText, cachePdfText
 import { retrievePdf } from '@/utils/pdfStorage';
 import { toast } from "sonner";
 import ActionCard from './ui/ActionCard';
+import { getOcrTextFromSupabase } from '@/services/ocrStorageService';
+import { getHighlightsFromAI, isHighlightRequest } from '@/services/highlightService';
+import { v4 as uuid } from 'uuid';
+
+// تابع کمکی برای تشخیص درخواست‌های مربوط به صفحه خاص
+const isPageRequest = (text: string): number | null => {
+  // الگوهای مختلف درخواست صفحه
+  const patterns = [
+    /(?:صفحه|page)\s+(\d+)/i,                                // صفحه 5، page 5
+    /(?:صفحه|page)\s+(\d+)\s+(?:را)?(?:\s+بهم)?\s+(?:بگو|بده)/i,  // صفحه 5 را بهم بگو، صفحه 5 بده
+    /(?:برو|برویم|برگرد)(?:\s+به)?\s+(?:صفحه|page)\s+(\d+)/i      // برو به صفحه 5، برگرد صفحه ۳
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match && match[1]) {
+      return parseInt(match[1], 10);
+    }
+  }
+
+  return null;
+};
 
 interface Message {
   text: string;
@@ -26,9 +48,18 @@ interface PDFChatInterfaceProps {
   resourceId: string;
   drawingImage?: string;
   screenshotImage?: string;
+  viewMode?: 'chat' | 'transcript' | 'dual';
+  initialView?: 'chat' | 'transcript' | 'dual';
+  onViewModeChange?: (mode: 'chat' | 'transcript' | 'dual') => void;
+  onHighlightsChange?: (words: Array<{text: string, type: string}>, page: number | null) => void;
 }
 
-export const PDFChatInterface = ({ resourceId, drawingImage, screenshotImage }: PDFChatInterfaceProps) => {
+export const PDFChatInterface = ({ 
+  resourceId, 
+  drawingImage, 
+  screenshotImage,
+  onHighlightsChange
+}: PDFChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -42,6 +73,11 @@ export const PDFChatInterface = ({ resourceId, drawingImage, screenshotImage }: 
   const [draftImages, setDraftImages] = useState<string[]>([]);
   const [showDraft, setShowDraft] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  // برای ذخیره درخواست هایلایت فعلی
+  const [highlightRequest, setHighlightRequest] = useState<string>('');
+  const [highlightWords, setHighlightWords] = useState<Array<{text: string, type: string}>>([]);
+  const [highlightPage, setHighlightPage] = useState<number | null>(null);
 
   // اضافه کردن تصویر نقاشی به draft هر وقت که تغییر کند
   useEffect(() => {
@@ -102,6 +138,79 @@ export const PDFChatInterface = ({ resourceId, drawingImage, screenshotImage }: 
     loadPdfText();
   }, [resourceId]);
 
+  // اطلاع رسانی به کامپوننت پدر هنگام تغییر هایلایت‌ها
+  useEffect(() => {
+    if (onHighlightsChange) {
+      onHighlightsChange(highlightWords, highlightPage);
+    }
+  }, [highlightWords, highlightPage, onHighlightsChange]);
+
+  // پردازش درخواست هایلایت
+  const processHighlightRequest = async (text: string, page: number | null) => {
+    // ایجاد یک toast با ID برای اطمینان از dismiss شدن
+    const loadingToastId = toast.loading('در حال پردازش متن...');
+    
+    try {
+      console.log('Processing highlight request:', text, 'Page:', page);
+      
+      // ابتدا باید OCR text را بخوانیم
+      const ocrText = await getOcrTextFromSupabase(resourceId);
+      if (!ocrText) {
+        toast.error('محتوای transcript یافت نشد. لطفاً ابتدا فایل را OCR کنید.');
+        return false;
+      }
+      
+      // اگر شماره صفحه مشخص نشده، پیام خطا نمایش دهیم
+      if (!page) {
+        toast.error('لطفاً شماره صفحه را برای هایلایت مشخص کنید.');
+        return false;
+      }
+      
+      // استخراج متن صفحه مورد نظر
+      const pageTexts = ocrText.split(/===== صفحه \d+ =====/).filter(p => p.trim());
+      
+      // بررسی معتبر بودن شماره صفحه
+      if (page < 1 || page > pageTexts.length) {
+        toast.error(`شماره صفحه ${page} معتبر نیست. تعداد کل صفحات: ${pageTexts.length}`);
+        return false;
+      }
+      
+      // متن صفحه مورد نظر
+      const pageText = pageTexts[page - 1];
+      
+      // ارسال به Gemini API
+      console.log('Sending to Gemini API...');
+      const highlights = await getHighlightsFromAI(pageText, text);
+      console.log('Received highlights:', highlights);
+      
+      if (!highlights || highlights.length === 0) {
+        toast.warning('هیچ متنی برای هایلایت پیدا نشد.');
+        return false;
+      }
+      
+      // ذخیره هایلایت‌ها
+      setHighlightWords(highlights);
+      setHighlightPage(page);
+      
+      // اضافه کردن پیام پاسخ به چت
+      const responseMessage: Message = {
+        text: `${highlights.length} مورد در صفحه ${page} هایلایت شد.`,
+        sender: 'ai'
+      };
+      
+      setMessages(prev => [...prev, responseMessage]);
+      
+      return true;
+    } catch (error) {
+      console.error('Error processing highlight request:', error);
+      toast.error(`خطا در انجام هایلایت: ${error instanceof Error ? error.message : 'خطای ناشناخته'}`);
+      return false;
+    } finally {
+      // مطمئن شویم که toast.loading حتماً بسته می‌شود
+      toast.dismiss(loadingToastId);
+    }
+  };
+
   const handleSendMessage = async (text: string) => {
     if (text.trim() === '') return;
     
@@ -154,6 +263,37 @@ export const PDFChatInterface = ({ resourceId, drawingImage, screenshotImage }: 
     setIsLoading(true);
     setMessage('');
 
+    // بررسی درخواست هایلایت
+    const { isHighlight, pageNumber } = isHighlightRequest(text);
+    if (isHighlight) {
+      console.log('Highlight request detected!', { pageNumber });
+      
+      if (!pageNumber) {
+        const aiMessage: Message = {
+          text: 'لطفاً شماره صفحه را برای هایلایت مشخص کنید. مثال: "نکات مهم صفحه ۵ را هایلایت کن"',
+          sender: 'ai'
+        };
+        
+        setMessages(prev => [...prev, aiMessage]);
+        setIsLoading(false);
+        return;
+      }
+      
+      // ذخیره درخواست هایلایت و نمایش ActionCard
+      setHighlightRequest(text);
+      
+      const aiMessage: Message = {
+        text: '',
+        sender: 'ai',
+        isActionCard: true,
+        command: `هایلایت: ${text}`
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+      setIsLoading(false);
+      return;
+    }
+
     // بررسی آیا "action card" درخواست شده است
     if (text.toLowerCase().includes('action card')) {
       // افزودن تاخیر کوتاه برای واقعی‌تر بودن تجربه کاربر
@@ -168,6 +308,112 @@ export const PDFChatInterface = ({ resourceId, drawingImage, screenshotImage }: 
         setMessages(prev => [...prev, aiMessage]);
         setIsLoading(false);
       }, 1000);
+      return;
+    }
+    
+    // بررسی درخواست‌های مربوط به transcript
+    const transcriptPageRegex = /(?:transcript|ترنسکریپت)(?:\s+(?:صفحه|page))?\s+(\d+)|(?:صفحه|page)\s+(\d+)(?:\s+(?:را)?(?:\s+بهم)?(?:\s+بگو)?)?\s+(?:transcript|ترنسکریپت)/i;
+    const transcriptMatch = text.match(transcriptPageRegex);
+    
+    // اضافه کردن تشخیص برای حالت‌های دیگر درخواست ترنسکریپت به فارسی
+    const isFarsiTranscriptRequest = /صفحه.*(?:ترنسکریپت|transcript)|(?:متن|محتوا).*(?:ترنسکریپت|transcript)|(?:ترنسکریپت|transcript).*(?:متن|محتوا)/i.test(text);
+    const isSimplePageRequest = isPageRequest(text);
+    
+    console.log('Request analysis:', { 
+      text, 
+      transcriptMatch, 
+      isFarsiTranscriptRequest,
+      isSimplePageRequest,
+      hasTranscriptWord: text.toLowerCase().includes('transcript') || text.includes('ترنسکریپت')
+    });
+    
+    const isTranscriptRequest = transcriptMatch || 
+                               isFarsiTranscriptRequest || 
+                               text.toLowerCase().includes('transcript') || 
+                               text.includes('ترنسکریپت') ||
+                               isSimplePageRequest !== null;
+    
+    if (isTranscriptRequest) {
+      try {
+        console.log('Processing transcript request');
+        // بارگیری متن OCR شده از سرور
+        const ocrText = await getOcrTextFromSupabase(resourceId);
+        console.log('Loaded OCR text:', !!ocrText);
+        
+        if (!ocrText) {
+          const noTranscriptMessage: Message = {
+            text: "متأسفانه هنوز ترنسکریپتی برای این فایل ایجاد نشده است. لطفاً ابتدا از طریق منوی 'Transcript' فایل را OCR کنید.",
+            sender: 'ai'
+          };
+          setMessages(prev => [...prev, noTranscriptMessage]);
+          setIsLoading(false);
+          return;
+        }
+        
+        // تقسیم متن به صفحات
+        const pageTexts = ocrText.split(/===== صفحه \d+ =====/).filter(page => page.trim());
+        console.log(`Found ${pageTexts.length} transcript pages`);
+        
+        let pageNumber = -1;
+        
+        // اگر شماره صفحه مشخص شده است - با پشتیبانی از الگوهای مختلف
+        if (transcriptMatch) {
+          // پیدا کردن شماره صفحه از گروه‌های منظم
+          pageNumber = parseInt(transcriptMatch[1] || transcriptMatch[2], 10);
+          console.log(`Extracted page number from transcript regex: ${pageNumber}`);
+        } else if (isSimplePageRequest !== null) {
+          // استفاده از نتیجه تابع isPageRequest
+          pageNumber = isSimplePageRequest;
+          console.log(`Extracted page number from simple page request: ${pageNumber}`);
+        } else {
+          // برای تشخیص شماره صفحه در متن‌های فارسی دیگر
+          const pageNumberMatch = text.match(/صفحه\s*(\d+)/i);
+          if (pageNumberMatch && pageNumberMatch[1]) {
+            pageNumber = parseInt(pageNumberMatch[1], 10);
+            console.log(`Extracted page number from farsi text: ${pageNumber}`);
+          }
+        }
+        
+        // اگر شماره صفحه پیدا شد و معتبر است
+        if (pageNumber > 0 && pageNumber <= pageTexts.length) {
+          // نمایش ActionCard برای درخواست ترنسکریپت
+          const aiMessage: Message = {
+            text: '',
+            sender: 'ai',
+            isActionCard: true,
+            command: `ترنسکریپت: صفحه ${pageNumber}`
+          };
+          
+          setMessages(prev => [...prev, aiMessage]);
+          // تنظیم درخواست ترنسکریپت برای استفاده در هنگام تأیید
+          setHighlightRequest(text);
+        } else if (pageNumber > 0) {
+          // شماره صفحه خارج از محدوده است
+          const errorMessage: Message = {
+            text: `خطا: صفحه ${pageNumber} خارج از محدوده است. این فایل دارای ${pageTexts.length} صفحه است.`,
+            sender: 'ai'
+          };
+          
+          setMessages(prev => [...prev, errorMessage]);
+        } else {
+          // اگر فقط کلمه transcript درخواست شده، اطلاعات کلی را برگردان
+          const infoMessage: Message = {
+            text: `این فایل دارای ${pageTexts.length} صفحه ترنسکریپت است. برای مشاهده متن هر صفحه، عبارت "transcript صفحه X" یا "صفحه X را ترنسکریپت بگو" یا حتی فقط "صفحه X" را وارد کنید (به جای X شماره صفحه را بنویسید).`,
+            sender: 'ai'
+          };
+          
+          setMessages(prev => [...prev, infoMessage]);
+        }
+      } catch (error) {
+        console.error('Error fetching transcript:', error);
+        const errorMessage: Message = {
+          text: `خطا در بازیابی ترنسکریپت: ${error instanceof Error ? error.message : 'خطای ناشناخته'}`,
+          sender: 'ai'
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      } finally {
+        setIsLoading(false);
+      }
       return;
     }
 
@@ -244,14 +490,103 @@ export const PDFChatInterface = ({ resourceId, drawingImage, screenshotImage }: 
   };
 
   // توابع مربوط به ActionCard
-  const handleAcceptCommand = (command: string) => {
+  const handleAcceptCommand = async (command: string) => {
     console.log(`دستور پذیرفته شد: ${command}`);
-    toast.success(`دستور "${command}" پذیرفته شد`);
-    // اینجا می‌توانید دستور را اجرا کنید
+    
+    // بررسی آیا دستور از نوع هایلایت است
+    if (command.startsWith('هایلایت:')) {
+      // استخراج متن درخواست هایلایت
+      const userQuery = highlightRequest || command.replace('هایلایت:', '').trim();
+      
+      // استخراج شماره صفحه از متن
+      const { pageNumber } = isHighlightRequest(userQuery);
+      
+      if (pageNumber) {
+        // اعلام به کاربر که در حال پردازش هستیم
+        const toastId = toast.loading('در حال پردازش درخواست هایلایت...');
+        setIsLoading(true);
+        
+        try {
+          // پردازش درخواست هایلایت
+          const success = await processHighlightRequest(userQuery, pageNumber);
+          
+          if (success) {
+            toast.success('متن با موفقیت هایلایت شد');
+          }
+        } catch (error) {
+          console.error('Error processing highlight:', error);
+          toast.error(`خطا در هایلایت متن: ${error instanceof Error ? error.message : 'خطای ناشناخته'}`);
+        } finally {
+          // مطمئن شویم که toast.loading حتماً بسته می‌شود
+          toast.dismiss(toastId);
+          setIsLoading(false);
+        }
+      } else {
+        toast.error('شماره صفحه برای هایلایت مشخص نشده است');
+      }
+    } 
+    // بررسی آیا دستور از نوع ترنسکریپت است
+    else if (command.startsWith('ترنسکریپت:')) {
+      // استخراج شماره صفحه از دستور
+      const pageMatch = command.match(/صفحه\s*(\d+)/i);
+      if (pageMatch && pageMatch[1]) {
+        const pageNumber = parseInt(pageMatch[1], 10);
+        setIsLoading(true);
+        
+        try {
+          // بارگیری متن OCR شده از سرور
+          const ocrText = await getOcrTextFromSupabase(resourceId);
+          
+          if (!ocrText) {
+            toast.error('محتوای transcript یافت نشد.');
+            setIsLoading(false);
+            return;
+          }
+          
+          // تقسیم متن به صفحات
+          const pageTexts = ocrText.split(/===== صفحه \d+ =====/).filter(page => page.trim());
+          
+          // بررسی اعتبار شماره صفحه
+          if (pageNumber > 0 && pageNumber <= pageTexts.length) {
+            const pageContent = pageTexts[pageNumber - 1].trim();
+            
+            // تنظیم صفحه ترنسکریپت
+            setHighlightPage(pageNumber);
+            // پاک کردن هایلایت‌های قبلی
+            setHighlightWords([]);
+            
+            // ارسال پاسخ به کاربر
+            const responseMessage: Message = {
+              text: `## ترنسکریپت صفحه ${pageNumber}:\n\n${pageContent}`,
+              sender: 'ai'
+            };
+            
+            setMessages(prev => [...prev, responseMessage]);
+            toast.success(`ترنسکریپت صفحه ${pageNumber} با موفقیت نمایش داده شد`);
+          } else {
+            toast.error(`شماره صفحه ${pageNumber} خارج از محدوده است. این فایل دارای ${pageTexts.length} صفحه است.`);
+          }
+        } catch (error) {
+          console.error('Error fetching transcript:', error);
+          toast.error(`خطا در بازیابی ترنسکریپت: ${error instanceof Error ? error.message : 'خطای ناشناخته'}`);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        toast.error('شماره صفحه برای ترنسکریپت مشخص نشده است');
+      }
+    }
+    else {
+      toast.success(`دستور "${command}" پذیرفته شد`);
+    }
   };
 
   const handleRejectCommand = () => {
     console.log('دستور رد شد');
+    // پاک کردن هایلایت‌ها اگر درخواست هایلایت رد شده است
+    if (highlightRequest) {
+      setHighlightRequest('');
+    }
     toast.info('دستور رد شد');
   };
 

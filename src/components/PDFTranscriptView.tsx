@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { extractTextFromPdfWithOCR } from '@/services/geminiService';
 import { retrievePdf } from '@/utils/pdfStorage';
-import { LucideLoader2, RefreshCw, Edit, Save, X } from 'lucide-react';
+import { LucideLoader2, RefreshCw, Edit, Save, X, Search, HighlighterIcon } from 'lucide-react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useToast } from '@/components/ui/use-toast';
 import { Progress } from "@/components/ui/progress";
@@ -11,9 +11,15 @@ import { saveOcrTextToSupabase, getOcrTextFromSupabase, updatePageTextInSupabase
 
 interface PDFTranscriptViewProps {
   resourceId: string;
+  highlightWords?: Array<{text: string, type: string}>;
+  currentHighlightPage?: number;
 }
 
-export const PDFTranscriptView: React.FC<PDFTranscriptViewProps> = ({ resourceId }) => {
+export const PDFTranscriptView: React.FC<PDFTranscriptViewProps> = ({ 
+  resourceId,
+  highlightWords = [],
+  currentHighlightPage
+}) => {
   const [ocrText, setOcrText] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -23,6 +29,7 @@ export const PDFTranscriptView: React.FC<PDFTranscriptViewProps> = ({ resourceId
   const [editedText, setEditedText] = useState("");
   const { toast } = useToast();
   const editTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // بارگذاری متن OCR شده از Supabase هنگام mount کامپوننت
   useEffect(() => {
@@ -33,8 +40,17 @@ export const PDFTranscriptView: React.FC<PDFTranscriptViewProps> = ({ resourceId
           const savedText = await getOcrTextFromSupabase(resourceId);
           if (savedText) {
             setOcrText(savedText);
-            // جدا کردن متن به صفحات
-            const pageTexts = savedText.split(/===== صفحه \d+ =====/).filter(page => page.trim());
+            // جدا کردن متن به صفحات - از رشته استفاده می‌کنیم به جای regex
+            const pageSeparator = "===== صفحه ";
+            const pageTexts = savedText.split(pageSeparator)
+              .slice(1) // حذف بخش اول که خالی است
+              .map(text => {
+                // جدا کردن شماره صفحه از متن
+                const pageEndIndex = text.indexOf("=====") + 5;
+                return text.substring(pageEndIndex).trim();
+              })
+              .filter(text => text.length > 0);
+              
             setPages(pageTexts);
             console.log(`Loaded OCR text for resource ${resourceId}: ${pageTexts.length} pages`);
           } else {
@@ -56,6 +72,13 @@ export const PDFTranscriptView: React.FC<PDFTranscriptViewProps> = ({ resourceId
     loadOcrText();
   }, [resourceId, toast]);
 
+  // اگر صفحه هایلایت تغییر کرد، به آن صفحه برویم
+  useEffect(() => {
+    if (currentHighlightPage && currentHighlightPage > 0 && currentHighlightPage <= pages.length) {
+      setCurrentPage(currentHighlightPage);
+    }
+  }, [currentHighlightPage, pages.length]);
+
   // انجام OCR برای PDF و ذخیره در Supabase
   const performOcr = async () => {
     try {
@@ -68,7 +91,7 @@ export const PDFTranscriptView: React.FC<PDFTranscriptViewProps> = ({ resourceId
       });
 
       // بازیابی URL فایل PDF
-      const pdfUrl = await retrievePdf(resourceId);
+      const pdfUrl = await retrievePdf(resourceId, '');
       if (!pdfUrl) {
         throw new Error("فایل PDF یافت نشد");
       }
@@ -82,8 +105,17 @@ export const PDFTranscriptView: React.FC<PDFTranscriptViewProps> = ({ resourceId
       await saveOcrTextToSupabase(resourceId, extractedText);
       setOcrText(extractedText);
       
-      // جدا کردن متن به صفحات
-      const pageTexts = extractedText.split(/===== صفحه \d+ =====/).filter(page => page.trim());
+      // جدا کردن متن به صفحات - از رشته استفاده می‌کنیم به جای regex
+      const pageSeparator = "===== صفحه ";
+      const pageTexts = extractedText.split(pageSeparator)
+        .slice(1) // حذف بخش اول که خالی است
+        .map(text => {
+          // جدا کردن شماره صفحه از متن
+          const pageEndIndex = text.indexOf("=====") + 5;
+          return text.substring(pageEndIndex).trim();
+        })
+        .filter(text => text.length > 0);
+        
       setPages(pageTexts);
       
       toast({
@@ -103,35 +135,39 @@ export const PDFTranscriptView: React.FC<PDFTranscriptViewProps> = ({ resourceId
     }
   };
 
+  // شروع عملیات ویرایش متن
+  const startEditing = () => {
+    if (!isEditing && pages.length > 0) {
+      setEditedText(pages[currentPage - 1]);
+      setIsEditing(true);
+      
+      // فوکوس روی تکست‌اریا پس از رندر
+      setTimeout(() => {
+        if (editTextareaRef.current) {
+          editTextareaRef.current.focus();
+        }
+      }, 100);
+    }
+  };
+
+  // لغو عملیات ویرایش
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setEditedText("");
+  };
+
   // تغییر صفحه فعلی
   const handlePageChange = (pageNumber: number) => {
+    if (pageNumber < 1 || pageNumber > pages.length) return;
+    
+    // اگر در حال ویرایش هستیم، ویرایش را لغو می‌کنیم
     if (isEditing) {
-      // اگر در حال ویرایش هستیم، هشدار بدهیم
-      if (window.confirm('تغییرات ذخیره نشده‌اند. آیا می‌خواهید بدون ذخیره از این صفحه خارج شوید؟')) {
-        setIsEditing(false);
-      } else {
-        return;
-      }
+      const shouldContinue = window.confirm("تغییرات ذخیره نشده‌اند. آیا مطمئن هستید که می‌خواهید صفحه را تغییر دهید؟");
+      if (!shouldContinue) return;
+      cancelEditing();
     }
     
     setCurrentPage(pageNumber);
-  };
-
-  // شروع ویرایش متن صفحه
-  const startEditing = () => {
-    setEditedText(pages[currentPage - 1]);
-    setIsEditing(true);
-    // تمرکز بر روی textarea بعد از رندر
-    setTimeout(() => {
-      if (editTextareaRef.current) {
-        editTextareaRef.current.focus();
-      }
-    }, 100);
-  };
-
-  // لغو ویرایش
-  const cancelEditing = () => {
-    setIsEditing(false);
   };
 
   // ذخیره متن ویرایش شده
@@ -172,6 +208,161 @@ export const PDFTranscriptView: React.FC<PDFTranscriptViewProps> = ({ resourceId
     }
   };
 
+  // تابع کمکی برای هایلایت کردن متن
+  const highlightText = (text: string, wordsToHighlight: Array<{text: string, type: string}> = []) => {
+    if (!wordsToHighlight || wordsToHighlight.length === 0) return text;
+    
+    console.log('Words to highlight:', wordsToHighlight);
+    
+    // کلاس‌های هایلایت براساس نوع
+    const highlightClasses: {[key: string]: string} = {
+      'key': 'bg-red-300/40 dark:bg-red-700/30 rounded px-0.5 py-0.5', // قرمز برای قیدها و نکات کلیدی با شفافیت 40%
+      'main': 'bg-yellow-300/40 dark:bg-yellow-600/30 rounded px-0.5 py-0.5', // زرد برای ایده‌های اصلی با شفافیت 40%
+      'detail': 'bg-green-200/40 dark:bg-green-600/30 rounded px-0.5 py-0.5', // سبز برای مثال‌ها و جزئیات با شفافیت 40%
+    };
+    
+    // مرتب کردن کلمات بر اساس طول (طولانی‌ترین اول) برای جلوگیری از هایلایت کردن بخشی از کلمات بزرگتر
+    const sortedWords = [...wordsToHighlight].sort((a, b) => b.text.length - a.text.length);
+    
+    // پیش‌پردازش متن اصلی برای حفظ خط‌های جدید در regex
+    const newlineMarker = "___NEWLINE___";
+    const textWithMarkers = text.replace(/\n/g, newlineMarker);
+    let resultHtml = textWithMarkers;
+    
+    // هایلایت کردن هر عبارت با توجه به انواع مختلف الگوها
+    for (const word of sortedWords) {
+      if (!word || !word.text || word.text.trim() === '') continue;
+      
+      try {
+        // عبارت تمیز شده
+        const cleanPhrase = word.text.trim();
+        
+        // انتخاب کلاس هایلایت براساس نوع عبارت
+        const highlightClass = highlightClasses[word.type] || highlightClasses['main']; // استفاده از زرد به عنوان رنگ پیش‌فرض
+        
+        // استراتژی 1: تطبیق دقیق عبارت (با escape کردن کاراکترهای خاص)
+        const escapedPhrase = cleanPhrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+                                        .replace(/\n/g, newlineMarker);
+        
+        // ساخت regex با حالت‌های مختلف برای افزایش احتمال تطبیق
+        const exactRegex = new RegExp(`(${escapedPhrase})`, 'g');
+        const caseInsensitiveRegex = new RegExp(`(${escapedPhrase})`, 'gi');
+        
+        // بررسی اگر عبارت دقیق وجود دارد
+        if (resultHtml.match(exactRegex)) {
+          resultHtml = resultHtml.replace(
+            exactRegex,
+            `<span class="${highlightClass}">$1</span>`
+          );
+          continue;
+        }
+        
+        // اگر مطابقت دقیق نبود، تلاش با حالت case-insensitive
+        if (resultHtml.match(caseInsensitiveRegex)) {
+          resultHtml = resultHtml.replace(
+            caseInsensitiveRegex,
+            `<span class="${highlightClass}">$1</span>`
+          );
+          continue;
+        }
+        
+        // استراتژی 2: برای عبارات چند کلمه‌ای، پشتیبانی از فاصله‌های انعطاف‌پذیر
+        if (cleanPhrase.includes(' ')) {
+          const words = cleanPhrase.split(' ').filter(w => w.trim() !== '');
+          if (words.length > 1) {
+            // ایجاد الگوی regex برای کلمات با فاصله‌های انعطاف‌پذیر
+            const escapedWords = words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+            const flexPattern = escapedWords.join('\\s+');
+            const flexRegex = new RegExp(`(${flexPattern})`, 'gi');
+            
+            if (resultHtml.match(flexRegex)) {
+              resultHtml = resultHtml.replace(
+                flexRegex,
+                `<span class="${highlightClass}">$1</span>`
+              );
+              continue;
+            }
+          }
+        }
+        
+        // استراتژی 3: پشتیبانی خاص برای اصطلاحات پزشکی/علمی
+        if (/[A-Za-z][0-9]|[0-9]\/[0-9]/.test(cleanPhrase)) {
+          // برای اصطلاحات مثل S2, P2, 3/6 
+          let medicalPattern = cleanPhrase
+            .replace(/([A-Za-z]+)(\s*)([0-9]+)/g, '(?:[A-Za-z]+)\\s*$3') // S2 -> S\s*2
+            .replace(/([0-9]+)(\s*)(\/|-)(\s*)([0-9]+)/g, '$1\\s*$3\\s*$5'); // 3/6 -> 3\s*\/\s*6
+            
+          const medicalRegex = new RegExp(`(${medicalPattern})`, 'gi');
+          
+          if (resultHtml.match(medicalRegex)) {
+            resultHtml = resultHtml.replace(
+              medicalRegex,
+              `<span class="${highlightClass}">$1</span>`
+            );
+            continue;
+          }
+        }
+        
+        // استراتژی 4: جستجوی فازی برای کلمات تکی
+        if (!cleanPhrase.includes(' ') && cleanPhrase.length > 2) {
+          // برای کلمات تکی، امکان وجود کاراکترهای اضافی را در نظر می‌گیریم
+          const fuzzyPattern = cleanPhrase.split('').join('\\s*');
+          const fuzzyRegex = new RegExp(`\\b(${fuzzyPattern})\\b`, 'gi');
+          
+          if (resultHtml.match(fuzzyRegex)) {
+            resultHtml = resultHtml.replace(
+              fuzzyRegex,
+              `<span class="${highlightClass}">$1</span>`
+            );
+            continue;
+          }
+        }
+        
+        // استراتژی 5: برای بخش‌های عددی، مثل ۳/۶ یا 3/6 با تبدیل اعداد فارسی/انگلیسی
+        if (/[\u06F0-\u06F9]|[0-9]/.test(cleanPhrase)) {
+          // تبدیل اعداد فارسی به انگلیسی و برعکس
+          const persianToEnglishMap: {[key: string]: string} = {
+            '۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4',
+            '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9'
+          };
+          const englishToPersianMap: {[key: string]: string} = {
+            '0': '۰', '1': '۱', '2': '۲', '3': '۳', '4': '۴',
+            '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹'
+          };
+          
+          // نسخه با اعداد تبدیل شده
+          let persianNumberPhrase = cleanPhrase.replace(/[0-9]/g, m => englishToPersianMap[m] || m);
+          let englishNumberPhrase = cleanPhrase.replace(/[\u06F0-\u06F9]/g, m => persianToEnglishMap[m] || m);
+          
+          // ایجاد regex برای هر دو حالت
+          const persianRegex = new RegExp(`(${persianNumberPhrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'g');
+          const englishRegex = new RegExp(`(${englishNumberPhrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'g');
+          
+          if (resultHtml.match(persianRegex)) {
+            resultHtml = resultHtml.replace(
+              persianRegex,
+              `<span class="${highlightClass}">$1</span>`
+            );
+            continue;
+          }
+          
+          if (resultHtml.match(englishRegex)) {
+            resultHtml = resultHtml.replace(
+              englishRegex,
+              `<span class="${highlightClass}">$1</span>`
+            );
+            continue;
+          }
+        }
+      } catch (error) {
+        console.error(`Error highlighting phrase "${word.text}":`, error);
+      }
+    }
+    
+    // بازگرداندن مارکرهای خط جدید به خطوط واقعی
+    return resultHtml.replace(new RegExp(newlineMarker, 'g'), '\n');
+  };
+
   // اگر هیچ داده OCR‌ای وجود ندارد
   if (!ocrText && !loading) {
     return (
@@ -203,42 +394,44 @@ export const PDFTranscriptView: React.FC<PDFTranscriptViewProps> = ({ resourceId
     );
   }
 
+  // نمایش رابط کاربری اصلی
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader className="flex flex-row items-center justify-between pb-3 border-b relative">
-        <CardTitle className="text-2xl font-bold text-gray-100">
-          <span>متن رونوشت (Transcript)</span>
-        </CardTitle>
-        <Button 
-          variant="outline" 
-          size="default" 
-          onClick={performOcr} 
-          disabled={loading}
-          className="flex items-center font-bold"
-        >
-          {loading ? (
-            <>
-              <LucideLoader2 className="mr-2 h-5 w-5 animate-spin" />
-              در حال OCR...
-            </>
-          ) : (
-            <>
-              <RefreshCw className="mr-2 h-5 w-5" />
-              بروزرسانی OCR
-            </>
-          )}
-        </Button>
+    <Card className="h-full flex flex-col relative">
+      <CardHeader className="border-b relative pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-xl font-bold text-gray-100">
+            <span>متن رونوشت (Transcript)</span>
+          </CardTitle>
+          
+          <div className="flex items-center gap-2">
+            {highlightWords && highlightWords.length > 0 && (
+              <div className="flex items-center gap-1">
+                <HighlighterIcon className="h-4 w-4 text-yellow-400" />
+                <span className="text-xs text-yellow-400">{highlightWords.length} مورد هایلایت</span>
+              </div>
+            )}
+            
+            <Button 
+              onClick={performOcr} 
+              disabled={loading} 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 w-8 p-0"
+            >
+              {loading ? <LucideLoader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              <span className="sr-only">به‌روزرسانی OCR</span>
+            </Button>
+          </div>
+        </div>
       </CardHeader>
       
-      {loading && (
-        <div className="px-6 py-4 relative">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-lg font-semibold text-white">OCR در حال اجرا...</span>
-            <span className="text-lg font-bold text-primary">{ocrProgress}%</span>
+      {loading && ocrProgress > 0 && (
+        <div className="px-4 py-2 bg-black/20">
+          <div className="flex justify-between items-center text-xs mb-1">
+            <span>استخراج متن با OCR...</span>
+            <span>{Math.round(ocrProgress)}%</span>
           </div>
-          <div className="relative">
-            <Progress value={ocrProgress} />
-          </div>
+          <Progress value={ocrProgress} className="h-1" />
         </div>
       )}
       
@@ -328,17 +521,18 @@ export const PDFTranscriptView: React.FC<PDFTranscriptViewProps> = ({ resourceId
                     />
                   </div>
                 ) : (
-                  <div className="relative p-5 whitespace-pre-wrap leading-relaxed text-white text-base font-medium rounded-md backdrop-blur-sm border border-gray-700 shadow-md">
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      onClick={startEditing}
-                      className="absolute top-2 right-2 h-8 w-8 p-0 opacity-50 hover:opacity-100 hover:bg-gray-800"
-                    >
-                      <Edit size={16} />
-                      <span className="sr-only">ویرایش متن</span>
-                    </Button>
-                    {pageText}
+                  <div 
+                    ref={contentRef}
+                    className="relative p-5 whitespace-pre-wrap leading-relaxed text-white text-base font-medium rounded-md backdrop-blur-sm border border-gray-700 shadow-md"
+                    dir="auto"
+                    dangerouslySetInnerHTML={{
+                      __html: 
+                        // اگر صفحه فعلی با صفحه هایلایت یکسان است، هایلایت را اعمال می‌کنیم
+                        (currentHighlightPage === index + 1 && highlightWords.length > 0) 
+                          ? highlightText(pageText, highlightWords)
+                          : pageText
+                    }}
+                  >
                   </div>
                 )}
               </TabsContent>

@@ -18,6 +18,8 @@ export const PDFContent: React.FC<PDFContentProps> = ({ currentView, resourceId,
   const [drawingImage, setDrawingImage] = useState<string | undefined>(undefined);
   // اضافه کردن state برای ذخیره تصویر اسکرین‌شات
   const [screenshotImage, setScreenshotImage] = useState<string | undefined>(undefined);
+  const [highlightWords, setHighlightWords] = useState<Array<{text: string, type: string}>>([]);
+  const [highlightPage, setHighlightPage] = useState<number | null>(null);
 
   const handleDrawingComplete = (imageData: string) => {
     console.log('Drawing completed, sending to chat...');
@@ -28,6 +30,11 @@ export const PDFContent: React.FC<PDFContentProps> = ({ currentView, resourceId,
   const handleScreenshot = (imageData: string, fileName?: string) => {
     console.log('Screenshot captured, sending to chat...', fileName || '');
     setScreenshotImage(imageData);
+  };
+
+  const handleHighlightsChange = (words: Array<{text: string, type: string}>, page: number | null) => {
+    setHighlightWords(words);
+    setHighlightPage(page);
   };
 
   switch (currentView) {
@@ -65,6 +72,7 @@ export const PDFContent: React.FC<PDFContentProps> = ({ currentView, resourceId,
                     resourceId={resourceId}
                     drawingImage={drawingImage}
                     screenshotImage={screenshotImage}
+                    onHighlightsChange={handleHighlightsChange}
                   />
                 </div>
               </ResizablePanel>
@@ -134,7 +142,11 @@ export const PDFContent: React.FC<PDFContentProps> = ({ currentView, resourceId,
                 className="h-full"
               >
                 <div className="h-full overflow-hidden">
-                  <PDFTranscriptView resourceId={resourceId} />
+                  <PDFTranscriptView 
+                    resourceId={resourceId} 
+                    highlightWords={highlightWords}
+                    currentHighlightPage={highlightPage}
+                  />
                 </div>
               </ResizablePanel>
               <ResizableHandle withHandle />
@@ -148,6 +160,7 @@ export const PDFContent: React.FC<PDFContentProps> = ({ currentView, resourceId,
                     resourceId={resourceId}
                     drawingImage={drawingImage}
                     screenshotImage={screenshotImage}
+                    onHighlightsChange={handleHighlightsChange}
                   />
                 </div>
               </ResizablePanel>

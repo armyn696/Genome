@@ -61,7 +61,7 @@ export const generatePdfResponse = async (pdfText: string, userQuestion: string,
     
     // ایجاد مدل Gemini
     const model: GenerativeModel = genAI.getGenerativeModel({
-      model: "gemini-1.5-pro",
+      model: "gemini-2.0-flash",
       generationConfig: {
         maxOutputTokens: 4096,
         temperature: 0.7,
