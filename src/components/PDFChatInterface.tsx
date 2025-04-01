@@ -12,8 +12,9 @@ import { extractTextFromPdf, generatePdfResponse, getCachedPdfText, cachePdfText
 import { retrievePdf } from '@/utils/pdfStorage';
 import { toast } from "sonner";
 import ActionCard from './ui/ActionCard';
-import { getOcrTextFromSupabase } from '@/services/ocrStorageService';
+import { getOcrTextFromSupabase, saveOcrTextToSupabase, saveHighlightsToSupabase, getHighlightsFromSupabase, HighlightsMap } from '@/services/ocrStorageService';
 import { getHighlightsFromAI, isHighlightRequest } from '@/services/highlightService';
+import { extractTextFromPdfWithOCR } from '@/services/geminiService';
 import { v4 as uuid } from 'uuid';
 
 // تابع کمکی برای تشخیص درخواست‌های مربوط به صفحه خاص
@@ -42,6 +43,7 @@ interface Message {
   audio?: string;
   isActionCard?: boolean;
   command?: string;
+  actionState?: 'pending' | 'accepted' | 'rejected';
 }
 
 interface PDFChatInterfaceProps {
@@ -69,6 +71,9 @@ export const PDFChatInterface = ({
   const [pdfLoading, setPdfLoading] = useState(false);
   const [fontSize, setFontSize] = useState(0.85);
   
+  // اضافه کردن state برای نگهداری درصد پیشرفت OCR
+  const [ocrProgress, setOcrProgress] = useState(0);
+  
   // برای نگهداری وضعیت پیش‌نویس تصاویر
   const [draftImages, setDraftImages] = useState<string[]>([]);
   const [showDraft, setShowDraft] = useState(false);
@@ -76,7 +81,13 @@ export const PDFChatInterface = ({
 
   // برای ذخیره درخواست هایلایت فعلی
   const [highlightRequest, setHighlightRequest] = useState<string>('');
-  const [highlightWords, setHighlightWords] = useState<Array<{text: string, type: string}>>([]);
+  
+  // تغییر روش ذخیره هایلایت‌ها به صورت یک آبجکت با کلید شماره صفحه
+  const [highlights, setHighlights] = useState<{
+    [page: number]: Array<{text: string, type: string}>
+  }>({});
+  
+  // صفحه فعلی هایلایت
   const [highlightPage, setHighlightPage] = useState<number | null>(null);
 
   // اضافه کردن تصویر نقاشی به draft هر وقت که تغییر کند
@@ -96,54 +107,66 @@ export const PDFChatInterface = ({
       setShowDraft(true);
     }
   }, [screenshotImage]);
-
-  // استخراج متن PDF در هنگام بارگذاری کامپوننت
+  
+  // اضافه کردن useEffect برای OCR خودکار
   useEffect(() => {
-    const loadPdfText = async () => {
+    const initializePdf = async () => {
       if (!resourceId) return;
       
+      setPdfLoading(true);
       try {
-        setPdfLoading(true);
-        
-        // ابتدا از حافظه محلی بررسی می‌کنیم
-        const cachedText = getCachedPdfText(resourceId);
-        if (cachedText) {
-          console.log('Using cached PDF text');
-          setPdfText(cachedText);
-          setPdfLoading(false);
-          return;
-        }
-        
         // دریافت URL فایل PDF
         const pdfUrl = await retrievePdf(resourceId, '');
         if (!pdfUrl) {
-          throw new Error('PDF URL not found');
+          throw new Error('فایل PDF یافت نشد');
         }
-        
+
         // استخراج متن از PDF
         const extractedText = await extractTextFromPdf(pdfUrl);
         setPdfText(extractedText);
+
+        // ذخیره متن در حافظه محلی
+        await cachePdfText(resourceId, extractedText);
+
+        // بررسی آیا متن OCR قبلاً استخراج شده است
+        const existingOcrText = await getOcrTextFromSupabase(resourceId);
+        if (existingOcrText) {
+          console.log('OCR text already exists, skipping OCR process');
+        } else {
+          // انجام OCR خودکار فقط اگر قبلاً انجام نشده باشد
+          console.log('No OCR text found, starting automatic OCR...');
+          const ocrText = await performOcr(pdfUrl, (progress) => {
+            console.log(`OCR progress: ${progress}%`);
+          });
+          if (ocrText) {
+            console.log('OCR completed successfully');
+          }
+        }
         
-        // ذخیره در حافظه محلی برای استفاده‌های بعدی
-        cachePdfText(resourceId, extractedText);
-        
+        // بارگیری هایلایت‌های ذخیره شده
+        const savedHighlights = await getHighlightsFromSupabase(resourceId);
+        if (Object.keys(savedHighlights).length > 0) {
+          console.log('Loaded highlights from Supabase:', savedHighlights);
+          setHighlights(savedHighlights);
+        }
       } catch (error) {
-        console.error('Error loading PDF text:', error);
-        toast.error('خطا در بارگذاری محتوای PDF');
+        console.error('Error initializing PDF:', error);
+        toast.error('خطا در بارگذاری PDF');
       } finally {
         setPdfLoading(false);
       }
     };
-    
-    loadPdfText();
+
+    initializePdf();
   }, [resourceId]);
 
   // اطلاع رسانی به کامپوننت پدر هنگام تغییر هایلایت‌ها
   useEffect(() => {
-    if (onHighlightsChange) {
-      onHighlightsChange(highlightWords, highlightPage);
+    if (onHighlightsChange && highlightPage !== null) {
+      const currentPageHighlights = highlights[highlightPage] || [];
+      onHighlightsChange(currentPageHighlights, highlightPage);
     }
-  }, [highlightWords, highlightPage, onHighlightsChange]);
+  }, [highlights, highlightPage, onHighlightsChange]);
 
   // پردازش درخواست هایلایت
   const processHighlightRequest = async (text: string, page: number | null) => {
@@ -166,8 +189,11 @@ export const PDFChatInterface = ({
         return false;
       }
       
-      // استخراج متن صفحه مورد نظر
-      const pageTexts = ocrText.split(/===== صفحه \d+ =====/).filter(p => p.trim());
+      // استخراج متن صفحه مورد نظر با استفاده از روش یکسان با PDFTranscriptView
+      const pageTexts = ocrText.split(/===== صفحه \d+ =====/)
+        .filter(p => p.trim().length > 0); // حذف صفحات خالی
+      
+      console.log(`Found ${pageTexts.length} transcript pages for highlighting`);
       
       // بررسی معتبر بودن شماره صفحه
       if (page < 1 || page > pageTexts.length) {
@@ -180,21 +206,38 @@ export const PDFChatInterface = ({
       
       // ارسال به Gemini API
       console.log('Sending to Gemini API...');
-      const highlights = await getHighlightsFromAI(pageText, text);
-      console.log('Received highlights:', highlights);
+      const pageHighlights = await getHighlightsFromAI(pageText, text);
+      console.log('Received highlights:', pageHighlights);
       
-      if (!highlights || highlights.length === 0) {
+      if (!pageHighlights || pageHighlights.length === 0) {
         toast.warning('هیچ متنی برای هایلایت پیدا نشد.');
         return false;
       }
       
-      // ذخیره هایلایت‌ها
-      setHighlightWords(highlights);
+      // ذخیره هایلایت‌ها برای صفحه مشخص شده
+      const updatedHighlights = {
+        ...highlights,
+        [page]: pageHighlights
+      };
+      
+      setHighlights(updatedHighlights);
+      
+      // ذخیره هایلایت‌ها در Supabase
+      await saveHighlightsToSupabase(resourceId, updatedHighlights);
+      console.log('Highlights saved to Supabase');
+      
+      // تنظیم صفحه فعلی هایلایت
       setHighlightPage(page);
+      
+      // اطلاع‌رسانی به کامپوننت والد برای نمایش هایلایت‌ها
+      if (onHighlightsChange) {
+        console.log(`Notifying parent component of ${pageHighlights.length} highlights on page ${page}`);
+        onHighlightsChange(pageHighlights, page);
+      }
       
       // اضافه کردن پیام پاسخ به چت
       const responseMessage: Message = {
-        text: `${highlights.length} مورد در صفحه ${page} هایلایت شد.`,
+        text: `${pageHighlights.length} مورد در صفحه ${page} هایلایت شد.`,
         sender: 'ai'
       };
       
@@ -350,9 +393,18 @@ export const PDFChatInterface = ({
           return;
         }
         
-        // تقسیم متن به صفحات
-        const pageTexts = ocrText.split(/===== صفحه \d+ =====/).filter(page => page.trim());
-        console.log(`Found ${pageTexts.length} transcript pages`);
+        // افزودن گزارش اشکال‌زدایی
+        console.log(`OCR text from Supabase, total length: ${ocrText.length} characters`);
+        const pageMarkers = (ocrText.match(/===== صفحه \d+ =====/g) || []);
+        console.log(`Page markers in Supabase text: ${pageMarkers.length}`);
+        console.log(`First 3 markers: ${pageMarkers.slice(0, 3).join(', ')}`);
+        console.log(`Last 3 markers: ${pageMarkers.slice(-3).join(', ')}`);
+        
+        // بهبود جداسازی صفحات با استفاده از الگوی دقیق‌تر
+        const pageTexts = ocrText.split(/===== صفحه \d+ =====/)
+          .filter(page => page.trim().length > 0); // حذف صفحات خالی
+          
+        console.log(`Found ${pageTexts.length} transcript pages after filtering empty pages`);
         
         let pageNumber = -1;
         
@@ -387,6 +439,17 @@ export const PDFChatInterface = ({
           setMessages(prev => [...prev, aiMessage]);
           // تنظیم درخواست ترنسکریپت برای استفاده در هنگام تأیید
           setHighlightRequest(text);
+          
+          // دیگر هایلایت‌ها را پاک نمی‌کنیم، فقط صفحه فعلی را تغییر می‌دهیم
+          setHighlightPage(pageNumber);
+          
+          // ارسال اطلاعات به کامپوننت والد برای نمایش صفحه transcript
+          if (onHighlightsChange) {
+            console.log(`Notifying parent component to show page ${pageNumber}`);
+            // استفاده از هایلایت‌های موجود برای صفحه مورد نظر یا آرایه خالی اگر وجود ندارد
+            const pageHighlights = highlights[pageNumber] || [];
+            onHighlightsChange(pageHighlights, pageNumber);
+          }
         } else if (pageNumber > 0) {
           // شماره صفحه خارج از محدوده است
           const errorMessage: Message = {
@@ -423,7 +486,7 @@ export const PDFChatInterface = ({
       }
       
       // استفاده از Gemini API برای پاسخگویی با توجه به محتوای PDF
-      const response = await generatePdfResponse(pdfText, text);
+      const response = await generatePdfResponse(pdfText, text, undefined, resourceId);
       
       const aiMessage: Message = {
         text: response,
@@ -493,6 +556,13 @@ export const PDFChatInterface = ({
   const handleAcceptCommand = async (command: string) => {
     console.log(`دستور پذیرفته شد: ${command}`);
     
+    // بروزرسانی وضعیت پیام مربوطه به 'accepted'
+    setMessages(prev => prev.map(msg => 
+      msg.isActionCard && msg.command === command 
+        ? { ...msg, actionState: 'accepted' as const } 
+        : msg
+    ));
+    
     // بررسی آیا دستور از نوع هایلایت است
     if (command.startsWith('هایلایت:')) {
       // استخراج متن درخواست هایلایت
@@ -543,17 +613,25 @@ export const PDFChatInterface = ({
             return;
           }
           
-          // تقسیم متن به صفحات
-          const pageTexts = ocrText.split(/===== صفحه \d+ =====/).filter(page => page.trim());
+          // تقسیم متن به صفحات با استفاده از روش یکسان
+          const pageTexts = ocrText.split(/===== صفحه \d+ =====/)
+            .filter(page => page.trim().length > 0); // حذف صفحات خالی
+          
+          console.log(`Found ${pageTexts.length} transcript pages for command ${command}`);
           
           // بررسی اعتبار شماره صفحه
           if (pageNumber > 0 && pageNumber <= pageTexts.length) {
             const pageContent = pageTexts[pageNumber - 1].trim();
             
-            // تنظیم صفحه ترنسکریپت
+            // تنظیم صفحه ترنسکریپت بدون پاک کردن هایلایت‌های قبلی
             setHighlightPage(pageNumber);
-            // پاک کردن هایلایت‌های قبلی
-            setHighlightWords([]);
+            
+            // ارسال اطلاعات به کامپوننت والد با حفظ هایلایت‌های صفحه
+            if (onHighlightsChange) {
+              console.log(`Notifying parent component to show page ${pageNumber}`);
+              const pageHighlights = highlights[pageNumber] || [];
+              onHighlightsChange(pageHighlights, pageNumber);
+            }
             
             // ارسال پاسخ به کاربر
             const responseMessage: Message = {
@@ -583,6 +661,22 @@ export const PDFChatInterface = ({
 
   const handleRejectCommand = () => {
     console.log('دستور رد شد');
+    
+    // بروزرسانی آخرین پیام اکشن کارت به 'rejected'
+    setMessages(prev => {
+      const lastActionCardIndex = [...prev].reverse().findIndex(msg => msg.isActionCard);
+      if (lastActionCardIndex >= 0) {
+        const updatedMessages = [...prev];
+        const actualIndex = prev.length - 1 - lastActionCardIndex;
+        updatedMessages[actualIndex] = { 
+          ...updatedMessages[actualIndex], 
+          actionState: 'rejected' as const 
+        };
+        return updatedMessages;
+      }
+      return prev;
+    });
+    
     // پاک کردن هایلایت‌ها اگر درخواست هایلایت رد شده است
     if (highlightRequest) {
       setHighlightRequest('');
@@ -590,13 +684,62 @@ export const PDFChatInterface = ({
     toast.info('دستور رد شد');
   };
 
+  // تابع OCR
+  const performOcr = async (pdfUrl: string, onProgress?: (progress: number) => void): Promise<string | null> => {
+    try {
+      console.log('Starting OCR process...');
+      // آپدیت تابع onProgress برای به‌روزرسانی state درصد پیشرفت
+      const ocrText = await extractTextFromPdfWithOCR(pdfUrl, (progress) => {
+        setOcrProgress(progress);
+        if (onProgress) onProgress(progress);
+      });
+      
+      if (ocrText) {
+        console.log('OCR completed successfully');
+        
+        // افزودن گزارش اشکال‌زدایی برای بررسی تعداد صفحات و ساختار متن
+        const pageSeparator = "===== صفحه ";
+        const pageMarkers = (ocrText.match(/===== صفحه \d+ =====/g) || []);
+        console.log(`Page markers found: ${pageMarkers.length}`);
+        console.log(`First 3 markers: ${pageMarkers.slice(0, 3).join(', ')}`);
+        console.log(`Last 3 markers: ${pageMarkers.slice(-3).join(', ')}`);
+        
+        // روش بهتر جداسازی صفحات
+        const pageTexts = ocrText.split(/===== صفحه \d+ =====/)
+          .filter(page => page.trim().length > 0); // حذف صفحات خالی
+        
+        console.log(`Page texts after split: ${pageTexts.length}`);
+        console.log(`OCR text total length: ${ocrText.length} characters`);
+        
+        // ذخیره متن OCR شده در Supabase
+        await saveOcrTextToSupabase(resourceId, ocrText);
+        return ocrText;
+      }
+      
+      throw new Error('خطا در انجام OCR');
+    } catch (error) {
+      console.error('Error performing OCR:', error);
+      toast.error('خطا در انجام OCR');
+      return null;
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
       {pdfLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-50">
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-4 max-w-md w-full p-6 rounded-lg bg-background shadow-lg">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="text-sm text-muted-foreground">در حال استخراج متن از PDF...</span>
+            <div className="w-full" dir="rtl" style={{ direction: 'rtl', textAlign: 'right' }}>
+              <div className="text-sm text-muted-foreground mb-2 font-medium">در حال استخراج متن از PDF...</div>
+              <div className="w-full bg-muted rounded-full h-2.5 mb-1">
+                <div 
+                  className="bg-primary h-2.5 rounded-full transition-all duration-300" 
+                  style={{ width: `${ocrProgress}%` }}
+                ></div>
+              </div>
+              <div className="text-xs text-muted-foreground">تکمیل شده {ocrProgress}%</div>
+            </div>
           </div>
         </div>
       )}

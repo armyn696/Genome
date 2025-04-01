@@ -12,14 +12,14 @@ export const PDFPage = () => {
   const navigate = useNavigate();
   const { resources, addResource, deleteResource } = useResources();
   // اضافه کردن state برای مدیریت نمای فعلی
-  const [currentView, setCurrentView] = useState<'chat' | 'notes' | 'pdf' | 'transcript' | 'dual'>('pdf');
+  const [currentView, setCurrentView] = useState<'chat' | 'notes' | 'pdf' | 'transcript' | 'jozveh' | 'dual'>('pdf');
 
   const resource = resources.find(r => r.id === resourceId);
   const displayName = resource?.name || '';
 
-  const handleViewChange = (view: 'home' | 'chat' | 'notes' | 'pdf' | 'transcript' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame' | 'teach') => {
+  const handleViewChange = (view: 'home' | 'chat' | 'notes' | 'pdf' | 'transcript' | 'jozveh' | 'dual' | 'quiz' | 'flashcards' | 'mindmap' | 'matchgame' | 'teach') => {
     // اگر view یکی از نماهای داخلی PDF است آن را تنظیم می‌کنیم
-    if (view === 'chat' || view === 'notes' || view === 'pdf' || view === 'transcript' || view === 'dual') {
+    if (view === 'chat' || view === 'notes' || view === 'pdf' || view === 'transcript' || view === 'jozveh' || view === 'dual') {
       setCurrentView(view);
       return;
     }

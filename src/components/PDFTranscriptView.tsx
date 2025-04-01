@@ -13,12 +13,14 @@ interface PDFTranscriptViewProps {
   resourceId: string;
   highlightWords?: Array<{text: string, type: string}>;
   currentHighlightPage?: number;
+  viewType?: 'transcript' | 'jozveh';
 }
 
 export const PDFTranscriptView: React.FC<PDFTranscriptViewProps> = ({ 
   resourceId,
   highlightWords = [],
-  currentHighlightPage
+  currentHighlightPage,
+  viewType = 'transcript'
 }) => {
   const [ocrText, setOcrText] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
@@ -27,6 +29,7 @@ export const PDFTranscriptView: React.FC<PDFTranscriptViewProps> = ({
   const [ocrProgress, setOcrProgress] = useState<number>(0);
   const [isEditing, setIsEditing] = useState(false);
   const [editedText, setEditedText] = useState("");
+  const [pageHighlights, setPageHighlights] = useState<{[page: number]: Array<{text: string, type: string}>}>({});
   const { toast } = useToast();
   const editTextareaRef = useRef<HTMLTextAreaElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -40,16 +43,34 @@ export const PDFTranscriptView: React.FC<PDFTranscriptViewProps> = ({
           const savedText = await getOcrTextFromSupabase(resourceId);
           if (savedText) {
             setOcrText(savedText);
-            // جدا کردن متن به صفحات - از رشته استفاده می‌کنیم به جای regex
-            const pageSeparator = "===== صفحه ";
-            const pageTexts = savedText.split(pageSeparator)
-              .slice(1) // حذف بخش اول که خالی است
-              .map(text => {
-                // جدا کردن شماره صفحه از متن
-                const pageEndIndex = text.indexOf("=====") + 5;
-                return text.substring(pageEndIndex).trim();
-              })
-              .filter(text => text.length > 0);
+            
+            // اضافه کردن گزارش اشکال‌زدایی
+            const pageMarkers = (savedText.match(/===== صفحه \d+ =====/g) || []);
+            console.log(`Page markers in loaded OCR text: ${pageMarkers.length}`);
+            console.log(`Markers: ${pageMarkers.slice(0, 3).join(', ')}...${pageMarkers.slice(-3).join(', ')}`);
+            
+            // بهبود جداسازی صفحات برای جلوگیری از گم شدن صفحات
+            const pageTexts = savedText.split(/===== صفحه \d+ =====/)
+              .filter(page => page.trim().length > 0); // حذف صفحات خالی
+              
+            console.log(`After split: found ${pageTexts.length} pages with content`);
+            
+            // اگر تعداد صفحات با تعداد نشانگرها مطابقت ندارد، گزارش دهید
+            if (pageTexts.length !== pageMarkers.length) {
+              console.warn(`Warning: Page count mismatch! Markers: ${pageMarkers.length}, Content pages: ${pageTexts.length}`);
+              
+              // در صورتی که صفحات گم شده باشند، گزارش جزئیات بیشتر
+              if (pageTexts.length < pageMarkers.length) {
+                const firstPagesSample = pageTexts.slice(0, 2).map(p => p.substring(0, 50).trim());
+                console.log(`First pages sample: ${JSON.stringify(firstPagesSample)}`);
+                
+                // بررسی صفحات خالی
+                const allSplitPages = savedText.split(/===== صفحه \d+ =====/);
+                const emptyPages = allSplitPages.map((p, i) => ({ index: i, isEmpty: p.trim().length === 0 }))
+                  .filter(p => p.isEmpty);
+                console.log(`Empty pages at indices: ${emptyPages.map(p => p.index).join(', ')}`);
+              }
+            }
               
             setPages(pageTexts);
             console.log(`Loaded OCR text for resource ${resourceId}: ${pageTexts.length} pages`);
@@ -79,6 +100,17 @@ export const PDFTranscriptView: React.FC<PDFTranscriptViewProps> = ({
     }
   }, [currentHighlightPage, pages.length]);
 
+  // به‌روزرسانی هایلایت‌های دریافتی
+  useEffect(() => {
+    if (currentHighlightPage && highlightWords.length > 0) {
+      console.log(`Received highlights for page ${currentHighlightPage}:`, highlightWords);
+      setPageHighlights(prev => ({
+        ...prev,
+        [currentHighlightPage]: highlightWords
+      }));
+    }
+  }, [highlightWords, currentHighlightPage]);
+
   // انجام OCR برای PDF و ذخیره در Supabase
   const performOcr = async () => {
     try {
@@ -101,20 +133,20 @@ export const PDFTranscriptView: React.FC<PDFTranscriptViewProps> = ({
         setOcrProgress(progress);
       });
       
+      // اضافه کردن گزارش اشکال‌زدایی
+      const pageMarkers = (extractedText.match(/===== صفحه \d+ =====/g) || []);
+      console.log(`Page markers in new OCR text: ${pageMarkers.length}`);
+      console.log(`First/last markers: ${pageMarkers.slice(0, 3).join(', ')}...${pageMarkers.slice(-3).join(', ')}`);
+      
       // ذخیره متن OCR شده در Supabase
       await saveOcrTextToSupabase(resourceId, extractedText);
       setOcrText(extractedText);
       
-      // جدا کردن متن به صفحات - از رشته استفاده می‌کنیم به جای regex
-      const pageSeparator = "===== صفحه ";
-      const pageTexts = extractedText.split(pageSeparator)
-        .slice(1) // حذف بخش اول که خالی است
-        .map(text => {
-          // جدا کردن شماره صفحه از متن
-          const pageEndIndex = text.indexOf("=====") + 5;
-          return text.substring(pageEndIndex).trim();
-        })
-        .filter(text => text.length > 0);
+      // بهبود جداسازی صفحات
+      const pageTexts = extractedText.split(/===== صفحه \d+ =====/)
+        .filter(page => page.trim().length > 0); // حذف صفحات خالی
+        
+      console.log(`Page texts after split: ${pageTexts.length}`);
         
       setPages(pageTexts);
       
@@ -369,7 +401,11 @@ export const PDFTranscriptView: React.FC<PDFTranscriptViewProps> = ({
       <Card className="h-full flex flex-col">
         <CardHeader className="border-b relative">
           <CardTitle className="text-2xl font-bold text-gray-100">
-            <span>متن رونوشت (Transcript)</span>
+            <span>
+              {viewType === 'jozveh' 
+                ? 'جزوه (Jozveh)'
+                : 'متن رونوشت (Transcript)'}
+            </span>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col items-center justify-center">
@@ -400,7 +436,11 @@ export const PDFTranscriptView: React.FC<PDFTranscriptViewProps> = ({
       <CardHeader className="border-b relative pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl font-bold text-gray-100">
-            <span>متن رونوشت (Transcript)</span>
+            <span>
+              {viewType === 'jozveh' 
+                ? 'جزوه (Jozveh)'
+                : 'متن رونوشت (Transcript)'}
+            </span>
           </CardTitle>
           
           <div className="flex items-center gap-2">
@@ -527,9 +567,9 @@ export const PDFTranscriptView: React.FC<PDFTranscriptViewProps> = ({
                     dir="auto"
                     dangerouslySetInnerHTML={{
                       __html: 
-                        // اگر صفحه فعلی با صفحه هایلایت یکسان است، هایلایت را اعمال می‌کنیم
-                        (currentHighlightPage === index + 1 && highlightWords.length > 0) 
-                          ? highlightText(pageText, highlightWords)
+                        // استفاده از حافظه داخلی برای نمایش هایلایت‌های هر صفحه
+                        pageHighlights[index + 1] && pageHighlights[index + 1].length > 0
+                          ? highlightText(pageText, pageHighlights[index + 1])
                           : pageText
                     }}
                   >

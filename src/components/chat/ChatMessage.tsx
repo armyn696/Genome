@@ -293,6 +293,7 @@ interface ChatMessageProps {
   fontSize?: number;
   isActionCard?: boolean;
   command?: string;
+  actionState?: 'pending' | 'accepted' | 'rejected';
   onAccept?: () => void;
   onReject?: () => void;
 }
@@ -305,6 +306,7 @@ export const ChatMessage = ({
   fontSize = 0.85, 
   isActionCard = false,
   command = '',
+  actionState = 'pending',
   onAccept = () => {},
   onReject = () => {}
 }: ChatMessageProps) => {
@@ -330,6 +332,7 @@ export const ChatMessage = ({
           command={command}
           onAccept={onAccept}
           onReject={onReject}
+          status={actionState}
         />
         
         <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">

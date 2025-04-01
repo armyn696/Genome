@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI, GenerativeModel, GenerationConfig } from "@google/generative-ai";
 import * as pdfjsLib from 'pdfjs-dist';
 import { configurePdfJs, setPdfOptions } from '@/utils/pdfConfig';
+import { getOcrTextFromSupabase } from '@/services/ocrStorageService';
 
 // تنظیم کانفیگ pdfjs
 configurePdfJs();
@@ -48,125 +49,79 @@ export const extractTextFromPdf = async (pdfUrl: string): Promise<string> => {
  * ارسال پرسش درباره محتوای PDF به Gemini و دریافت پاسخ
  * اگر عکسی نیز داده شده باشد، از قابلیت چندرسانه‌ای Gemini استفاده می‌کند
  */
-export const generatePdfResponse = async (pdfText: string, userQuestion: string, imageData?: string): Promise<string> => {
+export const generatePdfResponse = async (pdfText: string, userQuestion: string, imageData?: string, resourceId?: string): Promise<string> => {
   try {
-    console.log('Generating PDF response with Gemini', imageData ? 'with image' : 'without image');
+    // سعی در استخراج متن OCR شده اگر resourceId مشخص شده باشد
+    let textToUse = pdfText;
     
-    const generationConfig: GenerationConfig = {
-      temperature: 0.7,
-      topP: 0.8,
-      topK: 40,
-      maxOutputTokens: 2048,
-    };
-    
-    // ایجاد مدل Gemini
-    const model: GenerativeModel = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-      generationConfig: {
-        maxOutputTokens: 4096,
-        temperature: 0.7,
-        topP: 0.95,
-        topK: 40,
-      },
-    });
-
-    let result;
-    
-    // اگر تصویر داریم، از قابلیت چندرسانه‌ای استفاده می‌کنیم
-    if (imageData) {
-      console.log('Processing request with image');
-      
-      // تبدیل data URL به یک شیء محتوایی چندرسانه‌ای
-      const imageUrl = imageData; // به شکل data:image/png;base64,...
-      
-      // پرامپت برای Gemini (ترکیب متن PDF و سوال کاربر)
-      const prompt = `
-        متن PDF زیر را در نظر بگیر، تصویر ارسال شده را بررسی کن و به پرسش کاربر پاسخ بده:
-        
-        ===== متن PDF =====
-        ${pdfText.substring(0, 15000)} 
-        ${pdfText.length > 15000 ? '...(متن ادامه دارد)' : ''}
-        ===================
-        
-        پرسش: ${userQuestion}
-        
-        دستورالعمل‌ها:
-        1. به تصویر ارسال شده نگاه کن و اگر مرتبط با سوال است، آن را در پاسخ خود در نظر بگیر.
-        2. پاسخی جامع، دقیق و کامل با توجه به محتوای PDF و تصویر ارائه بده.
-        3. پاسخ را با فرمت مناسب و پاراگراف‌بندی درست ارائه کن.
-        4. از کاراکترهای ویژه مانند نقطه، ویرگول، نقطه ویرگول و علامت سوال به درستی استفاده کن.
-      `;
-      
-      try {
-        // تبدیل data URL به Blob
-        const fetchResponse = await fetch(imageUrl);
-        const blob = await fetchResponse.blob();
-        
-        // استخراج بخش base64 از data URL
-        const base64Data = imageUrl.split(',')[1];
-        
-        // ایجاد درخواست با متن و تصویر
-        result = await model.generateContent([
-          { text: prompt },
-          {
-            inlineData: {
-              mimeType: blob.type,
-              data: base64Data
-            }
-          }
-        ]);
-      } catch (error) {
-        console.error('Error processing image for Gemini:', error);
-        throw new Error(`خطا در پردازش تصویر: ${error instanceof Error ? error.message : 'خطای ناشناخته'}`);
+    if (resourceId) {
+      console.log('Attempting to use OCR text for response generation');
+      const ocrText = await getOcrTextFromSupabase(resourceId);
+      if (ocrText) {
+        console.log('Using OCR text for response generation');
+        textToUse = ocrText;
+      } else {
+        console.log('No OCR text found, falling back to PDF extracted text');
       }
-    } else {
-      // حالت متنی معمولی (بدون تصویر)
-      // پرامپت برای Gemini (ترکیب متن PDF و سوال کاربر)
-      const prompt: string = `
-        متن PDF زیر را در نظر بگیر و به پرسش کاربر پاسخ بده:
-        
-        ===== متن PDF =====
-        ${pdfText.substring(0, 15000)} 
-        ${pdfText.length > 15000 ? '...(متن ادامه دارد)' : ''}
-        ===================
-        
-        پرسش: ${userQuestion}
-        
-        دستورالعمل‌ها:
-        1. پاسخی جامع، دقیق و کامل با توجه به محتوای PDF ارائه بده.
-        2. پاسخ را با فرمت مناسب و پاراگراف‌بندی درست ارائه کن.
-        3. از کاراکترهای ویژه مانند نقطه، ویرگول، نقطه ویرگول و علامت سوال به درستی استفاده کن.
-      `;
-      
-      result = await model.generateContent(prompt);
     }
     
-    const response = result.response;
+    // ساخت پرامپت براساس سوال کاربر و متن PDF
+    const prompt = `
+متن زیر از یک PDF استخراج شده است. لطفاً به سؤال کاربر با توجه به این متن پاسخ دهید.
+اگر پاسخ سؤال در متن وجود ندارد، صادقانه بگویید "نمی‌توانم پاسخ این سؤال را در سند پیدا کنم".
+لطفاً فقط از اطلاعات موجود در متن استفاده کنید و اطلاعات خارجی اضافه نکنید.
+
+متن PDF:
+${textToUse}
+
+سؤال کاربر: ${userQuestion}
+
+پاسخ به کاربر با توجه به متن PDF:
+`;
+
+    // انتخاب مدل مناسب براساس اینکه آیا تصویر داریم یا خیر
+    let response;
     
-    if (response && response.text()) {
-      // پردازش و فرمت‌دهی پاسخ
-      let formattedResponse = response.text()
-        // اطمینان از اینکه پاراگراف‌ها به درستی جدا شده‌اند
-        .replace(/\n\s*\n/g, '\n\n')
-        // تبدیل شماره‌گذاری‌های ساده به فرمت بهتر
-        .replace(/^(\d+)\.\s+/gm, '$1. ')
-        // تبدیل موارد گلوله‌ای ساده به فرمت بهتر
-        .replace(/^[-*]\s+/gm, '• ')
-        // اطمینان از فاصله مناسب بعد از نقطه
-        .replace(/\.([A-Za-zآ-ی])/g, '. $1')
-        // اطمینان از فضای مناسب بین عنوان‌ها و محتوا
-        .replace(/^(#+)\s*(.+)$/gm, '\n$1 $2\n');
+    if (imageData) {
+      // استفاده از مدل vision
+      const visionModel = genAI.getGenerativeModel({ 
+        model: "gemini-2.0-flash",
+        generationConfig: {
+          temperature: 0.2,
+          topP: 0.8,
+          topK: 40,
+          maxOutputTokens: 2000,
+        }
+      });
       
-      // اطمینان از اینکه پاسخ با پاراگراف خالی شروع نمی‌شود
-      formattedResponse = formattedResponse.trim();
+      const imageParts = [{
+        inlineData: {
+          data: imageData.split(",")[1],
+          mimeType: "image/jpeg"
+        }
+      }];
       
-      return formattedResponse;
+      response = await visionModel.generateContent([prompt, ...imageParts]);
     } else {
-      throw new Error("پاسخی از مدل دریافت نشد");
+      // استفاده از مدل متنی استاندارد
+      const textModel = genAI.getGenerativeModel({ 
+        model: "gemini-2.0-flash",
+        generationConfig: {
+          temperature: 0.2,
+          topP: 0.8,
+          topK: 40,
+          maxOutputTokens: 2000,
+        }
+      });
+      
+      response = await textModel.generateContent(prompt);
     }
+    
+    const result = response.response.text();
+    return result;
   } catch (error) {
-    console.error('Error generating PDF response with Gemini:', error);
-    throw new Error(`خطا در پاسخگویی به سوال: ${error instanceof Error ? error.message : 'خطای ناشناخته'}`);
+    console.error("Error generating response:", error);
+    throw new Error(`خطا در تولید پاسخ: ${error instanceof Error ? error.message : 'خطای ناشناخته'}`);
   }
 };
 

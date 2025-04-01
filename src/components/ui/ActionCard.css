@@ -41,7 +41,7 @@
 }
 
 .copy-button:hover {
-  color: #ffffff;
+  color: #e2e8f0;
 }
 
 .prompt-row {
@@ -94,4 +94,29 @@
 
 .reject-button:hover {
   color: #ffffff;
+}
+
+/* استایل برای حالت‌های مختلف اکشن کارت */
+.action-card-accepted {
+  border-color: #10b981; /* رنگ سبز - موفقیت */
+}
+
+.action-card-rejected {
+  border-color: #ef4444; /* رنگ قرمز - رد شده */
+}
+
+.status-text {
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-weight: 500;
+  padding: 0.25rem 0;
+}
+
+.success-text {
+  color: #10b981;
+}
+
+.reject-text {
+  color: #ef4444;
 }

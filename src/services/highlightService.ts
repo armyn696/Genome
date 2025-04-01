@@ -132,7 +132,69 @@ ${normalizedText}
       // بررسی کنید که پاسخ خالی نباشد
       if (!responseText || responseText.trim() === '') {
         console.error('Received empty response from Gemini API');
-        return [{ text: "خطا: پاسخی از سرور دریافت نشد", type: "key" }];
+        
+        // تلاش مجدد با پرامپت ساده‌تر
+        try {
+          console.log('Retrying with simpler prompt...');
+          // تنظیم متن کوتاه‌تر برای کاهش پیچیدگی
+          const shorterText = normalizedText.length > 1500 ? normalizedText.substring(0, 1500) + "..." : normalizedText;
+          
+          const simplifiedPrompt = `
+لطفاً عبارات مهم زیر را استخراج کنید و در قالب JSON برگردانید:
+
+متن: """
+${shorterText}
+"""
+
+درخواست: ${userQuery}
+
+فقط آرایه JSON با این فرمت برگردانید:
+[
+  {"text": "عبارت اول", "type": "key"},
+  {"text": "عبارت دوم", "type": "main"},
+  {"text": "عبارت سوم", "type": "detail"}
+]
+`;
+          
+          const retryResult = await withTimeout(
+            model.generateContent(simplifiedPrompt),
+            API_TIMEOUT_MS,
+            'زمان پاسخگویی Gemini API در تلاش مجدد به پایان رسید.'
+          );
+          
+          const retryResponse = retryResult.response.text();
+          console.log('Retry response from Gemini:', retryResponse);
+          
+          if (retryResponse && retryResponse.trim() !== '') {
+            // استفاده از پاسخ تلاش مجدد
+            try {
+              // تمیزکردن پاسخ و پیدا کردن آرایه JSON
+              const jsonMatch = retryResponse.match(/\[\s*{[\s\S]*}\s*\]/);
+              if (jsonMatch) {
+                const jsonArray = JSON.parse(jsonMatch[0]);
+                // استخراج و بررسی آیتم‌های معتبر
+                const validItems = jsonArray.filter((item: any) => 
+                  item && 
+                  typeof item.text === 'string' && 
+                  item.text.trim().length > 0 &&
+                  typeof item.type === 'string'
+                );
+                
+                if (validItems.length > 0) {
+                  console.log('Successfully extracted highlights from retry response');
+                  return validItems;
+                }
+              }
+            } catch (retryParseError) {
+              console.error('Error parsing retry response:', retryParseError);
+            }
+          }
+        } catch (retryError) {
+          console.error('API retry failed:', retryError);
+        }
+        
+        // اگر همه راه‌ها شکست خورد، حداقل چند هایلایت ساده برگردان
+        return createFallbackHighlights(normalizedText);
       }
       
       // استخراج آرایه JSON از پاسخ با محافظت بیشتر
@@ -287,4 +349,61 @@ export const createHighlightAction = (text: string): { command: string } => {
   return {
     command: `هایلایت: ${text}`
   };
+};
+
+// اگر همه راه‌ها شکست خورد، حداقل چند هایلایت ساده برگردان
+const createFallbackHighlights = (text: string) => {
+  // تلاش برای استخراج برخی عبارات مهم از متن با روش‌های ساده
+  const sentences = text.split(/[.!?؟،,]\s+/).filter(s => s.trim().length > 0);
+  
+  // انتخاب چند جمله اول به عنوان هایلایت‌های پیش‌فرض
+  const fallbacks: {text: string, type: string}[] = [];
+  
+  // جمله اول به عنوان موضوع اصلی
+  if (sentences.length > 0) {
+    const firstSentence = sentences[0].trim();
+    if (firstSentence.length > 5 && firstSentence.length < 150) {
+      fallbacks.push({ text: firstSentence, type: "main" });
+    }
+  }
+  
+  // یافتن عبارات که شامل کلمات کلیدی هستند
+  const keywordPatterns = [
+    /مهم(?:ترین)?/, /(?:اصلی|کلیدی)/, /باید/, /نکته/, /توجه/,
+    /همیشه/, /هرگز/, /ضروری/, /لازم/, /باید/, /قطعا/
+  ];
+  
+  // بررسی متن برای یافتن عبارات شامل کلمات کلیدی
+  for (const sentence of sentences) {
+    if (fallbacks.length >= 5) break; // حداکثر 5 هایلایت
+    
+    for (const pattern of keywordPatterns) {
+      if (pattern.test(sentence) && sentence.length < 200) {
+        fallbacks.push({ text: sentence.trim(), type: "key" });
+        break;
+      }
+    }
+  }
+  
+  // افزودن برخی جملات به عنوان جزئیات
+  for (let i = 1; i < Math.min(sentences.length, 5); i++) {
+    if (fallbacks.length >= 5) break;
+    
+    const sentence = sentences[i].trim();
+    if (sentence.length > 10 && sentence.length < 200 && 
+        !fallbacks.some(item => item.text === sentence)) {
+      fallbacks.push({ text: sentence, type: "detail" });
+    }
+  }
+  
+  // اگر هیچ هایلایتی پیدا نشد، هایلایت‌های پیش‌فرض برگردان
+  if (fallbacks.length === 0) {
+    return [
+      { text: "متن مهم صفحه", type: "key" },
+      { text: "موضوع اصلی", type: "main" },
+      { text: "اطلاعات تکمیلی", type: "detail" }
+    ];
+  }
+  
+  return fallbacks;
 }; 
